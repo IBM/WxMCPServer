@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Values version="2.0">
+  <value name="enabled">yes</value>
+  <value name="system_package">no</value>
+  <value name="version">1.0.5</value>
+  <record name="startup_services" javaclass="com.wm.util.Values">
+    <null name="wx.mcp.server.services.cachemanager:createCacheManager"/>
+    <null name="wx.mcp.server.services.cache:createCaches"/>
+  </record>
+  <record name="shutdown_services" javaclass="com.wm.util.Values">
+    <null name="wx.mcp.server.services.cache:deleteCaches"/>
+    <null name="wx.mcp.server.services.cachemanager:deleteCacheManager"/>
+  </record>
+  <null name="replication_services"/>
+  <null name="requires"/>
+  <value name="listACL">Default</value>
+  <value name="webappLoad">yes</value>
+  <value name="reloadWithDependentPackage">yes</value>
+  <value name="build"></value>
+  <value name="description">This package implements a Model Context Protocol Server (MCP) based on webMethods utilizing OpenAPI 3.x specifications as MCP tools.
+It requires a Portal Client API (specification found in resources folder)</value>
+  <value name="created_date">12-05-2025 19:01:34 MESZ</value>
+  <array name="extendedProperties" type="record" depth="1">
+    <record javaclass="com.wm.util.Values">
+      <value name="key">displayName</value>
+      <value name="value"></value>
+    </record>
+    <record javaclass="com.wm.util.Values">
+      <value name="key">trusted</value>
+      <value name="value">no</value>
+    </record>
+    <record javaclass="com.wm.util.Values">
+      <value name="key">status</value>
+      <value name="value">Development</value>
+    </record>
+    <record javaclass="com.wm.util.Values">
+      <value name="key">tags</value>
+      <value name="value"></value>
+    </record>
+  </array>
+  <null name="target_server_version"/>
+</Values>

@@ -1,0 +1,198 @@
+openapi: 3.0.3
+info:
+  title: WxMCP-Server-API
+  version: "1.1.0"
+  description: |
+    WxMCP-Server-API provides endpoints for managing MCP operations and handling secrets.
+servers:
+  - url: https://api.example.com
+paths:
+  /mcp:
+    post:
+      summary: MCP Operation
+      description: |
+        Initiates an MCP operation using either API Key or OAuth2 authentication.
+        All parameters are passed as HTTP headers.
+        The request and response follow the JSON-RPC 2.0 structure.
+      parameters:
+        - name: auth_type
+          in: header
+          required: true
+          schema:
+            type: string
+            enum: [API_KEY, OAUTH]
+          description: The authentication method to use.
+        - name: tool_header_prefix
+          in: header
+          required: true
+          schema:
+            type: string
+          description: The prefix added to header properties in the input schema of the tool. Default is set to "header_"
+        - name: tool_query_prefix
+          in: header
+          required: true
+          schema:
+            type: string
+          description: The prefix added to query properties in the input schema of the tool. Default is set to "query_"
+        - name: tool_path_prefix
+          in: header
+          required: true
+          schema:
+            type: string
+          description: The prefix added to path parameter properties in the input schema of the tool. Default is set to "path_"
+        - name: portal_client_base_url
+          in: header
+          required: true
+          schema:
+            type: string
+            format: uri
+          description: Base URL for the portal client API on API Gateway.
+        - name: api_key_headername
+          in: header
+          required: false
+          schema:
+            type: string
+          description: HTTP header name for the API Key (required if auth_type is API_KEY).
+        - name: api_key
+          in: header
+          required: false
+          schema:
+            type: string
+          description: The API Key value (required if auth_type is API_KEY).
+        - name: oauth_bearer_token
+          in: header
+          required: false
+          schema:
+            type: string
+          description: Bearer token for OAuth2 authentication (required if auth_type is OAUTH).
+        - name: oauth_token_url
+          in: header
+          required: false
+          schema:
+            type: string
+            format: uri
+          description: Token URL for the Identity Provider (required if auth_type is OAUTH).
+        - name: oauth_client_id
+          in: header
+          required: false
+          schema:
+            type: string
+          description: OAuth2 client identifier (required if auth_type is OAUTH).
+        - name: oauth_audience
+          in: header
+          required: false
+          schema:
+            type: string
+          description: Audience value for OAuth2 (required if auth_type is OAUTH).
+        - name: oauth_scopes
+          in: header
+          required: false
+          schema:
+            type: string
+          description: White-space separated list of OAuth2 scopes (required if auth_type is OAUTH).
+        - name: oauth_granttype
+          in: header
+          required: false
+          schema:
+            type: string
+            enum: [client_credentials, authorization_code]
+          description: OAuth2 grant type (required if auth_type is OAUTH).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JsonRpcRequest'
+            example:
+              jsonrpc: "2.0"
+              id: 1
+              method: "doSomething"
+              params:
+                key: value
+      responses:
+        '200':
+          description: Successful MCP operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JsonRpcResponse'
+              examples:
+                success:
+                  summary: Example JSON-RPC 2.0 response
+                  value:
+                    jsonrpc: "2.0"
+                    id: 2
+                    result:
+                      status: "ok"
+                      data: {}
+        '400':
+          description: Invalid request parameters
+        '401':
+          description: Unauthorized
+  /secret:
+    post:
+      summary: Store or Process Secret
+      description: |
+        Accepts a secret and returns status information.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SecretRequest'
+            example:
+              secret: mysecret
+      responses:
+        '200':
+          description: Secret processed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SecretResponse'
+        '400':
+          description: Invalid request
+components:
+  schemas:
+    JsonRpcRequest:
+      type: object
+      required: [jsonrpc, id, method, params]
+      properties:
+        jsonrpc:
+          type: string
+          enum: ["2.0"]
+          description: JSON-RPC protocol version.
+        id:
+          type: integer
+          description: Request identifier.
+        method:
+          type: string
+          description: Name of the method to be invoked.
+        params:
+          type: object
+    JsonRpcResponse:
+      type: object
+      required: [jsonrpc, id, result]
+      properties:
+        jsonrpc:
+          type: string
+          enum: ["2.0"]
+          description: JSON-RPC protocol version.
+        id:
+          type: integer
+          description: Response identifier.
+        result:
+          type: object
+        error:
+          type: object
+    SecretRequest:
+      type: object
+      properties:
+        secret:
+          type: string
+      required:
+        - secret
+    SecretResponse:
+      type: object
+      properties:
+        status:
+          type: string

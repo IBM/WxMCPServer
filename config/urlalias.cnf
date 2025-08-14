@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Values version="2.0">
+  <record name="v1/tools" javaclass="com.wm.util.Values">
+    <value name="urlPath">invoke/wx.mcp.server.services.tools/listTools</value>
+    <record name="portMap" javaclass="com.wm.util.Values">
+    </record>
+  </record>
+  <record name="v1/add_numbers" javaclass="com.wm.util.Values">
+    <value name="urlPath">invoke/wx.mcp.server.services/add</value>
+    <record name="portMap" javaclass="com.wm.util.Values">
+    </record>
+  </record>
+  <record name="api/v1/mcp/sse" javaclass="com.wm.util.Values">
+    <value name="urlPath">invoke/wx.mcp.server.services/mcpProxy</value>
+    <record name="portMap" javaclass="com.wm.util.Values">
+    </record>
+  </record>
+  <record name="v1/mcp" javaclass="com.wm.util.Values">
+    <value name="urlPath">rad/wx.mcp.server.api:WxMCPServer/mcp</value>
+    <record name="portMap" javaclass="com.wm.util.Values">
+    </record>
+  </record>
+</Values>
