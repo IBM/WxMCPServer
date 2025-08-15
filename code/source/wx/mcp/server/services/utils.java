@@ -192,14 +192,25 @@ public final class utils
 		                    if (resolvedBody.has("required")) {
 		                        cleanedBody.put("required", resolvedBody.getJSONArray("required"));
 		                    }
+		                    
+		                    if (cleanedBody.has("properties")) {
+		                        JSONObject props = cleanedBody.getJSONObject("properties");
+		                        JSONArray requiredArr = cleanedBody.optJSONArray("required");
 		
-		                    // *** NEW: If Accounts property exists and required[] is missing,
-		                    //           set it as required by default to match OpenAPI spec
-		                    if (cleanedBody.has("properties") && cleanedBody.getJSONObject("properties").has("Accounts")) {
-		                        if (!cleanedBody.has("required")) {
-		                            cleanedBody.put("required", new JSONArray().put("Accounts"));
-		                        } else if (!cleanedBody.getJSONArray("required").toList().contains("Accounts")) {
-		                            cleanedBody.getJSONArray("required").put("Accounts");
+		                        if (requiredArr == null) {
+		                            requiredArr = new JSONArray();
+		                            for (String propName : props.keySet()) {
+		                                requiredArr.put(propName);
+		                            }
+		                            cleanedBody.put("required", requiredArr);
+		                        } else {
+		                            // Ensure all properties marked required in OpenAPI remain
+		                            // and optionally add any missing ones
+		                            for (String propName : props.keySet()) {
+		                                if (!requiredArr.toList().contains(propName)) {
+		                                    requiredArr.put(propName);
+		                                }
+		                            }
 		                        }
 		                    }
 		
@@ -221,9 +232,11 @@ public final class utils
 		
 		
 		
-		            // --- Output schema ---
+		         // --- Output schema ---
 		            JSONObject outputSchema = new JSONObject();
-		            JSONObject responses = op.getJSONObject("responses");
+		            JSONObject responses = op.getJSONObject("responses");  // <-- This must stay
+		            boolean foundJsonResponse = false;
+		
 		            for (String status : responses.keySet()) {
 		                JSONObject resp = responses.getJSONObject(status);
 		                if (resp.has("content")) {
@@ -232,22 +245,23 @@ public final class utils
 		                        JSONObject schema = contentObj
 		                                .getJSONObject("application/json")
 		                                .getJSONObject("schema");
-		
 		                        JSONObject originalSchema = cleanSchema(resolveSchema(schema, components));
-		
-		                        // Always wrap in result:{...}
 		                        JSONObject wrappedOutputSchema = new JSONObject();
 		                        wrappedOutputSchema.put("type", "object");
-		
 		                        JSONObject props = new JSONObject();
 		                        props.put("result", originalSchema);
 		                        wrappedOutputSchema.put("properties", props);
 		                        wrappedOutputSchema.put("required", new JSONArray().put("result"));
-		
 		                        outputSchema = wrappedOutputSchema;
+		                        foundJsonResponse = true;
 		                        break;
 		                    }
 		                }
+		            }
+		
+		            if (!foundJsonResponse) {
+		                outputSchema.put("type", "object");
+		                outputSchema.put("properties", new JSONObject());
 		            }
 		
 		            // --- Build tool object ---
@@ -644,20 +658,21 @@ public final class utils
 		// [o] object:0:required hasValue
 		// pipeline
 		IDataCursor pipelineCursor = pipeline.getCursor();
-		String[]	theList = IDataUtil.getStringArray( pipelineCursor, "theList" );
-		String	theValue = IDataUtil.getString( pipelineCursor, "theValue" );
+		String[] theList = IDataUtil.getStringArray(pipelineCursor, "theList");
+		String theValue = IDataUtil.getString(pipelineCursor, "theValue");
+		
 		boolean _bool = false;
 		
-		if (theList == null || theValue == null) {
-			_bool = false;
-		}
-		for (String s : theList) {
-		    if (theValue.equals(s)) {
-		    	_bool = true;
+		if (theList != null && theValue != null) {
+		    for (String s : theList) {
+		        if (theValue.equals(s)) {  // theValue is guaranteed non-null here
+		            _bool = true;
+		            break; // can stop early
+		        }
 		    }
 		}
-		Boolean hasValue = new Boolean(_bool);
-		IDataUtil.put( pipelineCursor, "hasValue", hasValue );
+		
+		IDataUtil.put(pipelineCursor, "hasValue", Boolean.valueOf(_bool));
 		pipelineCursor.destroy();
 		// --- <<IS-END>> ---
 

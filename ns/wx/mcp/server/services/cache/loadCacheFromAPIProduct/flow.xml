@@ -2405,6 +2405,10 @@
 
   <!-- nodes -->
 
+<INVOKE TIMEOUT="" SERVICE="pub.flow:tracePipeline" VALIDATE-IN="$none" VALIDATE-OUT="$none">
+  <COMMENT></COMMENT>
+</INVOKE>
+
 <INVOKE TIMEOUT="" SERVICE="wx.mcp.server.services.utils:listHasValue" VALIDATE-IN="$none" VALIDATE-OUT="$none">
   <COMMENT></COMMENT>
 
