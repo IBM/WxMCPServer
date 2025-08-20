@@ -1,0 +1,141 @@
+<policies>
+    <inbound>
+        <base />
+        <choose>
+            <when condition="@(context.Request.Url.Path.ToLower().Contains("/productinfo"))">
+                <!-- Step 2: Call Subscription Details API -->
+                <send-request mode="new" response-variable-name="subscriptionResponse" timeout="20" ignore-error="false">
+                    <set-url>@($"https://management.azure.com/subscriptions/{context.Variables["azureSubscriptionId"]}/resourceGroups/{context.Variables["resourceGroup"]}/providers/Microsoft.ApiManagement/service/{context.Variables["serviceName"]}/subscriptions/{context.Subscription.Id}?api-version=2021-08-01")</set-url>
+                    <set-method>GET</set-method>
+                    <set-header name="Authorization" exists-action="override">
+                        <value>@($"Bearer {context.Variables["accessToken"]}")</value>
+                    </set-header>
+                    <set-header name="Accept" exists-action="override">
+                        <value>application/json</value>
+                    </set-header>
+                    <set-header name="Content-Type" exists-action="override">
+                        <value>application/json</value>
+                    </set-header>
+                </send-request>
+                <set-variable name="subscriptionBody" value="@(
+    context.Variables.ContainsKey("subscriptionResponse") && context.Variables["subscriptionResponse"] != null && 
+    ((IResponse)context.Variables["subscriptionResponse"]).StatusCode == 200 
+    ? ((IResponse)context.Variables["subscriptionResponse"]).Body.As<string>() 
+    : string.Empty)" />
+                <!-- Step 3: Extract productId from subscription scope -->
+                <set-variable name="productId" value="@{
+    var subscriptionBody = context.Variables.GetValueOrDefault<string>("subscriptionBody") ?? "{}";
+    var json = Newtonsoft.Json.Linq.JObject.Parse(subscriptionBody);
+    var scope = json.SelectToken("properties.scope")?.ToString() ?? "";
+    if (string.IsNullOrEmpty(scope))
+    {
+        return "";
+    }
+    // The productId is the last segment in the scope path, split by '/'
+    var segments = scope.Split('/');
+    return segments.Length > 0 ? segments[segments.Length - 1] : "";
+}" />
+                <!-- Step 4: Call Product Details API -->
+                <send-request mode="new" response-variable-name="productResponse" timeout="20" ignore-error="false">
+                    <set-url>@($"https://management.azure.com/subscriptions/{context.Variables["azureSubscriptionId"]}/resourceGroups/{context.Variables["resourceGroup"]}/providers/Microsoft.ApiManagement/service/{context.Variables["serviceName"]}/products/{context.Variables["productId"]}?api-version=2024-05-01")</set-url>
+                    <set-method>GET</set-method>
+                    <set-header name="Authorization" exists-action="override">
+                        <value>@($"Bearer {context.Variables["accessToken"]}")</value>
+                    </set-header>
+                    <set-header name="Accept" exists-action="override">
+                        <value>application/json</value>
+                    </set-header>
+                    <set-header name="Content-Type" exists-action="override">
+                        <value>application/json</value>
+                    </set-header>
+                </send-request>
+                <!-- Step 5: Extract product details -->
+                <set-variable name="productBody" value="@(
+    context.Variables.ContainsKey("productResponse") && context.Variables["productResponse"] != null && 
+    ((IResponse)context.Variables["productResponse"]).StatusCode == 200 
+    ? ((IResponse)context.Variables["productResponse"]).Body.As<string>() 
+    : "{}")" />
+                <!-- Step 6: Get APIs assigned to API product -->
+                <send-request mode="new" response-variable-name="productApisResponse" timeout="20" ignore-error="false">
+                    <set-url>@($"https://management.azure.com/subscriptions/{context.Variables["azureSubscriptionId"]}/resourceGroups/{context.Variables["resourceGroup"]}/providers/Microsoft.ApiManagement/service/{context.Variables["serviceName"]}/products/{context.Variables["productId"]}/apis?api-version=2024-05-01")</set-url>
+                    <set-method>GET</set-method>
+                    <set-header name="Authorization" exists-action="override">
+                        <value>@($"Bearer {context.Variables["accessToken"]}")</value>
+                    </set-header>
+                    <set-header name="Accept" exists-action="override">
+                        <value>application/json</value>
+                    </set-header>
+                    <set-header name="Content-Type" exists-action="override">
+                        <value>application/json</value>
+                    </set-header>
+                </send-request>
+                <!-- Step 7: Create API array -->
+                <set-variable name="apiIdsJson" value="@{
+    if (!context.Variables.ContainsKey("productApisResponse") || context.Variables["productApisResponse"] == null) {
+        return "[]";
+    }
+    var response = (IResponse)context.Variables["productApisResponse"];
+    if (response.StatusCode != 200) {
+        return "[]";
+    }
+    var responseBody = response.Body.As<string>();
+    var json = Newtonsoft.Json.Linq.JObject.Parse(responseBody);
+    var apis = json.SelectToken("value") as Newtonsoft.Json.Linq.JArray;
+    if (apis == null) {
+        return "[]";
+    }
+    // Extract only the last segment (API ID) from the full resource ID
+    var ids = apis
+        .Select(api => {
+            var fullId = api["id"]?.ToString() ?? "";
+            var segments = fullId.Split('/');
+            return segments.Length > 0 ? segments.Last() : "";
+        })
+        .Where(id => !string.IsNullOrEmpty(id));
+    var idList = ids.Select(id => $"\"{id}\"");
+    var jsonArray = "[" + string.Join(",", idList) + "]";
+    return jsonArray;
+}" />
+                <return-response>
+                    <set-status code="200" reason="OK" />
+                    <set-header name="Content-Type" exists-action="override">
+                        <value>application/json</value>
+                    </set-header>
+                    <set-body>@{
+    var productBody = context.Variables.GetValueOrDefault<string>("productBody") ?? "{}";
+    var prodObject = Newtonsoft.Json.Linq.JObject.Parse(productBody);
+
+    // Extract properties from JSON object
+    var prodName = prodObject.SelectToken("name")?.ToString() ?? "";
+    var prodID = prodObject.SelectToken("id")?.ToString() ?? "";
+    var prodDisplayName = prodObject.SelectToken("properties.displayName")?.ToString() ?? "";
+    var prodDescription = prodObject.SelectToken("properties.description")?.ToString() ?? "";
+    var apiIdsJson = context.Variables.GetValueOrDefault<string>("apiIdsJson", "[]");
+    // Create custom JSON response using extracted properties
+    return $@"{{
+                ""gatewayPID"": ""{prodName}"",
+                ""portalPID"": """",
+                ""name"": ""{prodDisplayName}"",
+                ""applicationID"": ""{context.Subscription.Id}"",
+                ""applicationName"": ""{context.Subscription.Name}"",
+                ""description"": ""{prodDescription}"",
+                 ""apis"": {apiIdsJson}
+    }}";
+}</set-body>
+                </return-response>
+            </when>
+            <otherwise>
+                <!-- No extra <base /> here -->
+            </otherwise>
+        </choose>
+    </inbound>
+    <backend>
+        <base />
+    </backend>
+    <outbound>
+        <base />
+    </outbound>
+    <on-error>
+        <base />
+    </on-error>
+</policies>

@@ -1,0 +1,137 @@
+<policies>
+    <inbound>
+        <base />
+        <choose>
+            <!-- HANDLER FOR /apis/{apiId} -->
+            <when condition="@(System.Text.RegularExpressions.Regex.IsMatch(context.Request.Url.Path.ToLower(), @"/apis/[^/]+$"))">
+                <!-- Step 1: Extract apiId from request URL -->
+                <set-variable name="apiId" value="@{
+          var path = context.Request.Url.Path.ToLower();
+          var segments = path.Split('/');
+          return segments.Last();
+        }" />
+                <!-- Step 2: Call API GET (API Metadata) -->
+                <send-request mode="new" response-variable-name="apiResponse" timeout="20" ignore-error="false">
+                    <set-url>@($"https://management.azure.com/subscriptions/{context.Variables["azureSubscriptionId"]}/resourceGroups/{context.Variables["resourceGroup"]}/providers/Microsoft.ApiManagement/service/{context.Variables["serviceName"]}/apis/{context.Variables["apiId"]}?api-version=2024-05-01")</set-url>
+                    <set-method>GET</set-method>
+                    <set-header name="Authorization" exists-action="override">
+                        <value>@($"Bearer {context.Variables["accessToken"]}")</value>
+                    </set-header>
+                    <set-header name="Accept" exists-action="override">
+                        <value>application/json</value>
+                    </set-header>
+                </send-request>
+                <set-variable name="apiBody" value="@(
+          context.Variables.ContainsKey("apiResponse") && context.Variables["apiResponse"] != null && 
+          ((IResponse)context.Variables["apiResponse"]).StatusCode == 200 
+          ? ((IResponse)context.Variables["apiResponse"]).Body.As<string>() 
+          : "{}")" />
+                <!-- Call API Spec Export (OpenAPI/swagger yaml) -->
+                <send-request mode="new" response-variable-name="apiSpecResponse" timeout="20" ignore-error="true">
+                    <set-url>@($"https://management.azure.com/subscriptions/{context.Variables["azureSubscriptionId"]}/resourceGroups/{context.Variables["resourceGroup"]}/providers/Microsoft.ApiManagement/service/{context.Variables["serviceName"]}/apis/{context.Variables["apiId"]}?export=true&format=openapi-link&api-version=2024-05-01")</set-url>
+                    <set-method>GET</set-method>
+                    <set-header name="Authorization" exists-action="override">
+                        <value>@($"Bearer {context.Variables["accessToken"]}")</value>
+                    </set-header>
+                </send-request>
+                <set-variable name="apiSpecBody" value="@(
+          context.Variables.ContainsKey("apiSpecResponse") && context.Variables["apiSpecResponse"] != null &&
+          ((IResponse)context.Variables["apiSpecResponse"]).StatusCode == 200
+          ? ((IResponse)context.Variables["apiSpecResponse"]).Body.As<string>()
+          : "{}")" />
+                <!-- Get API Tags -->
+                <send-request mode="new" response-variable-name="apiTagResponse" timeout="20" ignore-error="true">
+                    <set-url>@($"https://management.azure.com/subscriptions/{context.Variables["azureSubscriptionId"]}/resourceGroups/{context.Variables["resourceGroup"]}/providers/Microsoft.ApiManagement/service/{context.Variables["serviceName"]}/apis/{context.Variables["apiId"]}/tags?api-version=2024-05-01")</set-url>
+                    <set-method>GET</set-method>
+                    <set-header name="Authorization" exists-action="override">
+                        <value>@($"Bearer {context.Variables["accessToken"]}")</value>
+                    </set-header>
+                </send-request>
+                <set-variable name="apiTagsBody" value="@(
+          context.Variables.ContainsKey("apiTagResponse") && context.Variables["apiTagResponse"] != null &&
+          ((IResponse)context.Variables["apiTagResponse"]).StatusCode == 200
+          ? ((IResponse)context.Variables["apiTagResponse"]).Body.As<string>()
+          : "{}")" />
+                <!-- Step 3: Build JSON response -->
+                <return-response>
+                    <set-status code="200" reason="OK" />
+                    <set-header name="Content-Type" exists-action="override">
+                        <value>application/json</value>
+                    </set-header>
+                    <set-body>@{
+            var apiBody = context.Variables.GetValueOrDefault<string>("apiBody") ?? "{}";
+            var apiObj = Newtonsoft.Json.Linq.JObject.Parse(apiBody);
+            var apiSpecBody = context.Variables.GetValueOrDefault<string>("apiSpecBody") ?? "{}";
+            var apiSpecObj = Newtonsoft.Json.Linq.JObject.Parse(apiSpecBody);
+            var apiTagsBody = context.Variables.GetValueOrDefault<string>("apiTagsBody") ?? "{}";
+            var apiTagsObj = Newtonsoft.Json.Linq.JObject.Parse(apiTagsBody);
+
+            var apiId = apiObj.SelectToken("name")?.ToString() ?? "";
+            var apiGuid = apiObj.SelectToken("id")?.ToString() ?? "";
+            var apiDisplayName = apiObj.SelectToken("properties.displayName")?.ToString() ?? "";         
+            var apiDescription = (apiObj.SelectToken("properties.description")?.ToString() ?? "").Trim();
+            var apiPath = apiObj.SelectToken("properties.path")?.ToString() ?? "";
+            var apiVersion = apiObj.SelectToken("properties.apiVersion")?.ToString() ?? "";
+
+            var owner = ""; 
+
+            var tags = apiTagsObj.SelectToken("value") as Newtonsoft.Json.Linq.JArray;
+            var tagsArray = "[]";
+
+            // Extract the 'displayName' property from each tag
+            var displayNames = tags
+                .Select(tag => tag["properties"]?["displayName"]?.ToString())
+                .Where(name => !string.IsNullOrEmpty(name))
+                .Select(name => $"\"{name}\"");
+
+            tagsArray= "[" + string.Join(",", displayNames) + "]";
+
+            var format = apiSpecObj.SelectToken("format")?.ToString() ?? "";
+            var openApiSpecUri = apiSpecObj.SelectToken("value.link")?.ToString();
+
+            // Build attachments JSON dynamically with the extracted OpenAPI spec URI
+            var attachments = $@"[
+            {{
+                ""name"": ""{format}"",
+                ""uri"": ""{openApiSpecUri}""
+            }}
+            ]";
+
+            var apimServiceName = context.Variables.GetValueOrDefault<string>("apimServiceName") ?? "";
+            var gatewayUrl = $"https://{apimServiceName}.azure-api.net/{apiId}/{apiVersion}";
+
+            var endpoints = $@"[
+                {{
+                ""name"": ""{gatewayUrl}"",
+                ""baseUrl"": ""{gatewayUrl}""
+                }}
+            ]";
+
+            return $@"{{
+              ""name"": ""{apiDisplayName}"",
+              ""owner"": ""{owner}"",
+              ""id"": ""{apiId}"",
+              ""description"": ""{apiDescription}"",
+              ""providerRef"": """",
+              ""version"": ""{apiVersion}"",
+              ""tags"" : {tagsArray},
+              ""attachments"": {attachments},
+              ""endPoints"": {endpoints}
+            }}";
+          }</set-body>
+                </return-response>
+            </when>
+            <!-- FALLBACK -->
+            <otherwise />
+        </choose>
+    </inbound>
+    <backend>
+        <base />
+    </backend>
+    <outbound>
+        <base />
+    </outbound>
+    <on-error>
+        <base />
+    </on-error>
+</policies>

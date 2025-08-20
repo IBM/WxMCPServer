@@ -1,0 +1,71 @@
+<policies>
+    <inbound>
+        <!-- Make named values available for operation policies -->
+        <set-variable name="azureSubscriptionId" value="{{azureSubscriptionId}}" />
+        <set-variable name="resourceGroup" value="{{resourceGroup}}" />
+        <set-variable name="serviceName" value="{{serviceName}}" />
+        <set-variable name="aadTenantId" value="{{aadTenantId}}" />
+        <!-- If OAuth token is presented, standard subscription key is used on top (to identify API Product) -->
+        <choose>
+            <!-- Check if Authorization header (OAuth token) exists -->
+            <when condition="@(context.Request.Headers.ContainsKey("Authorization"))">
+                <!-- Validate the JWT token -->
+                <validate-jwt header-name="Authorization" failed-validation-httpcode="401" failed-validation-error-message="Unauthorized">
+                    <openid-config url="https://login.microsoftonline.com/{{aadTenantId}}/v2.0/.well-known/openid-configuration" />
+                    <audiences>
+                        <audience>7be1084c-e8b2-4c76-a76c-f3efb7d164d0</audience>
+                    </audiences>
+                    <required-claims>
+                        <claim name="scp" match="all" separator=",">
+                            <value>mcp.tools.list</value>
+                        </claim>
+                    </required-claims>
+                </validate-jwt>
+            </when>
+            <otherwise>
+                <!-- No Authorization header, require subscription key -->
+                <check-header name="Ocp-Apim-Subscription-Key" failed-check-httpcode="401" failed-check-error-message="Subscription key required" />
+            </otherwise>
+        </choose>
+        <!-- Lookup cached token, returns null if not found -->
+        <cache-lookup-value key="aadAccessToken" variable-name="cachedToken" />
+        <choose>
+            <when condition="@(string.IsNullOrEmpty(context.Variables.GetValueOrDefault<string>("cachedToken")))">
+                <!-- Request new token from Azure AD -->
+                <send-request mode="new" response-variable-name="tokenResponse" timeout="20" ignore-error="false">
+                    <set-url>https://login.microsoftonline.com/{{aadTenantId}}/oauth2/v2.0/token</set-url>
+                    <set-method>POST</set-method>
+                    <set-header name="Content-Type" exists-action="override">
+                        <value>application/x-www-form-urlencoded</value>
+                    </set-header>
+                    <set-body>@($"client_id={{aadClientId}}&client_secret={{aadClientSecret}}&scope=https://management.azure.com/.default&grant_type=client_credentials")</set-body>
+                </send-request>
+                <!-- Extract access token string from JSON response -->
+                <set-variable name="accessToken" value="@(
+                    context.Variables.ContainsKey("tokenResponse") && context.Variables["tokenResponse"] != null 
+                    ? JObject.Parse(((IResponse)context.Variables["tokenResponse"]).Body.As<string>()).SelectToken("access_token")?.ToString() ?? string.Empty 
+                    : string.Empty)" />
+                <!-- Cache token string for 30 minutes -->
+                <cache-store-value key="aadAccessToken" value="@(context.Variables.GetValueOrDefault<string>("accessToken"))" duration="1800" />
+            </when>
+            <otherwise>
+                <!-- Use cached token -->
+                <set-variable name="accessToken" value="@(context.Variables.GetValueOrDefault<string>("cachedToken"))" />
+            </otherwise>
+        </choose>
+        <!-- Inject Authorization header globally -->
+        <set-header name="Authorization" exists-action="override">
+            <value>@($"Bearer {context.Variables.GetValueOrDefault<string>("accessToken")}")</value>
+        </set-header>
+        <base />
+    </inbound>
+    <backend>
+        <base />
+    </backend>
+    <outbound>
+        <base />
+    </outbound>
+    <on-error>
+        <base />
+    </on-error>
+</policies>
