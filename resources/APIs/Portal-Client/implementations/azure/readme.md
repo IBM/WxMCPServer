@@ -76,6 +76,8 @@ To access all referenced APIs, the identity (App Registration or Managed Identit
     - Alternatively, the **Reader** role is also sufficient but broader.
     - For write/management operations, use **API Management Service Contributor** or **Contributor** (not required for current policies).
 
+![Role assignment to APIM resource group in Azure Portal](azure-apim-resourcegroup-role.png)
+
 
 - **API Permissions (OAuth Scope):**
   - If using JWT validation on top, ensure the `scp` claim includes `mcp.tools.list` as required by the policy.
