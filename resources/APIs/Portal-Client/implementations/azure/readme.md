@@ -9,7 +9,7 @@ This directory contains Azure API Management (APIM) policy fragments for the MCP
 ## Step-by-Step instructions
 
 
-- Import the **MCP-Portal API** from this GitHub repository ([Specification](../../MCP-Portal-Client-1-0.yml)) into Azure API Management (APIM).
+- Import the **MCP-Portal API** from this GitHub repository ([Specification](../../MCP-Portal-1-1.yml)) into Azure API Management (APIM).
 - Define a **Managed Identity** or custom **App Registration** with sufficient privileges to access the APIM APIs.
 - Define the named values as described below.
 - For the **MCP-Portal** API, apply the policy fragment ([general.xml](./policyFragments/general.xml)) to *All Operations -> Inbound Processing -> Policies* to set variables and acquire access tokens.
