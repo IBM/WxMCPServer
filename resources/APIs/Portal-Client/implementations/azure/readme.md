@@ -73,8 +73,8 @@ To access all referenced APIs, the identity (App Registration or Managed Identit
 
 - **Azure Role Assignment:**
   - Assign the built-in role **API Management Service Reader** at the APIM instance or resource group level (least privilege, sufficient for all read operations).
-  - Alternatively, the **Reader** role is also sufficient but broader.
-  - For write/management operations, use **API Management Service Contributor** or **Contributor** (not required for current policies).
+    - Alternatively, the **Reader** role is also sufficient but broader.
+    - For write/management operations, use **API Management Service Contributor** or **Contributor** (not required for current policies).
 
 
 - **API Permissions (OAuth Scope):**
