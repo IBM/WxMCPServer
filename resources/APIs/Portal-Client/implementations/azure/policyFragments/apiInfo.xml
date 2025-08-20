@@ -70,6 +70,8 @@
             var apiGuid = apiObj.SelectToken("id")?.ToString() ?? "";
             var apiDisplayName = apiObj.SelectToken("properties.displayName")?.ToString() ?? "";         
             var apiDescription = (apiObj.SelectToken("properties.description")?.ToString() ?? "").Trim();
+            var jsonSafeAPIDescription = Newtonsoft.Json.JsonConvert.SerializeObject(apiDescription);
+
             var apiPath = apiObj.SelectToken("properties.path")?.ToString() ?? "";
             var apiVersion = apiObj.SelectToken("properties.apiVersion")?.ToString() ?? "";
 
@@ -111,7 +113,7 @@
               ""name"": ""{apiDisplayName}"",
               ""owner"": ""{owner}"",
               ""id"": ""{apiId}"",
-              ""description"": ""{apiDescription}"",
+              ""description"": {jsonSafeAPIDescription},
               ""providerRef"": """",
               ""version"": ""{apiVersion}"",
               ""tags"" : {tagsArray},

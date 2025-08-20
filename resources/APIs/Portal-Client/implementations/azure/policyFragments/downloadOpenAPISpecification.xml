@@ -1,6 +1,6 @@
 <policies>
     <inbound>
-        <!-- do nothing since OpenAPI specification is already provided as full downloadable URL in the API details -->
+        <!-- skipping base policies since we want to short-circuit -->
         <return-response>
             <set-status code="200" reason="OK" />
             <set-header name="Content-Type" exists-action="override">

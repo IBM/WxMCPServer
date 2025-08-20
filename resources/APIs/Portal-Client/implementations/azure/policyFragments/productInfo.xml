@@ -110,15 +110,16 @@
     var prodID = prodObject.SelectToken("id")?.ToString() ?? "";
     var prodDisplayName = prodObject.SelectToken("properties.displayName")?.ToString() ?? "";
     var prodDescription = prodObject.SelectToken("properties.description")?.ToString() ?? "";
+    var trimmedDescription = prodDescription.Trim();
     var apiIdsJson = context.Variables.GetValueOrDefault<string>("apiIdsJson", "[]");
     // Create custom JSON response using extracted properties
     return $@"{{
-                ""gatewayPID"": ""{prodName}"",
-                ""portalPID"": """",
+                ""portalPID"": ""{prodName}"",
+                 ""portalType"": ""ms_apim"",
                 ""name"": ""{prodDisplayName}"",
                 ""applicationID"": ""{context.Subscription.Id}"",
                 ""applicationName"": ""{context.Subscription.Name}"",
-                ""description"": ""{prodDescription}"",
+                ""description"": ""{trimmedDescription}"",
                  ""apis"": {apiIdsJson}
     }}";
 }</set-body>
