@@ -76,6 +76,7 @@ To access all referenced APIs, the identity (App Registration or Managed Identit
     - Alternatively, the **Reader** role is also sufficient but broader.
     - For write/management operations, use **API Management Service Contributor** or **Contributor** (not required for current policies).
 
+- **Azure Portal: Role assignment of Service principal to APIM resource group**
 ![Role assignment to APIM resource group in Azure Portal](azure-apim-resourcegroup-role.png)
 
 
