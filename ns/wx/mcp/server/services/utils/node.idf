@@ -133,5 +133,8 @@ ICAgIH0KICAgIHJldHVybiBjbGVhbmVkOwp9</value>
     <value>java.security.MessageDigest</value>
     <value>java.security.NoSuchAlgorithmException</value>
     <value>java.util.Arrays</value>
+    <value>com.fasterxml.jackson.databind.JsonNode</value>
+    <value>com.fasterxml.jackson.databind.ObjectMapper</value>
+    <value>com.fasterxml.jackson.dataformat.yaml.YAMLFactory</value>
   </array>
 </Values>

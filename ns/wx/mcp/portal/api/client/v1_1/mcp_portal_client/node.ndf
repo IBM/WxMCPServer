@@ -1,0 +1,541 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Values version="2.0">
+  <value name="node_type">restDescriptor</value>
+  <value name="node_subtype">openAPIConsumer</value>
+  <value name="node_nsName">wx.mcp.portal.api.client.v1_1:mcp_portal_client</value>
+  <value name="node_pkg">WxMCPServer</value>
+  <value name="is_public">false</value>
+  <value name="sourceUri">file://C:\data\GitHub-IBM\WxMCPServer\resources\APIs\Portal-Client\MCP-Portal-1-1.yml</value>
+  <value name="swaggerUrl">file:/C:/data/GitHub-IBM/WxMCPServer/resources/APIs/Portal-Client/MCP-Portal-1-1.yml</value>
+  <Boolean name="modifiable">true</Boolean>
+  <record name="security" javaclass="com.wm.util.Values">
+    <array name="securityMap" type="record" depth="1">
+      <record javaclass="com.wm.util.Values">
+        <value name="name">oAuth2Token</value>
+      </record>
+      <record javaclass="com.wm.util.Values">
+        <value name="name">x-Gateway-APIKey</value>
+      </record>
+      <record javaclass="com.wm.util.Values">
+        <value name="name">Ocp-Apim-Subscription-Key</value>
+      </record>
+    </array>
+  </record>
+  <record name="restTags" javaclass="com.wm.util.Values">
+    <record name="mcp.ignore" javaclass="com.wm.util.Values">
+      <value name="name">mcp.ignore</value>
+      <null name="description"/>
+    </record>
+  </record>
+  <value name="version">3.0.1</value>
+  <record name="info" javaclass="com.wm.util.Values">
+    <value name="description">## Model Context Protocol (MCP) Portal  Overview
+
+**Model Context Protocol (MCP) Portal ** is an API designed to securely connect to MCP portals.
+
+An MCP Portal is a term used in this context to describe any type of API catalog - either an API management system or API Developer portal.
+
+The goal is to retrieve the APIs associated with a given API product to be used as tools in the MCP context. The API product itself is identified through the provided security context (i.e. the API Key or OAuth token)
+
+---
+
+### Key Features
+
+- **Secure Authentication:**  
+  Utilizes API Key or OAuth token to authenticate requests, ensuring that only authorized clients can access the portal and its resources.
+
+- **API Discovery:**  
+  Introspects the API Catalog to enumerate all APIs linked to the API product specified by your security context.
+
+- **OpenAPI Metadata Extraction:**  
+  Enables the MCP server to extract essential OpenAPI metadata, such as:
+  - API specifications
+  - Operation names
+  - Data structures
+  - Other relevant schema details
+
+- **Integration with MCP Tools:**  
+  The extracted metadata is mapped to MCP tools, making them readily available for use by MCP hosts and applications.
+
+---
+
+### How It Works
+
+1. **Authentication:**  
+   The Portal Client authenticates using the provided credentials (API Key or OAuth token).
+
+2. **Introspection:**  
+   Upon successful authentication, the client queries the MCP Portal to discover all APIs associated with the target API product.
+
+3. **Metadata Extraction:**  
+   The MCP server extracts OpenAPI metadata from the discovered APIs, including specifications and operation details.
+
+4. **Tool Mapping:**  
+   The extracted information is mapped to MCP tools, enabling seamless integration and usage within MCP hosts and applications.
+
+---
+
+### Benefits
+
+- **Standardization:**  
+  Provides a consistent, protocol-driven approach for connecting AI models and applications to external APIs and systems.
+
+- **Interoperability:**  
+  Facilitates integration across diverse tools and platforms, acting as a universal connector—often described as the "USB-C of AI apps".
+
+- **Efficiency:**  
+  Automates the process of API discovery and metadata extraction, reducing manual effort and potential for error.
+
+---
+
+&gt; **In summary:**  
+&gt; MCP-Portal is a secure, standards-based interface that automates the discovery and integration of APIs within the MCP ecosystem, enabling AI applications to leverage a wide range of external tools and data sources with minimal friction.
+
+</value>
+    <value name="title">MCP-Portal</value>
+    <null name="termsOfService"/>
+    <value name="version">1.1</value>
+  </record>
+  <array name="servers" type="record" depth="1">
+    <record javaclass="com.wm.util.Values">
+      <value name="url">https://demolab.apigw-az-eu.webmethods.io/gateway/MCP-Portal/1.0</value>
+    </record>
+  </array>
+  <record name="paths" javaclass="com.wm.util.Values">
+    <record name="/productInfo" javaclass="com.wm.util.Values">
+      <value name="description">Get information about all APIs exposed by an MCP Portal, constituting the tools for a particular MCP server.
+The MCP server is uniquely defined by its API Gateway endpoint(s) and the provided credentials (API Key or OAuth Token).</value>
+      <value name="path">/productInfo</value>
+      <value name="summary">Get details about the product and all related APIs</value>
+      <record name="operations" javaclass="com.wm.util.Values">
+        <record name="GET" javaclass="com.wm.util.Values">
+          <value name="description">Get information about all APIs exposed by an API Gateway that constitute the tools for a particular MCP server.
+The MCP server is uniquely defined by its API Gateway endpoint(s) and the provided credentials (API Key or OAuth Token).</value>
+          <value name="path">/productInfo</value>
+          <value name="operationId">getProductInfo</value>
+          <Boolean name="deprecated">false</Boolean>
+          <array name="parameters" type="record" depth="1">
+          </array>
+          <record name="responses" javaclass="com.wm.util.Values">
+            <record name="httpCode" javaclass="com.wm.util.Values">
+              <record name="200" javaclass="com.wm.util.Values">
+                <value name="description">Successful response</value>
+                <record name="content" javaclass="com.wm.util.Values">
+                  <record name="application/json" javaclass="com.wm.util.Values">
+                    <record name="schema" javaclass="com.wm.util.Values">
+                      <null name="variableName"/>
+                      <value name="fieldName">ProductInfo</value>
+                      <number name="fieldType" type="Integer">0</number>
+                      <Boolean name="isAutoGenerated">false</Boolean>
+                      <value name="type">DOCUMENT_REF</value>
+                      <number name="dimension" type="Integer">0</number>
+                      <value name="documentRefNSName">wx.mcp.portal.api.client.v1_1.mcp_portal_client_.docTypes:ProductInfo</value>
+                    </record>
+                  </record>
+                </record>
+              </record>
+              <record name="401" javaclass="com.wm.util.Values">
+                <value name="description">Unauthorized</value>
+                <record name="content" javaclass="com.wm.util.Values">
+                  <record name="application/json" javaclass="com.wm.util.Values">
+                    <record name="schema" javaclass="com.wm.util.Values">
+                      <null name="variableName"/>
+                      <value name="fieldName">ErrorResponse</value>
+                      <number name="fieldType" type="Integer">0</number>
+                      <Boolean name="isAutoGenerated">false</Boolean>
+                      <value name="type">DOCUMENT_REF</value>
+                      <number name="dimension" type="Integer">0</number>
+                      <value name="documentRefNSName">wx.mcp.portal.api.client.v1_1.mcp_portal_client_.docTypes:ErrorResponse</value>
+                    </record>
+                  </record>
+                </record>
+              </record>
+              <record name="500" javaclass="com.wm.util.Values">
+                <value name="description">Internal Server Error</value>
+                <record name="content" javaclass="com.wm.util.Values">
+                  <record name="application/json" javaclass="com.wm.util.Values">
+                    <record name="schema" javaclass="com.wm.util.Values">
+                      <null name="variableName"/>
+                      <value name="fieldName">ErrorResponse</value>
+                      <number name="fieldType" type="Integer">0</number>
+                      <Boolean name="isAutoGenerated">false</Boolean>
+                      <value name="type">DOCUMENT_REF</value>
+                      <number name="dimension" type="Integer">0</number>
+                      <value name="documentRefNSName">wx.mcp.portal.api.client.v1_1.mcp_portal_client_.docTypes:ErrorResponse</value>
+                    </record>
+                  </record>
+                </record>
+              </record>
+              <record name="404" javaclass="com.wm.util.Values">
+                <value name="description">Not Found</value>
+                <record name="content" javaclass="com.wm.util.Values">
+                  <record name="application/json" javaclass="com.wm.util.Values">
+                    <record name="schema" javaclass="com.wm.util.Values">
+                      <null name="variableName"/>
+                      <value name="fieldName">ErrorResponse</value>
+                      <number name="fieldType" type="Integer">0</number>
+                      <Boolean name="isAutoGenerated">false</Boolean>
+                      <value name="type">DOCUMENT_REF</value>
+                      <number name="dimension" type="Integer">0</number>
+                      <value name="documentRefNSName">wx.mcp.portal.api.client.v1_1.mcp_portal_client_.docTypes:ErrorResponse</value>
+                    </record>
+                  </record>
+                </record>
+              </record>
+            </record>
+          </record>
+          <value name="serviceNSName">wx.mcp.portal.api.client.v1_1.mcp_portal_client_.connectors:getProductInfo</value>
+        </record>
+      </record>
+    </record>
+    <record name="/files/{fileID}" javaclass="com.wm.util.Values">
+      <value name="description">Download the Open API 3.x specification by file ID</value>
+      <value name="path">/files/{fileID}</value>
+      <value name="summary">download OpenAPI spec by ID</value>
+      <record name="operations" javaclass="com.wm.util.Values">
+        <record name="GET" javaclass="com.wm.util.Values">
+          <value name="description">Download the Open API 3.x specification by file ID</value>
+          <value name="path">/files/{fileID}</value>
+          <value name="operationId">downloadOpenAPISpecificationByID</value>
+          <Boolean name="deprecated">false</Boolean>
+          <array name="parameters" type="record" depth="1">
+            <record javaclass="com.wm.util.Values">
+              <value name="name">fileID</value>
+              <value name="sourceType">path</value>
+              <Boolean name="required">true</Boolean>
+              <Boolean name="deprecated">false</Boolean>
+              <Boolean name="allowEmptyValues">false</Boolean>
+              <value name="style">simple</value>
+              <Boolean name="explode">false</Boolean>
+              <Boolean name="allowReserved">false</Boolean>
+              <record name="schema" javaclass="com.wm.util.Values">
+                <null name="variableName"/>
+                <value name="fieldName">fileID</value>
+                <number name="fieldType" type="Integer">0</number>
+                <Boolean name="isAutoGenerated">false</Boolean>
+                <value name="type">STRING</value>
+                <number name="dimension" type="Integer">0</number>
+              </record>
+            </record>
+          </array>
+          <record name="responses" javaclass="com.wm.util.Values">
+            <record name="httpCode" javaclass="com.wm.util.Values">
+              <record name="200" javaclass="com.wm.util.Values">
+                <value name="description">Returns the OpenAPI specification in JSON format</value>
+                <record name="content" javaclass="com.wm.util.Values">
+                  <record name="application/json" javaclass="com.wm.util.Values">
+                    <record name="schema" javaclass="com.wm.util.Values">
+                      <null name="variableName"/>
+                      <value name="fieldName">mcpportal_1</value>
+                      <number name="fieldType" type="Integer">0</number>
+                      <Boolean name="isAutoGenerated">false</Boolean>
+                      <value name="type">DOCUMENT</value>
+                      <number name="dimension" type="Integer">0</number>
+                    </record>
+                  </record>
+                </record>
+              </record>
+              <record name="401" javaclass="com.wm.util.Values">
+                <value name="description">Unauthorized</value>
+                <record name="content" javaclass="com.wm.util.Values">
+                  <record name="application/json" javaclass="com.wm.util.Values">
+                    <record name="schema" javaclass="com.wm.util.Values">
+                      <null name="variableName"/>
+                      <value name="fieldName">ErrorResponse</value>
+                      <number name="fieldType" type="Integer">0</number>
+                      <Boolean name="isAutoGenerated">false</Boolean>
+                      <value name="type">DOCUMENT_REF</value>
+                      <number name="dimension" type="Integer">0</number>
+                      <value name="documentRefNSName">wx.mcp.portal.api.client.v1_1.mcp_portal_client_.docTypes:ErrorResponse</value>
+                    </record>
+                  </record>
+                </record>
+              </record>
+              <record name="500" javaclass="com.wm.util.Values">
+                <value name="description">Internal Server Error</value>
+                <record name="content" javaclass="com.wm.util.Values">
+                  <record name="application/json" javaclass="com.wm.util.Values">
+                    <record name="schema" javaclass="com.wm.util.Values">
+                      <null name="variableName"/>
+                      <value name="fieldName">ErrorResponse</value>
+                      <number name="fieldType" type="Integer">0</number>
+                      <Boolean name="isAutoGenerated">false</Boolean>
+                      <value name="type">DOCUMENT_REF</value>
+                      <number name="dimension" type="Integer">0</number>
+                      <value name="documentRefNSName">wx.mcp.portal.api.client.v1_1.mcp_portal_client_.docTypes:ErrorResponse</value>
+                    </record>
+                  </record>
+                </record>
+              </record>
+              <record name="404" javaclass="com.wm.util.Values">
+                <value name="description">Not Found</value>
+                <record name="content" javaclass="com.wm.util.Values">
+                  <record name="application/json" javaclass="com.wm.util.Values">
+                    <record name="schema" javaclass="com.wm.util.Values">
+                      <null name="variableName"/>
+                      <value name="fieldName">ErrorResponse</value>
+                      <number name="fieldType" type="Integer">0</number>
+                      <Boolean name="isAutoGenerated">false</Boolean>
+                      <value name="type">DOCUMENT_REF</value>
+                      <number name="dimension" type="Integer">0</number>
+                      <value name="documentRefNSName">wx.mcp.portal.api.client.v1_1.mcp_portal_client_.docTypes:ErrorResponse</value>
+                    </record>
+                  </record>
+                </record>
+              </record>
+            </record>
+          </record>
+          <value name="serviceNSName">wx.mcp.portal.api.client.v1_1.mcp_portal_client_.connectors:downloadOpenAPISpecificationByID</value>
+        </record>
+      </record>
+    </record>
+    <record name="/apis/{apiID}" javaclass="com.wm.util.Values">
+      <value name="description">Get metadata about an API, in this context also known as a set of MCP "tools", identified by its unique ID.
+This request also provides the download URL for the OpenAPI 3.x specification</value>
+      <value name="path">/apis/{apiID}</value>
+      <value name="summary">getAPIDetailsById</value>
+      <record name="operations" javaclass="com.wm.util.Values">
+        <record name="GET" javaclass="com.wm.util.Values">
+          <value name="description">Get metadata about an API, in this context also known as a set of MCP "tools", identified by its unique ID.
+This request also provides the download URL for the OpenAPI 3.x specification</value>
+          <value name="path">/apis/{apiID}</value>
+          <value name="operationId">getAPIDetailsById</value>
+          <Boolean name="deprecated">false</Boolean>
+          <array name="parameters" type="record" depth="1">
+            <record javaclass="com.wm.util.Values">
+              <value name="name">apiID</value>
+              <value name="sourceType">path</value>
+              <Boolean name="required">true</Boolean>
+              <Boolean name="deprecated">false</Boolean>
+              <Boolean name="allowEmptyValues">false</Boolean>
+              <value name="style">simple</value>
+              <Boolean name="explode">false</Boolean>
+              <Boolean name="allowReserved">false</Boolean>
+              <record name="schema" javaclass="com.wm.util.Values">
+                <null name="variableName"/>
+                <value name="fieldName">apiID</value>
+                <number name="fieldType" type="Integer">0</number>
+                <Boolean name="isAutoGenerated">false</Boolean>
+                <value name="type">STRING</value>
+                <number name="dimension" type="Integer">0</number>
+              </record>
+            </record>
+          </array>
+          <record name="responses" javaclass="com.wm.util.Values">
+            <record name="httpCode" javaclass="com.wm.util.Values">
+              <record name="200" javaclass="com.wm.util.Values">
+                <value name="description">Successful response</value>
+                <record name="content" javaclass="com.wm.util.Values">
+                  <record name="application/json" javaclass="com.wm.util.Values">
+                    <record name="schema" javaclass="com.wm.util.Values">
+                      <null name="variableName"/>
+                      <value name="fieldName">ApiMetadata</value>
+                      <number name="fieldType" type="Integer">0</number>
+                      <Boolean name="isAutoGenerated">false</Boolean>
+                      <value name="type">DOCUMENT_REF</value>
+                      <number name="dimension" type="Integer">0</number>
+                      <value name="documentRefNSName">wx.mcp.portal.api.client.v1_1.mcp_portal_client_.docTypes:ApiMetadata</value>
+                    </record>
+                  </record>
+                </record>
+              </record>
+              <record name="401" javaclass="com.wm.util.Values">
+                <value name="description">Unauthorized</value>
+                <record name="content" javaclass="com.wm.util.Values">
+                  <record name="application/json" javaclass="com.wm.util.Values">
+                    <record name="schema" javaclass="com.wm.util.Values">
+                      <null name="variableName"/>
+                      <value name="fieldName">ErrorResponse</value>
+                      <number name="fieldType" type="Integer">0</number>
+                      <Boolean name="isAutoGenerated">false</Boolean>
+                      <value name="type">DOCUMENT_REF</value>
+                      <number name="dimension" type="Integer">0</number>
+                      <value name="documentRefNSName">wx.mcp.portal.api.client.v1_1.mcp_portal_client_.docTypes:ErrorResponse</value>
+                    </record>
+                  </record>
+                </record>
+              </record>
+              <record name="500" javaclass="com.wm.util.Values">
+                <value name="description">Internal Server Error</value>
+                <record name="content" javaclass="com.wm.util.Values">
+                  <record name="application/json" javaclass="com.wm.util.Values">
+                    <record name="schema" javaclass="com.wm.util.Values">
+                      <null name="variableName"/>
+                      <value name="fieldName">ErrorResponse</value>
+                      <number name="fieldType" type="Integer">0</number>
+                      <Boolean name="isAutoGenerated">false</Boolean>
+                      <value name="type">DOCUMENT_REF</value>
+                      <number name="dimension" type="Integer">0</number>
+                      <value name="documentRefNSName">wx.mcp.portal.api.client.v1_1.mcp_portal_client_.docTypes:ErrorResponse</value>
+                    </record>
+                  </record>
+                </record>
+              </record>
+              <record name="404" javaclass="com.wm.util.Values">
+                <value name="description">Not Found</value>
+                <record name="content" javaclass="com.wm.util.Values">
+                  <record name="application/json" javaclass="com.wm.util.Values">
+                    <record name="schema" javaclass="com.wm.util.Values">
+                      <null name="variableName"/>
+                      <value name="fieldName">ErrorResponse</value>
+                      <number name="fieldType" type="Integer">0</number>
+                      <Boolean name="isAutoGenerated">false</Boolean>
+                      <value name="type">DOCUMENT_REF</value>
+                      <number name="dimension" type="Integer">0</number>
+                      <value name="documentRefNSName">wx.mcp.portal.api.client.v1_1.mcp_portal_client_.docTypes:ErrorResponse</value>
+                    </record>
+                  </record>
+                </record>
+              </record>
+            </record>
+          </record>
+          <value name="serviceNSName">wx.mcp.portal.api.client.v1_1.mcp_portal_client_.connectors:getAPIDetailsById</value>
+        </record>
+      </record>
+    </record>
+  </record>
+  <record name="components" javaclass="com.wm.util.Values">
+    <record name="schema" javaclass="com.wm.util.Values">
+      <record name="ProductInfo" javaclass="com.wm.util.Values">
+        <null name="variableName"/>
+        <value name="fieldName">ProductInfo</value>
+        <number name="fieldType" type="Integer">0</number>
+        <Boolean name="isAutoGenerated">false</Boolean>
+        <value name="type">DOCUMENT_REF</value>
+        <number name="dimension" type="Integer">0</number>
+        <value name="documentRefNSName">wx.mcp.portal.api.client.v1_1.mcp_portal_client_.docTypes:ProductInfo</value>
+      </record>
+      <record name="ApiMetadata" javaclass="com.wm.util.Values">
+        <null name="variableName"/>
+        <value name="fieldName">ApiMetadata</value>
+        <number name="fieldType" type="Integer">0</number>
+        <Boolean name="isAutoGenerated">false</Boolean>
+        <value name="type">DOCUMENT_REF</value>
+        <number name="dimension" type="Integer">0</number>
+        <value name="documentRefNSName">wx.mcp.portal.api.client.v1_1.mcp_portal_client_.docTypes:ApiMetadata</value>
+      </record>
+      <record name="ErrorResponse" javaclass="com.wm.util.Values">
+        <null name="variableName"/>
+        <value name="fieldName">ErrorResponse</value>
+        <number name="fieldType" type="Integer">0</number>
+        <Boolean name="isAutoGenerated">false</Boolean>
+        <value name="type">DOCUMENT_REF</value>
+        <number name="dimension" type="Integer">0</number>
+        <value name="documentRefNSName">wx.mcp.portal.api.client.v1_1.mcp_portal_client_.docTypes:ErrorResponse</value>
+      </record>
+    </record>
+    <record name="securitySchemes" javaclass="com.wm.util.Values">
+      <record name="oAuth2Token" javaclass="com.wm.util.Values">
+        <value name="type">oauth2</value>
+        <value name="name">oAuth2Token</value>
+        <null name="description"/>
+        <record name="oauthflows" javaclass="com.wm.util.Values">
+          <record name="implicit" javaclass="com.wm.util.Values">
+            <value name="authorizationUrl">https://demolab.apigw-az-eu.webmethods.io/invoke/pub.apigateway.oauth2/authorize</value>
+            <null name="tokenUrl"/>
+            <null name="refreshUrl"/>
+            <record name="scopes" javaclass="com.wm.util.Values">
+              <value name="mcp.tools.call">Invoke APIs as MCP tools</value>
+              <value name="mcp.tools.list">Invoke APIs as MCP tools</value>
+            </record>
+          </record>
+          <record name="password" javaclass="com.wm.util.Values">
+            <null name="authorizationUrl"/>
+            <value name="tokenUrl">https://demolab.apigw-az-eu.webmethods.io/invoke/pub.apigateway.oauth2/getAccessToken</value>
+            <null name="refreshUrl"/>
+            <record name="scopes" javaclass="com.wm.util.Values">
+              <value name="mcp.tools.call">Invoke APIs as MCP tools</value>
+              <value name="mcp.tools.list">Invoke APIs as MCP tools</value>
+            </record>
+          </record>
+          <record name="clientCredentials" javaclass="com.wm.util.Values">
+            <null name="authorizationUrl"/>
+            <value name="tokenUrl">https://demolab.apigw-az-eu.webmethods.io/invoke/pub.apigateway.oauth2/getAccessToken</value>
+            <null name="refreshUrl"/>
+            <record name="scopes" javaclass="com.wm.util.Values">
+              <value name="mcp.tools.call">Invoke APIs as MCP tools</value>
+              <value name="mcp.tools.list">Invoke APIs as MCP tools</value>
+            </record>
+          </record>
+          <record name="authorizationCode" javaclass="com.wm.util.Values">
+            <value name="authorizationUrl">https://demolab.apigw-az-eu.webmethods.io/invoke/pub.apigateway.oauth2/authorize</value>
+            <value name="tokenUrl">https://demolab.apigw-az-eu.webmethods.io/invoke/pub.apigateway.oauth2/getAccessToken</value>
+            <null name="refreshUrl"/>
+            <record name="scopes" javaclass="com.wm.util.Values">
+              <value name="mcp.tools.call">Invoke APIs as MCP tools</value>
+              <value name="mcp.tools.list">Invoke APIs as MCP tools</value>
+            </record>
+          </record>
+        </record>
+      </record>
+      <record name="Ocp-Apim-Subscription-Key" javaclass="com.wm.util.Values">
+        <value name="type">apiKey</value>
+        <value name="name">Ocp-Apim-Subscription-Key</value>
+        <null name="description"/>
+        <value name="in">header</value>
+        <value name="keyName">Ocp-Apim-Subscription-Key</value>
+      </record>
+      <record name="x-Gateway-APIKey" javaclass="com.wm.util.Values">
+        <value name="type">apiKey</value>
+        <value name="name">x-Gateway-APIKey</value>
+        <null name="description"/>
+        <value name="in">header</value>
+        <value name="keyName">x-Gateway-APIKey</value>
+      </record>
+    </record>
+  </record>
+  <array name="generatedDoctypes" type="record" depth="1">
+    <record javaclass="com.wm.util.Values">
+      <value name="name">ProductInfo</value>
+      <value name="nsName">wx.mcp.portal.api.client.v1_1.mcp_portal_client_.docTypes:ProductInfo</value>
+    </record>
+    <record javaclass="com.wm.util.Values">
+      <value name="name">ApiMetadata</value>
+      <value name="nsName">wx.mcp.portal.api.client.v1_1.mcp_portal_client_.docTypes:ApiMetadata</value>
+    </record>
+    <record javaclass="com.wm.util.Values">
+      <value name="name">ErrorResponse</value>
+      <value name="nsName">wx.mcp.portal.api.client.v1_1.mcp_portal_client_.docTypes:ErrorResponse</value>
+    </record>
+  </array>
+  <array name="generatedServices" type="record" depth="1">
+    <record javaclass="com.wm.util.Values">
+      <value name="name">/productInfo_GET</value>
+      <value name="nsName">wx.mcp.portal.api.client.v1_1.mcp_portal_client_.connectors:getProductInfo</value>
+    </record>
+    <record javaclass="com.wm.util.Values">
+      <value name="name">/files/{fileID}_GET</value>
+      <value name="nsName">wx.mcp.portal.api.client.v1_1.mcp_portal_client_.connectors:downloadOpenAPISpecificationByID</value>
+    </record>
+    <record javaclass="com.wm.util.Values">
+      <value name="name">/apis/{apiID}_GET</value>
+      <value name="nsName">wx.mcp.portal.api.client.v1_1.mcp_portal_client_.connectors:getAPIDetailsById</value>
+    </record>
+  </array>
+  <array name="generatedCallbackServices" type="record" depth="1">
+  </array>
+  <array name="generatedRestResources" type="record" depth="1">
+  </array>
+  <value name="untitledPrefix">mcpportal</value>
+  <array name="selectedOperations" type="record" depth="1">
+    <record javaclass="com.wm.util.Values">
+      <value name="path">/productInfo</value>
+      <array name="methods" type="value" depth="1">
+        <value>GET</value>
+      </array>
+    </record>
+    <record javaclass="com.wm.util.Values">
+      <value name="path">/files/{fileID}</value>
+      <array name="methods" type="value" depth="1">
+        <value>GET</value>
+      </array>
+    </record>
+    <record javaclass="com.wm.util.Values">
+      <value name="path">/apis/{apiID}</value>
+      <array name="methods" type="value" depth="1">
+        <value>GET</value>
+      </array>
+    </record>
+  </array>
+</Values>

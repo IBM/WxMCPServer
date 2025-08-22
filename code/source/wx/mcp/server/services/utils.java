@@ -15,6 +15,9 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 // --- <<IS-END-IMPORTS>> ---
 
 public final class utils
@@ -881,6 +884,49 @@ public final class utils
 		        throw new ServiceException("\"mcpClientConfig\" object must not be NULL.");
 		    }
 		    pipelineCursor.destroy();
+		// --- <<IS-END>> ---
+
+                
+	}
+
+
+
+	public static final void yamlJsonMapper (IData pipeline)
+        throws ServiceException
+	{
+		// --- <<IS-START(yamlJsonMapper)>> ---
+		// @sigtype java 3.5
+		// [i] field:0:required inputString
+		// [o] field:0:required outputJson
+		// [o] field:0:required detectedFormat {"yaml","json"}
+		try{
+			IDataCursor pipelineCursor = pipeline.getCursor();
+			String	inputString = IDataUtil.getString( pipelineCursor, "inputString" );
+			String	detectedFormat = "json";
+			String	outputJson = null;
+			
+		    ObjectMapper jsonMapper = new ObjectMapper();
+		    ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
+		
+		    try {
+		    		jsonMapper.readTree(inputString);
+		    		outputJson = inputString;
+		        } 
+		    catch (Exception e) {
+		    			JsonNode node = yamlMapper.readTree(inputString);
+		    			if(node.isValueNode()) {
+		    			    throw new IllegalArgumentException("Input string is plain text, expected JSON or YAML");
+		    			}
+		            	detectedFormat = "yaml";
+		            	outputJson = jsonMapper.writeValueAsString(node);
+		            	
+		    }
+		    IDataUtil.put( pipelineCursor, "outputJson", outputJson );
+			IDataUtil.put( pipelineCursor, "detectedFormat", detectedFormat );
+			pipelineCursor.destroy();
+		}catch(Exception e){
+			throw new ServiceException(e);
+		}
 		// --- <<IS-END>> ---
 
                 
