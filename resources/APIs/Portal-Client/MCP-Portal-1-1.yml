@@ -238,17 +238,14 @@ components:
           type: array
           items:
             type: string
-            format: uuid
         name:
           type: string
         description:
           type: string
         portalPID:
           type: string
-          format: uuid
         gatewayPID:
           type: string
-          format: uuid
         applicationID:
           type: string   
         applicationName:
@@ -267,10 +264,8 @@ components:
       properties:
         owner:
           type: string
-          format: uuid
         providerRef:
           type: string
-          format: uuid
         attachments:
           type: array
           items:
@@ -288,7 +283,6 @@ components:
           type: string
         id:
           type: string
-          format: uuid
         version:
           type: string
         endPoints:
