@@ -3,60 +3,44 @@ openapi: 3.0.1
 info:
   title: MCP-Portal
   description: |+
-    ## Model Context Protocol (MCP) Portal  Overview
+    ## Model Context Protocol (MCP) Portal Overview
 
-    **Model Context Protocol (MCP) Portal ** is an API designed to securely connect to MCP portals.
-    
-    An MCP Portal is a term used in this context to describe any type of API catalog - either an API management system or API Developer portal.
-    
-    The goal is to retrieve the APIs associated with a given API product to be used as tools in the MCP context. The API product itself is identified through the provided security context (i.e. the API Key or OAuth token)
+    **Model Context Protocol (MCP) Portal** is an API designed to securely connect to MCP portals.
+
+    An **MCP Portal** is a term used in this context to describe any type of API catalog - either an **API management system** or **API Developer portal**.
+
+    The goal is to retrieve the APIs associated with a given API product to be used as tools in the MCP context. The API product itself is identified through the provided security context (i.e. the API Key or OAuth token).
+
+    This API is intended to be used with open-source webMethods based package **WxMCPServer**.
+
+    Visit the [WxMCPServer GitHub repository](https://github.com/IBM/WxMCPServer) for more details.
 
     ---
 
     ### Key Features
-
     - **Secure Authentication:**  
       Utilizes API Key or OAuth token to authenticate requests, ensuring that only authorized clients can access the portal and its resources.
-
     - **API Discovery:**  
-      Introspects the API Catalog to enumerate all APIs linked to the API product specified by your security context.
-
+      Introspects the API Catalog to list all APIs linked to the API product specified by your security context.
     - **OpenAPI Metadata Extraction:**  
       Enables the MCP server to extract essential OpenAPI metadata, such as:
       - API specifications
       - Operation names
       - Data structures
       - Other relevant schema details
-
-    - **Integration with MCP Tools:**  
-      The extracted metadata is mapped to MCP tools, making them readily available for use by MCP hosts and applications.
-
-    ---
-
-    ### How It Works
-
-    1. **Authentication:**  
-       The Portal Client authenticates using the provided credentials (API Key or OAuth token).
-
-    2. **Introspection:**  
-       Upon successful authentication, the client queries the MCP Portal to discover all APIs associated with the target API product.
-
-    3. **Metadata Extraction:**  
-       The MCP server extracts OpenAPI metadata from the discovered APIs, including specifications and operation details.
-
-    4. **Tool Mapping:**  
-       The extracted information is mapped to MCP tools, enabling seamless integration and usage within MCP hosts and applications.
+    - **WxMCPServer**
+      Is the client invoking this API.
+      The returned metadata is converted to MCP tool descriptions, exposed to MCP clients.
 
     ---
 
     ### Benefits
-
+    - **Security:**  
+      Use one API key or token for all APIs - business APIs and API discovery. From an MCP client perspective this means the client can see what can be invoked and vice-versa. The tools displayed are derived from the provided security context and not static configuration.
     - **Standardization:**  
       Provides a consistent, protocol-driven approach for connecting AI models and applications to external APIs and systems.
-
     - **Interoperability:**  
       Facilitates integration across diverse tools and platforms, acting as a universal connector—often described as the "USB-C of AI apps".
-
     - **Efficiency:**  
       Automates the process of API discovery and metadata extraction, reducing manual effort and potential for error.
 
@@ -64,7 +48,7 @@ info:
 
     > **In summary:**  
     > MCP-Portal is a secure, standards-based interface that automates the discovery and integration of APIs within the MCP ecosystem, enabling AI applications to leverage a wide range of external tools and data sources with minimal friction.
-
+    
   version: '1.1'
 servers:
   - url: https://demolab.apigw-az-eu.webmethods.io/gateway/MCP-Portal/1.0
@@ -77,9 +61,8 @@ tags:
 paths:
   /productInfo:
     summary: Get details about the product and all related APIs
-    description: |-
-      Get information about all APIs exposed by an MCP Portal, constituting the tools for a particular MCP server.
-      The MCP server is uniquely defined by its API Gateway endpoint(s) and the provided credentials (API Key or OAuth Token).
+    description: |- 
+     Get information about all APIs exposed by an MCP Portal, constituting the tools for a particular MCP server. The MCP server is uniquely defined by its API Gateway endpoint(s) and the provided credentials (API Key or OAuth Token).
     get:
       description: |-
         Get information about all APIs exposed by an API Gateway that constitute the tools for a particular MCP server.
@@ -184,8 +167,7 @@ paths:
   /apis/{apiID}:
     summary: getAPIDetailsById
     description: |-
-      Get metadata about an API, in this context also known as a set of MCP "tools", identified by its unique ID.
-      This request also provides the download URL for the OpenAPI 3.x specification
+      Get metadata about an API, in this context also known as a set of MCP "tools". The response provides information about the base URL for API invocations and the download location for the OpenAPI 3.x specification. If property "fileID" is specified, then the API client should invoke the GET /files/{fileID} operation to download the specification. If "uri" is specified, the client can assume that the API specification can be downloaded from this fully qualified unprotected API endpoint.
     get:
       description: |-
         Get metadata about an API, in this context also known as a set of MCP "tools", identified by its unique ID.
@@ -270,10 +252,10 @@ components:
         applicationID:
           type: string   
         applicationName:
-          type: string   
+          type: string
         portalType:
           type: string  
-          default: "wm-developer-portal"
+          enum: ["WM_DEVELOPER_PORTAL", "WM_API_GATEWAY", "AZURE_APIMANAGENT", "OTHER"]
     ApiMetadata:
       required:
         - attachments
@@ -292,14 +274,13 @@ components:
         attachments:
           type: array
           items:
-            required:
-              - name
-              - uri
             type: object
             properties:
               name:
                 type: string
               uri:
+                type: string
+              fileID:
                 type: string
         name:
           type: string
