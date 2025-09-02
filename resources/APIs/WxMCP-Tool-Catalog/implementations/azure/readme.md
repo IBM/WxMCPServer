@@ -4,8 +4,8 @@
 
 - [1. Overview](#1-overview)  
 - [2. Step-by-Step instructions](#2-step-by-step-instructions)  
-- [3. Named Values](#3-named-values)  
-  - [3.1. Storage Recommendations](#3.1-storage-recommendations)  
+- [3. Named Values](#3-named-values)
+  - [3.1. Storage Recommendations](#31-storage-recommendations)
 - [5. Dependencies](#5-dependencies)  
 - [6. Access Rights and Role Assignment](#6-access-rights-and-role-assignment)
 
