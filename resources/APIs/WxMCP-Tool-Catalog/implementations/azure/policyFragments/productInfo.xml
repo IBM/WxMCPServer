@@ -114,9 +114,9 @@
     var apiIdsJson = context.Variables.GetValueOrDefault<string>("apiIdsJson", "[]");
     // Create custom JSON response using extracted properties
     return $@"{{
-                ""portalPID"": ""{prodName}"",
-                 ""portalType"": ""ms_apim"",
+                ""productID"": ""{prodName}"",
                 ""name"": ""{prodDisplayName}"",
+                ""catalogType"" : ""AZURE_API_MANAGEMENT"",
                 ""applicationID"": ""{context.Subscription.Id}"",
                 ""applicationName"": ""{context.Subscription.Name}"",
                 ""description"": ""{trimmedDescription}"",
