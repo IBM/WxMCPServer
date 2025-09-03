@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Values version="2.0">
+  <value name="name">getMCPObjectName</value>
+  <value name="encodeutf8">true</value>
+  <value name="body">Ly8gcGlwZWxpbmUNCklEYXRhQ3Vyc29yIHBpcGVsaW5lQ3Vyc29yID0gcGlwZWxpbmUuZ2V0Q3Vy
+c29yKCk7DQpTdHJpbmdbXSB0YWdzID0gSURhdGFVdGlsLmdldFN0cmluZ0FycmF5KHBpcGVsaW5l
+Q3Vyc29yLCAidGFncyIpOw0KU3RyaW5nIG1jcE9iamVjdE5hbWUgPSBudWxsOw0KDQppZiAodGFn
+cyAhPSBudWxsKSB7DQogICAgZm9yIChTdHJpbmcgdGFnIDogdGFncykgew0KICAgICAgICBpZiAo
+dGFnICE9IG51bGwgJiYgdGFnLnN0YXJ0c1dpdGgoIm1jcC5vYmplY3QubmFtZToiKSkgew0KICAg
+ICAgICAgICAgLy8gZXh0cmFjdCBwYXJ0IGFmdGVyIHRoZSBwcmVmaXgNCiAgICAgICAgICAgIG1j
+cE9iamVjdE5hbWUgPSB0YWcuc3Vic3RyaW5nKCJtY3Aub2JqZWN0Lm5hbWU6Ii5sZW5ndGgoKSku
+dHJpbSgpOw0KICAgICAgICAgICAgYnJlYWs7IC8vIHN0b3AgYWZ0ZXIgZmlyc3QgbWF0Y2gNCiAg
+ICAgICAgfQ0KICAgIH0NCn0NCg0KLy8gcHV0IHJlc3VsdCBpbnRvIHBpcGVsaW5lDQpJRGF0YVV0
+aWwucHV0KHBpcGVsaW5lQ3Vyc29yLCAibWNwT2JqZWN0TmFtZSIsIG1jcE9iamVjdE5hbWUpOw0K
+cGlwZWxpbmVDdXJzb3IuZGVzdHJveSgpOw==</value>
+</Values>

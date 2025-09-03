@@ -45,6 +45,7 @@ public final class utils
 		// [i] field:0:required queryPrefix
 		// [i] field:0:required headerPrefix
 		// [i] field:0:required pathParamPrefix
+		// [i] field:0:required mcpObjectName
 		// [o] field:0:required toolJSONString
 		IDataCursor pipelineCursor = pipeline.getCursor();
 		    String openAPIString = IDataUtil.getString(pipelineCursor, "openAPIString");
@@ -52,31 +53,13 @@ public final class utils
 		    String headerPrefix = IDataUtil.getString(pipelineCursor, "headerPrefix");
 		    String pathParamPrefix = IDataUtil.getString(pipelineCursor, "pathParamPrefix");
 		    String queryPrefix = IDataUtil.getString(pipelineCursor, "queryPrefix");
+		    String mcpObjectName = IDataUtil.getString(pipelineCursor, "mcpObjectName");
 		    
 		    String content = openAPIString;
 		    JSONObject openApi = new JSONObject(content);
 		    JSONObject components = null;
 		    if (openApi.has("components")) {
-		        components = openApi.getJSONObject("components");
-		    }
-		
-		    String mcpObjectName = null;
-		    if (openApi.has("tags")) {
-		        JSONArray tags = openApi.getJSONArray("tags");
-		        for (int i = 0; i < tags.length(); i++) {
-		            JSONObject tagObj = tags.optJSONObject(i);
-		            if (tagObj != null && tagObj.has("name")) {
-		                String tagName = tagObj.getString("name");
-		                if (tagName.startsWith("mcp.object.name:")) {
-		                    mcpObjectName = tagName.substring("mcp.object.name:".length()).trim();
-		                }
-		            } else if (tags.get(i) instanceof String) {
-		                String tagName = tags.getString(i);
-		                if (tagName.startsWith("mcp.object.name:")) {
-		                    mcpObjectName = tagName.substring("mcp.object.name:".length()).trim();
-		                }
-		            }
-		        }
+		       components = openApi.getJSONObject("components");
 		    }
 		
 		    JSONObject paths = openApi.getJSONObject("paths");
@@ -169,6 +152,103 @@ public final class utils
 		            }
 		
 		         // --- Handle requestBody ---
+		            
+		            if (op.has("requestBody")) {
+		                try {
+		                    JSONObject bodySchema = op.getJSONObject("requestBody")
+		                            .getJSONObject("content")
+		                            .getJSONObject("application/json")
+		                            .getJSONObject("schema");
+		
+		                    JSONObject resolvedBody = resolveSchema(bodySchema, components);
+		                    JSONObject cleanedBody = cleanSchema(resolvedBody);
+		
+		                    // Ensure root schema is always an object
+		                    if (!"object".equalsIgnoreCase(cleanedBody.optString("type"))) {
+		                        JSONObject wrapper = new JSONObject();
+		                        wrapper.put("type", "object");
+		                        wrapper.put("properties", cleanedBody.optJSONObject("properties"));
+		                        if (cleanedBody.has("required")) {
+		                            wrapper.put("required", cleanedBody.getJSONArray("required"));
+		                        }
+		                        cleanedBody = wrapper;
+		                    }
+		
+		                    // If no required array is specified, assume all properties are required
+		                    if (!cleanedBody.has("required")) {
+		                        JSONArray allRequired = new JSONArray();
+		                        JSONObject bodyProps = cleanedBody.optJSONObject("properties");
+		                        if (bodyProps != null) {
+		                            for (String propName : bodyProps.keySet()) {
+		                                allRequired.put(propName);
+		                            }
+		                        }
+		                        cleanedBody.put("required", allRequired);
+		                    }
+		
+		                    // Merge parameters properties with requestBody properties
+		                    JSONObject mergedSchema = new JSONObject();
+		                    mergedSchema.put("type", "object");
+		
+		                    // Merge inputProps (parameters)
+		                    JSONObject mergedProps = new JSONObject();
+		                    for (String key : inputProps.keySet()) {
+		                        mergedProps.put(key, inputProps.get(key));
+		                    }
+		
+		                    // Merge requestBody properties
+		                    if (cleanedBody.has("properties")) {
+		                        JSONObject bodyProps = cleanedBody.getJSONObject("properties");
+		                        for (String key : bodyProps.keySet()) {
+		                            mergedProps.put(key, bodyProps.get(key));
+		                        }
+		                    }
+		                    mergedSchema.put("properties", mergedProps);
+		
+		                    // Merge required arrays (parameters + requestBody)
+		                    JSONArray mergedRequired = new JSONArray();
+		                    for (int i = 0; i < requiredParams.length(); i++) {
+		                        mergedRequired.put(requiredParams.getString(i));
+		                    }
+		                    JSONArray bodyRequired = cleanedBody.optJSONArray("required");
+		                    if (bodyRequired != null) {
+		                        for (int i = 0; i < bodyRequired.length(); i++) {
+		                            String req = bodyRequired.getString(i);
+		                            if (!mergedRequired.toList().contains(req)) {
+		                                mergedRequired.put(req);
+		                            }
+		                        }
+		                    }
+		
+		                    if (mergedRequired.length() > 0) {
+		                        mergedSchema.put("required", mergedRequired);
+		                    }
+		
+		                    // Recursively propagate required from components if any
+		                    propagateRequiredFromComponents(mergedSchema, components);
+		
+		                    inputSchema = mergedSchema;
+		
+		                } catch (Exception e) {
+		                    System.err.println("Failed to resolve requestBody schema for "
+		                                       + operationId + ": " + e.getMessage());
+		                    // Fallback to parameters only schema if requestBody fails
+		                    inputSchema.put("properties", inputProps);
+		                    if (requiredParams.length() > 0) {
+		                        inputSchema.put("required", requiredParams);
+		                    }
+		                }
+		            } else {
+		                // No requestBody, only parameters
+		                inputSchema.put("properties", inputProps);
+		                if (requiredParams.length() > 0) {
+		                    inputSchema.put("required", requiredParams);
+		                }
+		            }
+		
+		
+		            
+		            /*
 		            if (op.has("requestBody")) {
 		                try {
 		                    JSONObject bodySchema = op.getJSONObject("requestBody")
@@ -233,7 +313,7 @@ public final class utils
 		                }
 		            }
 		
-		
+		*/
 		
 		         // --- Output schema ---
 		            JSONObject outputSchema = new JSONObject();
@@ -643,6 +723,38 @@ public final class utils
 		
 		IDataUtil.put( pipelineCursor, "baseURL", baseURL );
 		IDataUtil.put( pipelineCursor, "pathParam", pathParam);
+		pipelineCursor.destroy();
+		// --- <<IS-END>> ---
+
+                
+	}
+
+
+
+	public static final void getMCPObjectName (IData pipeline)
+        throws ServiceException
+	{
+		// --- <<IS-START(getMCPObjectName)>> ---
+		// @sigtype java 3.5
+		// [i] field:1:required tags
+		// [o] field:0:required mcpObjectName
+		// pipeline
+		IDataCursor pipelineCursor = pipeline.getCursor();
+		String[] tags = IDataUtil.getStringArray(pipelineCursor, "tags");
+		String mcpObjectName = null;
+		
+		if (tags != null) {
+		    for (String tag : tags) {
+		        if (tag != null && tag.startsWith("mcp.object.name:")) {
+		            // extract part after the prefix
+		            mcpObjectName = tag.substring("mcp.object.name:".length()).trim();
+		            break; // stop after first match
+		        }
+		    }
+		}
+		
+		// put result into pipeline
+		IDataUtil.put(pipelineCursor, "mcpObjectName", mcpObjectName);
 		pipelineCursor.destroy();
 		// --- <<IS-END>> ---
 

@@ -1,0 +1,322 @@
+openapi: 3.0.1
+info:
+  title: WxMCP-Tool-Catalog
+  description: "## Model Context Protocol (MCP) Tool Catalog Overview\n\n**Model Context\
+    \ Protocol (MCP) Tool Catalog** is an API designed to securely connect to MCP\
+    \ Tool Catalogs.\n\nAn **MCP Tool Catalog** is a term used in this context to\
+    \ describe any type of API catalog - either an **API management system** or **API\
+    \ Developer portal**.\n\nThe goal is to retrieve the APIs associated with a given\
+    \ API product to be used as tools in the MCP context. The API product itself is\
+    \ identified through the provided security context (i.e. the API Key or OAuth\
+    \ token).\n\nThis API is intended to be used with open-source webMethods based\
+    \ package **WxMCPServer**.\n\nVisit the [WxMCPServer GitHub repository](https://github.com/IBM/WxMCPServer)\
+    \ for more details.\n\n---\n\n### Key Features\n- **Secure Authentication:** \
+    \ \n  Utilizes API Key or OAuth token to authenticate requests, ensuring that\
+    \ only authorized clients can access the catalog and its resources.\n- **API Discovery:**\
+    \  \n  Introspects the API Catalog to list all APIs linked to the API product\
+    \ specified by your security context.\n- **OpenAPI Metadata Extraction:**  \n\
+    \  Enables the MCP server to extract essential OpenAPI metadata, such as:\n  -\
+    \ API specifications\n  - Operation names\n  - Data structures\n  - Other relevant\
+    \ schema details\n- **WxMCPServer**\n  Is the client invoking this API.\n  The\
+    \ returned metadata is converted to MCP tool descriptions, exposed to MCP clients.\n\
+    \n---\n\n### Benefits\n- **Security:**  \n  Use one API key or token for all APIs\
+    \ - business APIs and API discovery. From an MCP client perspective this means\
+    \ the client can see what can be invoked and vice-versa. The tools displayed are\
+    \ derived from the provided security context and not static configuration.\n-\
+    \ **Standardization:**  \n  Provides a consistent, protocol-driven approach for\
+    \ connecting AI models and applications to external APIs and systems.\n- **Interoperability:**\
+    \  \n  Facilitates integration across diverse tools and platforms, acting as a\
+    \ universal connector—often described as the \"USB-C of AI apps\".\n- **Efficiency:**\
+    \  \n  Automates the process of API discovery and metadata extraction, reducing\
+    \ manual effort and potential for error.\n\n---\n\n> **In summary:**  \n> WxMCP-Tool-Catalog\
+    \ is a secure, standards-based interface that automates the discovery and integration\
+    \ of APIs within the MCP ecosystem, enabling AI applications to leverage a wide\
+    \ range of external tools and data sources with minimal friction.\n\n"
+  version: "1.1"
+servers:
+- url: https://demolab.apigw-az-eu.webmethods.io/gateway/WxMCP-Tool-Catalog/1.1
+security:
+- oAuth2Token:
+  - mcp.tools.list
+- x-Gateway-APIKey: []
+- Ocp-Apim-Subscription-Key: []
+tags:
+- name: mcp.ignore
+paths:
+  /productInfo:
+    summary: Get details about the product and all related APIs
+    description: "Get information about all APIs exposed by an MCP Tool Catalog, constituting\
+      \ the tools for a particular MCP server. The MCP server is uniquely defined\
+      \ by its API Gateway endpoint(s) and the provided credentials (API Key or OAuth\
+      \ Token)."
+    get:
+      description: |-
+        Get information about all APIs exposed by an API Gateway that constitute the tools for a particular MCP server.
+        The MCP server is uniquely defined by its API Gateway endpoint(s) and the provided credentials (API Key or OAuth Token).
+      operationId: getProductInfo
+      parameters: []
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductInfo'
+              examples: {}
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example: "{\"code\":401,\"message\":\"Unauthorized: Missing or invalid\
+                \ credentials\"}"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example: "{\"code\":404,\"message\":\"Not Found: The requested resource\
+                \ does not exist\"}"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example: "{\"code\":500,\"message\":\"Internal Server Error: An unexpected\
+                \ error occurred\"}"
+  /files/{fileID}:
+    summary: download OpenAPI spec by ID
+    description: Download the Open API 3.x specification by file ID
+    get:
+      description: Download the Open API 3.x specification by file ID
+      operationId: downloadOpenAPISpecificationByID
+      parameters:
+      - name: fileID
+        in: path
+        description: The unique OpenAPI specification identifier
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          default: fd3e932a-31cb-478c-ba9d-7aa62dfc0f79
+          enum:
+          - fd3e932a-31cb-478c-ba9d-7aa62dfc0f79
+      responses:
+        "200":
+          description: Returns the OpenAPI specification in JSON format
+          content:
+            application/json:
+              schema:
+                type: object
+                description: OpenAPI specification document
+              examples: {}
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example: "{\"code\":401,\"message\":\"Unauthorized: Missing or invalid\
+                \ credentials\"}"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example: "{\"code\":404,\"message\":\"Not Found: The requested resource\
+                \ does not exist\"}"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example: "{\"code\":500,\"message\":\"Internal Server Error: An unexpected\
+                \ error occurred\"}"
+  /apis/{apiID}:
+    summary: getAPIDetailsById
+    description: |-
+      Get metadata about an API, in this context also known as a set of MCP "tools".
+
+      The response provides information about the base URL for API invocations and the download location for the OpenAPI 3.x specification.
+
+      **If property "fileID" is specified, then the API client should invoke the GET /files/{fileID} operation to download the specification.**
+
+      **If "uri" is specified, the client can assume that the API specification can be downloaded from this fully qualified unprotected API endpoint.**
+    get:
+      description: |-
+        Get metadata about an API, in this context also known as a set of MCP "tools".
+
+        The response provides information about the base URL for API invocations and the download location for the OpenAPI 3.x specification.
+
+        **If property "fileID" is specified, then the API client should invoke the GET /files/{fileID} operation to download the specification.**
+
+        **If "uri" is specified, the client can assume that the API specification can be downloaded from this fully qualified unprotected API endpoint.**
+      operationId: getAPIDetailsById
+      parameters:
+      - name: apiID
+        in: path
+        description: The unique API ID on this catalog instance
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          default: d2b7c22a-c3b2-4280-b161-9fce4a5733cb
+          enum:
+          - d2b7c22a-c3b2-4280-b161-9fce4a5733cb
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiMetadata'
+              examples: {}
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example: "{\"code\":401,\"message\":\"Unauthorized: Missing or invalid\
+                \ credentials\"}"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example: "{\"code\":404,\"message\":\"Not Found: The requested resource\
+                \ does not exist\"}"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example: "{\"code\":500,\"message\":\"Internal Server Error: An unexpected\
+                \ error occurred\"}"
+components:
+  schemas:
+    ProductInfo:
+      required:
+      - apis
+      - applicationID
+      - catalogType
+      - name
+      - productID
+      type: object
+      properties:
+        apis:
+          type: array
+          items:
+            type: string
+        name:
+          type: string
+        description:
+          type: string
+        productID:
+          type: string
+        applicationID:
+          type: string
+        applicationName:
+          type: string
+        catalogType:
+          type: string
+          enum:
+          - WM_DEVELOPER_PORTAL
+          - WM_API_GATEWAY
+          - AZURE_APIMANAGENT
+          - OTHER
+    ApiMetadata:
+      required:
+      - attachments
+      - endPoints
+      - id
+      - name
+      - version
+      type: object
+      properties:
+        owner:
+          type: string
+        providerRef:
+          type: string
+        attachments:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              uri:
+                type: string
+              fileID:
+                type: string
+        name:
+          type: string
+        description:
+          type: string
+        id:
+          type: string
+        version:
+          type: string
+        endPoints:
+          type: array
+          items:
+            required:
+            - baseUrl
+            - name
+            type: object
+            properties:
+              baseUrl:
+                type: string
+              name:
+                type: string
+        tags:
+          type: array
+          items:
+            type: string
+    ErrorResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          description: HTTP status code
+          format: int32
+          example: 401
+        message:
+          type: string
+          description: Error message
+          example: Unauthorized
+  responses: {}
+  parameters: {}
+  examples: {}
+  requestBodies: {}
+  headers: {}
+  securitySchemes:
+    oAuth2Token:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://demolab.apigw-az-eu.webmethods.io/invoke/pub.apigateway.oauth2/getAccessToken
+          scopes:
+            mcp.tools.list: List MCP Tools
+        authorizationCode:
+          authorizationUrl: https://demolab.apigw-az-eu.webmethods.io/invoke/pub.apigateway.oauth2/authorize
+          tokenUrl: https://demolab.apigw-az-eu.webmethods.io/invoke/pub.apigateway.oauth2/getAccessToken
+          scopes:
+            mcp.tools.list: List MCP Tools
+    x-Gateway-APIKey:
+      type: apiKey
+      name: x-Gateway-APIKey
+      in: header
+    Ocp-Apim-Subscription-Key:
+      type: apiKey
+      name: Ocp-Apim-Subscription-Key
+      in: header
