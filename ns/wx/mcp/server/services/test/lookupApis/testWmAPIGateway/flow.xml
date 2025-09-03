@@ -83,9 +83,10 @@
 <Values version="2.0">
   <record name="xml" javaclass="com.wm.util.Values">
     <value name="authType">API_KEY</value>
-    <value name="portalClientBaseURL">https://demolab.apigw-az-eu.webmethods.io/gateway/WxMCP-Tool-Catalog-wMAPIGW/1.1</value>
+    <value name="portalClientBaseURL">https://......</value>
+    <value name="toolCatalogBaseURL"></value>
     <record name="apiKey" javaclass="com.wm.util.Values">
-      <value name="key">241b6bbc-a951-4f26-8017-1aec1ef109ba</value>
+      <value name="key">xxxxxxxxxx</value>
       <value name="headerName">x-Gateway-APIKey</value>
     </record>
     <record name="oauth" javaclass="com.wm.util.Values">

@@ -83,13 +83,14 @@
 <Values version="2.0">
   <record name="xml" javaclass="com.wm.util.Values">
     <value name="authType">API_KEY</value>
-    <value name="portalClientBaseURL">https://demolab.apigw-az-eu.webmethods.io/gateway/MCP-Portal-Client/1.0</value>
+    <value name="portalClientBaseURL">https:/......</value>
+    <value name="toolCatalogBaseURL"></value>
     <record name="apiKey" javaclass="com.wm.util.Values">
-      <value name="key">41bc51f6-d9c6-4251-8dbc-c01a6f48b1cd</value>
+      <value name="key">xxxxxxxxxx</value>
       <value name="headerName">x-Gateway-APIKey</value>
     </record>
     <record name="oauth" javaclass="com.wm.util.Values">
-      <value name="bearerToken">eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6IkpZaEFjVFBNWl9MWDZEQmxPV1E3SG4wTmVYRSJ9.eyJhdWQiOiI3YmUxMDg0Yy1lOGIyLTRjNzYtYTc2Yy1mM2VmYjdkMTY0ZDAiLCJpc3MiOiJodHRwczovL2xvZ2luLm1pY3Jvc29mdG9ubGluZS5jb20vMTAwYTcwMTQtOGViZC00ZDc3LWI2MTAtNTY3Mjk4NzI0ZmZlL3YyLjAiLCJpYXQiOjE3NTYxNDY1NzUsIm5iZiI6MTc1NjE0NjU3NSwiZXhwIjoxNzU2MTUxNDc5LCJhaW8iOiJBY1FBTy84WkFBQUErUndKaFlsbTNCbWdHYlAyRk16YmxSd2VLR2s5TlB3dWI4Q2w3NUhHOHNqVFdEeFdQUGlGWmVJa3FVeDEvYVpTdXZyRFA0M0MrSjV4WXlYYTVhMXY2YnFEQWM5T2R5NUtYNStjd29iYjZkOEt2cjE1YmNzM2hhTnZvdGdQL0N2UlM5MElzTXJNNWVkZURQV1AybWhFcDdMZmwwR3pyYnF5Y0puYTJVU0N2bERJNzVWbnFWcXBmdE9iS3l4dS81blRKYkh6MFRsUnJFYW95cU04ZW12UVFveVdGM080ZTgwSFBOZEpPdTZqYjZwM1BLcmZGQktYbTF1R0xUTDl1NTRjIiwiYXpwIjoiN2JlMTA4NGMtZThiMi00Yzc2LWE3NmMtZjNlZmI3ZDE2NGQwIiwiYXpwYWNyIjoiMCIsImlkcCI6Imh0dHBzOi8vc3RzLndpbmRvd3MubmV0L2ZjZjY3MDU3LTUwYzktNGFkNC05OGYzLWZmY2E2NGFkZDllOS8iLCJuYW1lIjoiUGV0ZXIgS3JpZWdlc21hbm4iLCJvaWQiOiIzMGM5ZTk1OS1iM2NjLTRjMGYtYjRmYi0wY2RiNTRlMmU5ODYiLCJwcmVmZXJyZWRfdXNlcm5hbWUiOiJQZXRlci5LcmllZ2VzbWFubkBpYm0uY29tIiwicmgiOiIxLkFTUUFGSEFLRUwyT2QwMjJFRlp5bUhKUF9rd0k0WHV5NkhaTXAyeno3N2ZSWk5Ba0FQVWtBQS4iLCJzY3AiOiJtY3AudG9vbHMubGlzdCIsInNpZCI6IjAwN2RlYTc5LTYwYzQtMDc2OS1jNGUwLTZhYjhiMDdhZGIyYSIsInN1YiI6IjhudVlJV2JpeXB5TE9nUndVbmJrZS1LcGZMVUtBNGJGWnBEMmxfN2t5amMiLCJ0aWQiOiIxMDBhNzAxNC04ZWJkLTRkNzctYjYxMC01NjcyOTg3MjRmZmUiLCJ1dGkiOiJ6aVpJeW1nRTNreXZOa1p3Zjc4dEFRIiwidmVyIjoiMi4wIiwieG1zX2Z0ZCI6IlJlTzhvYlBNVGdnR2dmZkthVFhQdi00S0dxSmc0QkI4NXhZdGNSM2Q0YzRCWlhWeWIzQmxkMlZ6ZEMxa2MyMXoifQ.KUOn0daT95BpbfkXE5K7SyofP3QzDCcGv3H5vdXeDVBLGRoU2fcJ42eGWdMXJTNNmaJ9Mt6aRwsJ7YiCHUg4sxEFZaybhKYrSUptdY28bXqMC8Ag1zAp9ru_8kN1xh6OloBAwIDZc7iqmnRIsSjJ9ROEMCR20NjyddxyuT9BydaWVTuRc7HzetU0eA76rrAGFj46lmeO4-M5Xx56fjUzotcoM8fbLEEV5o3x0SdDN1P69s0p00tD9EXniNpSYOHkPsY09_1fgU1y9SZktqeKg2OAC12FOYTWTnRV39iaWNqGtIoKCIHoDO9km42r1E9NaO141rBNlHB-MOJEFsHyMw</value>
+      <value name="bearerToken">xxxxxxxxxxx</value>
       <value name="clientID"></value>
       <value name="tokenURL"></value>
       <value name="audience"></value>

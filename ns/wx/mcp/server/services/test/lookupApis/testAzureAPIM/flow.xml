@@ -83,10 +83,10 @@
 <Values version="2.0">
   <record name="xml" javaclass="com.wm.util.Values">
     <value name="authType">API_KEY</value>
-    <value name="portalClientBaseURL">https://sagazdemolabapigateway.azure-api.net/wxmcp-tool-catalog</value>
+    <value name="portalClientBaseURL">http://</value>
     <value name="toolCatalogBaseURL"></value>
     <record name="apiKey" javaclass="com.wm.util.Values">
-      <value name="key">b53b93308abb44bb999c40bded76f22a</value>
+      <value name="key">xxxxxxxxxxxxxxx</value>
       <value name="headerName">Ocp-Apim-Subscription-Key</value>
     </record>
     <record name="oauth" javaclass="com.wm.util.Values">
