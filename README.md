@@ -52,7 +52,7 @@ To integrate with API Management solutions, you must implement the [MCP Tool Cat
 
 There are instructions (and pre-configured assets) on how to implement this API on:
 
-- [webMethods](/resources/APIs/WxMCP-Tool-Catalog/implementations/webMethods/readme.md)  
+- [webMethods API Management](/resources/APIs/WxMCP-Tool-Catalog/implementations/webMethods/readme.md)  
 - [Azure API Management](/resources/APIs/WxMCP-Tool-Catalog/implementations/webMethods/readme.md)  
 
 The approach is generally open for 3rd party API Management solutions ("Federated API Management").
