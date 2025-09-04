@@ -80,7 +80,7 @@ These policy fragments depend on the following IBM webMethods Admin APIs and end
 | POST            | `https://account-iam.platform.saas.ibm.com/api/2.0/services/{instanceId}/apikeys/token` | Exchange API key for a Bearer token (SaaS only) |
 | GET             | `https://${iwhi_wm_apigw_host}/rest/apigateway/packages/{packageId}` | Get details about an API product |
 | GET             | `https://${iwhi_wm_apigw_host}/rest/apigateway/apis/{apiId}` | Retrieve API metadata |
-| GET             | `https://${iwhi_wm_apigw_host}/rest/apigateway/apis/{request.path.fileID}?format=openapi` | Download OpenAPI specification for given API Id |
+| GET             | `https://${iwhi_wm_apigw_host}/rest/apigateway/apis/{apiId}?format=openapi` | Download OpenAPI specification for given API Id |
 
 ---
 
