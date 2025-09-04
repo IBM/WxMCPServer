@@ -40,12 +40,12 @@ The provided archives require **webMethods 11.1+** installations.
   - **iwhi_service_apikey**
   - **iwhi_service_instance_id**
   - **iwhi_selfhosted_credentials**
-  - **iwhi_wm_apigw_host** – The API Gateway host name (without protocol http/https, but including the port if available)  
+  - **iwhi_wm_apigw_host**
 
 - Depending on your environment, configure either for [SaaS](#21-configuring-saas-environment) or [self-hosted](#22-configuring-self-hosted-environment).  
 
-- After configuring the environment-specific aliases, you must also configure the host name (including port, if required) in the alias **iwhi_wm_apigw_host**.
-
+- Finally, configure **iwhi_wm_apigw_host**.
+ The API Gateway host name (without protocol http/https, but including the port if available)  
 ---
 
 ### 2.1 Configuring SaaS Environment
