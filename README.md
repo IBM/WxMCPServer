@@ -48,7 +48,7 @@ In the current solution approach, the **MCP Tool Catalog API** is grouped togeth
 ## 3. Requirements
 
 **WxMCPServer** requires **IBM webMethods Integration Server** or **IBM webMethods Microservices Runtime** as the server (tested with v11.1).  
-To integrate with API Management solutions, you must implement the [MCP Tool Catalog API](/resources/APIs/WxMCP-Tool-Catalog/WxMCP-Tool-Catalog-1-1.yaml).
+To integrate with API Management solutions, you must implement the [MCP Tool Catalog API](/resources/APIs/WxMCP-Tool-Catalog/WxMCP-Tool-Catalog-1-1.yml).
 
 There are instructions (and pre-configured assets) on how to implement this API on:
 
@@ -61,10 +61,14 @@ The approach is generally open for 3rd party API Management solutions ("Federate
 
 ## 4. Roles and Responsibilities
 
-- **MCP Host** and **MCP Client** — External components (not part of this solution) essential for using the tools; examples include Claude Desktop or Langflow  
-- **WxMCPServer** — webMethods IS package implementing the MCP Server  
-- **API Gateway** — Hosts business APIs (to be exposed as MCP tools) and the MCP Tool Catalog API to extract API metadata from the API Catalog  
-- **API Catalog** — Allows AI developers to request access to API products and retrieve API keys or OAuth credentials  
+- **MCP Host** and **MCP Client**
+External components (not part of this solution) essential for using the tools; examples include Claude Desktop or Langflow  
+- **WxMCPServer**
+webMethods IS package implementing the MCP Server  
+- **API Gateway**
+Hosts business APIs (to be exposed as MCP tools) and the MCP Tool Catalog API to extract API metadata from the API Catalog  
+- **API Catalog**
+Allows AI developers to request access to API products and retrieve API keys or OAuth credentials  
 
 The following graphic provides an overview of the architecture:
 

@@ -15,12 +15,12 @@
       </record>
       <record javaclass="com.wm.data.ISMemDataImpl">
         <value name="key">wxmcp.portal.client.base.url</value>
-        <value name="value">https://sagazdemolabapigateway.azure-api.net/wxmcp-tool-catalog</value>
+        <value name="value">https://dev5312404.a-fra-s1.apigw.ipaas.automation.ibm.com/gateway/WxMCP-Tool-Catalog-wMAPIGW/1.1</value>
         <value name="isSecure">false</value>
       </record>
       <record javaclass="com.wm.data.ISMemDataImpl">
         <value name="key">wxmcp.api.key.headername</value>
-        <value name="value">Ocp-Apim-Subscription-Key</value>
+        <value name="value">x-Gateway-APIKey</value>
         <value name="isSecure">false</value>
       </record>
       <record javaclass="com.wm.data.ISMemDataImpl">
