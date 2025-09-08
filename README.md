@@ -1,21 +1,27 @@
+
 # WxMCPServer
 
 **WxMCPServer** is a webMethods Integration Server (IS) package that implements an [MCP Server](https://modelcontextprotocol.io/docs/learn/server-concepts) for IBM webMethods Hybrid Integration (IWHI).  
 It requires either **webMethods Integration Server** or **webMethods Microservices Runtime** for hosting.
 
 ## Table of Contents
-
-- [1. Overview](#1-overview)
-- [2. Key Benefits](#2-key-benefits)
-- [3. Requirements](#3-requirements)
-- [4. Roles and Responsibilities](#4-roles-and-responsibilities)
-- [5. Integration Server Global Variables](#5-integration-server-global-variables)
-- [6. Configuration Examples](#6-configuration-examples)
-  - [6.1 Claude Desktop — API Key](#61-claude-desktop--api-key)
-  - [6.2 Claude Desktop — OAUTH Style](#62-claude-desktop--oauth-style)
-  - [6.3 DataStaX/Langflow MCP Server - API Key Style](#63-datastaxlangflow-mcp-server---api-key-style)
-  - [6.4 DataStaX/Langflow MCP Server - OAuth Style](#64-datastaxlangflow-mcp-server---oauth-style)
-- [7. Limitations](#7-limitations)
+- [1. Overview](#1-overview)  
+- [2. Key Benefits](#2-key-benefits)  
+- [3. Requirements](#3-requirements)  
+- [4. Roles and Responsibilities](#4-roles-and-responsibilities)  
+- [5. Quick Start](#5-quick-start)  
+  - [5.1 MCP Tool Catalog API](#51-mcp-tool-catalog-api)  
+  - [5.2 webMethods Integration Server](#52-webmethods-integration-server)  
+  - [5.3 Installing WxMCPServer](#53-installing-package-wxmcpserver-on-webmethods-integration-server)  
+  - [5.4 Configuring WxMCPServer](#54-configuring-wxmcpserver)  
+  - [5.5 Protecting WxMCPServer](#55-protecting-wxmcpserver-implementation)  
+- [6. Integration Server Global Variables](#6-integration-server-global-variables)  
+- [7. Configuration Examples](#7-configuration-examples)  
+  - [7.1 Claude Desktop — API Key](#71-claude-desktop--api-key)  
+  - [7.2 Claude Desktop — OAuth Style](#72-claude-desktop--oauth-style)  
+  - [7.3 DataStaX/Langflow — API Key Style](#73-datastaxlangflow-mcp-server---api-key-style)  
+  - [7.4 DataStaX/Langflow — OAuth Style](#74-datastaxlangflow-mcp-server---oauth-style)  
+- [8. Limitations](#8-limitations)  
 
 ---
 
@@ -76,7 +82,37 @@ The following graphic provides an overview of the architecture:
 
 ---
 
-## 5. Integration Server Global Variables
+## 5. Quick Start
+
+### 5.1 MCP Tool Catalog API
+- First thing to do is to decide from which API management solution you want to fetch the **tools** (aka APIs form existing API Product). [Follow these instructions.](#3-requirements)
+- Test the API isolated before continuing with **WxMCPServer**
+
+### 5.2 webMethods Integration Server 
+- If you are a webMethods Integration Server customer, you can re-use your existing Integration Server runtime
+- If you do not have an webMethods Integration Server yet, you can download [webMethods Service Designer](https://www.ibm.com/resources/mrs/assets/DownloadList?source=WMS_Designers&lang=en_US) together with the embedded development runtime of Integration Server.
+- If you are working with **IBM webMethods Hybrid Integration** in SaaS, you can re-use Cloud runtime or register a new [Edge Runtime](https://www.ibm.com/docs/en/hybrid-integration/saas?topic=tutorials-registering-viewing-managing-monitoring-edge-runtimes)
+
+### 5.3 Installing package WxMCPServer on webMethods Integration Server
+- If you are running locally you can use **webMethods Service Designer** and the **webMethods Package Registry** to load the package **WxMCPServer**
+![Screenshot](/resources/images/wm-package-registry.png)
+
+- If you are running inside **IBM webMethods Hybrid Integration** (SaaS)  you can add this **GitHub repository** as external [package](https://www.ibm.com/docs/en/wm-integration-ipaas?topic=packages-adding) to your IBM webMethods Hybrid Integration [project](https://www.ibm.com/docs/en/wm-integration-ipaas?topic=troubleshooting-projects)
+
+### 5.4 Configuring WxMCPServer
+
+-Use the [global variables](#6-configuration-examples) to define MCP server-wide settings. Use the API specifc configuration headers to overwrite these settings per **MCP client**.
+
+### 5.5 Protecting WxMCPServer implementation
+
+If you do not run a local MCP server , but a shared one used for enterprise  scenarios, you should put the [WxMCPServer API](/resources/APIs/WxMCP-Server/WxMCP-Server-API-1.3.yaml) on the API Gateway in front of the **WxMCPServer** implementation. Ideally you put it into the same API product than **MCP Tool Catalog** API, so that all APIs share the same credentials ("Invoke, what you can list and vice versa").
+See full enterprise architecture below:
+
+![Screenshot](/resources/images/enterprise-architecture.png)
+
+---
+
+## 6. Integration Server Global Variables
 
 You can set default values for `WxMCPServer`, which are used if no corresponding HTTP headers are sent.
 
@@ -96,9 +132,9 @@ You can set default values for `WxMCPServer`, which are used if no corresponding
 
 ---
 
-## 6. Configuration Examples
+## 7. Configuration Examples
 
-### 6.1 Claude Desktop — API Key
+### 7.1 Claude Desktop — API Key
 
 
 
@@ -135,7 +171,7 @@ You can set default values for `WxMCPServer`, which are used if no corresponding
 }
 ```
 
-### 6.2 Claude Desktop — OAUTH Style
+### 7.2 Claude Desktop — OAUTH Style
 
 ```
 {
@@ -168,7 +204,7 @@ You can set default values for `WxMCPServer`, which are used if no corresponding
 }
 ```
 
-### 6.3 DataStaX/Langflow MCP Server - API Key Style
+### 7.3 DataStaX/Langflow MCP Server - API Key Style
 
 ```
 npx -y mcp-remote http://<Integration Server Host>:<Integration Server Port>/mcp \
@@ -183,7 +219,7 @@ npx -y mcp-remote http://<Integration Server Host>:<Integration Server Port>/mcp
 --header "response_code:stdio"
 ```
 
-### 6.4 DataStaX/Langflow MCP Server - OAuth Style
+### 7.4 DataStaX/Langflow MCP Server - OAuth Style
 
 ```
 npx -y mcp-remote http://<Integration Server Host>:<Integration Server Port>/mcp \
@@ -199,6 +235,6 @@ npx -y mcp-remote http://<Integration Server Host>:<Integration Server Port>/mcp
 
 ---
 
-## 7. Limitations
+## 8. Limitations
 
 - Only `"Content-Type": "application/json"` is supported for sending and receiving data to APIs.
