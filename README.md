@@ -110,6 +110,8 @@ See full enterprise architecture below:
 
 ![Screenshot](/resources/images/enterprise-architecture.png)
 
+There is a pre-configured [archive](/resources/APIs/WxMCP-Server/implementations/webMethods/exports/WxMCP-Server-API.zip) for webMethods API Gateway, that implements **WxMCPServer API** for **webMethods API Gateway**
+
 ---
 
 ## 6. Integration Server Global Variables
