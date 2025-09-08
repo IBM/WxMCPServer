@@ -1095,7 +1095,7 @@
 </MAP>
 </INVOKE>
 
-<MAP TIMEOUT="" MODE="STANDALONE">
+<MAP TIMEOUT="" MODE="STANDALONE" DISABLED="true">
   <COMMENT></COMMENT>
   <MAPTARGET>
 
@@ -1240,7 +1240,7 @@
 
   <!-- nodes -->
 
-<MAPINVOKE SERVICE="wx.mcp.server.services.utils:createCacheKeyFromSecurityContext" VALIDATE-IN="$none" VALIDATE-OUT="$none" INVOKE-ORDER="0">
+<MAPINVOKE SERVICE="wx.mcp.server.services.utils:createCacheKeyFromSecurityContext" VALIDATE-IN="$none" VALIDATE-OUT="$none" DISABLED="true" INVOKE-ORDER="0">
 
   <!-- nodes -->
 
