@@ -113,42 +113,21 @@ public final class utils
 		
 		            for (int i = 0; i < parameters.length(); i++) {
 		                JSONObject param = parameters.getJSONObject(i);
-		                String name = param.getString("name");
-		                String in = param.getString("in");
-		                String propertyName;
-		                switch (in) {
-		                    case "query":
-		                        propertyName = queryPrefix + name;
-		                        break;
-		                    case "header":
-		                        propertyName = headerPrefix + name;
-		                        break;
-		                    case "path":
-		                        propertyName = pathParamPrefix + name;
-		                        break;
-		                    default:
-		                        continue;
-		                }
-		                JSONObject schema = resolveSchema(param.getJSONObject("schema"), components);
-		                schema = cleanSchema(schema);
+		                // If the parameter is specified using an internal reference, this ref needs to be resolved before extracting the info
+						if (param.has("$ref")) {
+					        String ref = param.getString("$ref"); // e.g. "#/components/parameters/X-UnitTest-Param1"
+					        String[] refParts = ref.replace("#/", "").split("/");
+					
+					        JSONObject resolved = openApi;
+					        for (String part : refParts) {
+					            resolved = resolved.getJSONObject(part);
+					        }
+					
+					        extractParameterDetails(resolved, queryPrefix, headerPrefix, pathParamPrefix, components, inputProps, requiredParams);
+					    } else {
 		
-		                // If primitive type, only keep relevant keys
-		                if (schema.has("type")
-		                        && !schema.getString("type").equals("object")
-		                        && !schema.getString("type").equals("array")) {
-		                    JSONObject primitive = new JSONObject();
-		                    primitive.put("type", schema.getString("type"));
-		                    if (schema.has("title")) primitive.put("title", schema.get("title"));
-		                    if (schema.has("maxLength")) primitive.put("maxLength", schema.get("maxLength"));
-		                    if (schema.has("minimum")) primitive.put("minimum", schema.get("minimum"));
-		                    if (schema.has("maximum")) primitive.put("maximum", schema.get("maximum"));
-		                    if (schema.has("enum")) primitive.put("enum", schema.get("enum"));
-		                    schema = primitive;
-		                }
-		                inputProps.put(propertyName, schema);
-		                if (param.optBoolean("required", false)) {
-		                    requiredParams.put(propertyName);
-		                }
+					    	extractParameterDetails(param, queryPrefix, headerPrefix, pathParamPrefix, components, inputProps, requiredParams);
+					    }
 		            }
 		
 		         // --- Handle requestBody ---
@@ -1045,6 +1024,44 @@ public final class utils
 	}
 
 	// --- <<IS-START-SHARED>> ---
+	private static void extractParameterDetails(JSONObject param, String queryPrefix, String headerPrefix, String pathParamPrefix, JSONObject components, JSONObject inputProps, JSONArray requiredParams) {
+		String name = param.getString("name");
+	    String in = param.getString("in");
+	    String propertyName;
+	    switch (in) {
+	        case "query":
+	            propertyName = queryPrefix + name;
+	            break;
+	        case "header":
+	            propertyName = headerPrefix + name;
+	            break;
+	        case "path":
+	            propertyName = pathParamPrefix + name;
+	            break;
+	        default:
+	            return;
+	    }
+	    JSONObject schema = resolveSchema(param.getJSONObject("schema"), components);
+	    schema = cleanSchema(schema);
+	
+	    // If primitive type, only keep relevant keys
+	    if (schema.has("type")
+	            && !schema.getString("type").equals("object")
+	            && !schema.getString("type").equals("array")) {
+	        JSONObject primitive = new JSONObject();
+	        primitive.put("type", schema.getString("type"));
+	        if (schema.has("title")) primitive.put("title", schema.get("title"));
+	        if (schema.has("maxLength")) primitive.put("maxLength", schema.get("maxLength"));
+	        if (schema.has("minimum")) primitive.put("minimum", schema.get("minimum"));
+	        if (schema.has("maximum")) primitive.put("maximum", schema.get("maximum"));
+	        if (schema.has("enum")) primitive.put("enum", schema.get("enum"));
+	        schema = primitive;
+	    }
+	    inputProps.put(propertyName, schema);
+	    if (param.optBoolean("required", false)) {
+	        requiredParams.put(propertyName);
+	    }
+	}
 	
 	/**
 	 * Recursively traverses the schema and replaces/augments it with 'required' 
