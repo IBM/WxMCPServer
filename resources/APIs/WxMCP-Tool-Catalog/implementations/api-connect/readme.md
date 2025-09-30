@@ -1,95 +1,86 @@
 
-# A guide for implementing WxMCP-Tool-Catalog API for webMethods API Management
+## A guide for implementing WxMCP-Tool-Catalog API for IBM API Connect
 
 ## Table of Contents
 
 - [1. Overview](#1-overview)  
-  - [1.1 Requirements](#11-requirements)  
-- [2. Step-by-Step Instructions](#2-step-by-step-instructions-for-webmethods-api-gateway)  
-  - [2.1 Configuring SaaS Environment](#21-configuring-saas-environment)  
-  - [2.2 Configuring Self-Hosted Environment](#22-configuring-self-hosted-environment)  
-- [3. Dependencies](#3-dependencies-to-admin-apis)  
-- [4. Access Rights and Role Assignment](#4-access-rights-and-role-assignment)  
-  - [4.1 SaaS Environment](#41-ibm-webmethods-hybrid-integration-saas)  
-  - [4.2 Self-Hosted Environment](#42-ibm-webmethods-hybrid-integration-self-hosted)  
-
----
+- [2. Step-by-Step instructions](#2-step-by-step-instructions)  
+- [3. Properties](#3-properties)  
+  - [3.1. Storage Recommendations](#31-storage-recommendations)  
+- [4. Dependencies](#4-dependencies)  
+- [5. Access Rights and Role Assignment](#5-access-rights-and-role-assignment)  
 
 ## 1. Overview
 
-This directory contains exported archives for the **MCP-Tool Catalog API** implementation. These archives provide preconfigured APIs and alias definitions to integrate the API with the IBM webMethods API Gateway (in both **SaaS** and **self-hosted** environments).
+This directory contains IBM API Connect (API Connect) assembly policies for implementing the **MCP-Tool Catalog API**. The API exposes product, API, and OpenAPI document information in an API Connect-compliant way. It is based on the **WxMCP Tool Catalog 1.1 specification** and integrates with IBM API Connect Manager APIs to retrieve metadata.  
 
-### 1.1 Requirements
-The provided archives require **webMethods 11.1+** installations.
+The configuration relies on **API Connect assembly policies (Gatewayscript, Invoke)** and external **properties** for consumer authentication.  
 
----
-
-## 2. Step-by-Step Instructions for webMethods API Gateway
-
-- Import the **MCP-Tool Catalog API** from this repository: ([API Implementations](./exports/WxMCP-wM-APIGateway-Tool-Catalog.zip)) into the webMethods API Gateway.  
-- Import the **Global Policies** from this repository: ([Global Policies](./exports/WxMCP-wM-APIGateway-Global_Policies.zip)) into the webMethods API Gateway.  
-- After the import you will find the following APIs in your API Gateway instance:  
-  - **WxMCP-Tool-Catalog-wMAPIGW (Version: 1.1)** – The implementation of the MCP Tool Catalog API  
-  - **IWHI-Service-Admin-API (Version: 1.0)** – A wrapper API for exchanging an `API Key` and `Instance ID` of an IWHI tenant against a Bearer token for invoking API Gateway admin APIs  
-
-- You will also find the following policies in your API Gateway:  
-  - **IWHI-Selfhosted-Credentials-Policy**  
-  - **IWHI-Service-Token-Policy** 
-
-- And these **Alias** entries:  
-  - **iwhi_service_apikey**
-  - **iwhi_service_instance_id**
-  - **iwhi_selfhosted_credentials**
-  - **iwhi_wm_apigw_host**
-
-- Depending on your environment, configure either for [SaaS](#21-configuring-saas-environment) or [self-hosted](#22-configuring-self-hosted-environment).  
-
-- Finally, configure **iwhi_wm_apigw_host**.
- The API Gateway host name (without protocol http/https, but including the port if available)  
----
-
-### 2.1 Configuring SaaS Environment
-
-- Enable **IWHI-Service-Token-Policy**.  
-  This policy injects a **custom extension** policy action into **WxMCP-Tool-Catalog-wMAPIGW (Version: 1.1)** for exchanging an API Key against an OAuth Bearer Token (required to access the admin APIs).
-- Configure **Alias** entries
-**iwhi_service_apikey** and **iwhi_service_instance_id**.
-Define the values for exchanging the API key against a Bearer token, as described here: [IBM Docs](https://www.ibm.com/docs/en/hybrid-integration/saas?topic=apis-managing-administration)   
-    
- - Use API tag `iwhi.service.id` to apply this policy to the MCP-Tool Catalog API.
+The API is tagged with `mcp.ignore` to prevent it from being exposed as an MCP tool through **WxMCPServer**.
 
 ---
 
-### 2.2 Configuring Self-Hosted Environment
+## 2. Step-by-Step instructions
 
-- Enable **IWHI-Selfhosted-Credentials-Policy**.  
-  This policy injects an **Outbound Auth transport** policy action into **WxMCP-Tool-Catalog-wMAPIGW (Version: 1.1)** for outbound authentication without requiring an IWHI admin token.  
--  Configure **Alias** entries 
-  **iwhi_selfhosted_credentials** 
-  Outbound credentials for API Gateway admin APIs in your self-hosted environment  
-- Use API tag `iwhi.selfhosted` to apply this policy.  
-
----
-
-## 3. Dependencies to Admin APIs
-
-These policy fragments depend on the following IBM webMethods Admin APIs and endpoints:
-
-| **HTTP Method** | **API Endpoint** | **Purpose/Action** |
-|-----------------|------------------------------------------------------------------|--------------------------------------|
-| POST            | `https://account-iam.platform.saas.ibm.com/api/2.0/services/{instanceId}/apikeys/token` | Exchange API key for a Bearer token (SaaS only) |
-| GET             | `https://${iwhi_wm_apigw_host}/rest/apigateway/packages/{packageId}` | Get details about an API product |
-| GET             | `https://${iwhi_wm_apigw_host}/rest/apigateway/apis/{apiId}` | Retrieve API metadata |
-| GET             | `https://${iwhi_wm_apigw_host}/rest/apigateway/apis/{apiId}?format=openapi` | Download OpenAPI specification for given API Id |
+- Import the API Connect specific OpenAPI 3.0 implementation [WxMCP-Tool-Catalog API](./exports/WxMCP-Tool-Catalog-APIC-Consumer.yml) into IBM API Connect.
+- On the API Connect homepage, locate the **Download Toolkit** section and download `credentials.json` under **Step 2: Download credentials**. This file contains the **consumer_toolkit** `base URL`, `client ID`, and `client secret` needed for API access.
+- In API Connect, navigate to **Manage**, select the catalog of your choice (or create a new one), then go to **Catalog Settings → Portal**. Log in to the portal to create a new Portal User.
+- Now you have all the values for the **Catalog properties**. Define them (see section 3) so they can be substituted during deployment.
+- Ensure the included assembly policies (`gatewayscript`, `invoke`, `set-variable`, `operation-switch`) exist exactly as provided in the OpenAPI definition.
+- Apply inbound authentication via **X-IBM-Client-Id** (API Key). This is required for tool clients.
+- Keep the tag **mcp.ignore** assigned in API settings so that the catalog API is not itself exposed as a tool.
+- Add at least one business API to the same **Product** as **WxMCP-Tool-Catalog-API** and publish all those APIs to the same product and catalog.
+- Test the operations of **WxMCP-Tool-Catalog-API** inside the API Connect GUI or use external tools like Postman.
+- Configure the MCP client for **WxMCP-Tool-Catalog-API** according to the [examples](https://github.com/IBM/WxMCPServer/?tab=readme-ov-file#7-configuration-examples).
 
 ---
 
-## 4. Access Rights and Role Assignment
+## 3. Properties  
 
-### 4.1 IBM webMethods Hybrid Integration (SaaS)
-For admin API access, the API Key must be assigned to a **service ID** with the role `API management admin`.
+The following API-level properties must be configured for the policies to function:
 
-### 4.2 IBM webMethods Hybrid Integration (Self-Hosted)
-For admin API access, the identity must be a member of the team **API-Gateway-Providers** (either directly or via group assignment).  
+| Property                     | Role / Usage                                                      |
+|------------------------------|------------------------------------------------------------------|
+| `wxmcp_consumer_client_id`   | Client ID from **consumer_toolkit**.                             |
+| `wxmcp_consumer_client_secret` | Client Secret from **consumer_toolkit**.                        |
+| `wxmcp_consumer_name`        | Local user name as signed up in the consumer-specific **Portal**.|
+| `wxmcp_consumer_password`    | Password for the `wxmcp_consumer_name` user.                     |
+| `wxmcp_consumer_base_url`    | Base URL as defined in the `endpoint` property of **consumer_toolkit**.|
+
+### 3.1. Storage Recommendations
+- Store secrets (`wxmcp_consumer_client_secret`, `wxmcp_consumer_password`) as **Vault-managed properties** or secure property values.
+- Store others (`wxmcp_consumer_client_id`, `wxmcp_consumer_name`, `wxmcp_consumer_base_url`) as standard string properties.
+
+---
+
+## 4. Dependencies  
+
+The assembly policies rely on the following IBM API Connect consumer-facing APIs:
+
+| HTTP Method | API Endpoint                                       | Purpose / Action                                                            |
+|-------------|--------------------------------------------------|-----------------------------------------------------------------------------|
+| POST        | `$(wxmcp_consumer_base_url)/token`                | Obtain access token with password grant using client ID/secret and user credentials. |
+| GET         | `$(wxmcp_consumer_base_url)/public-products`      | Retrieve product list for authenticated consumer.                           |
+| GET         | `$(wxmcp_consumer_base_url)/public-apis/{apiId}`  | Retrieve API metadata.                                                       |
+| GET         | `$(wxmcp_consumer_base_url)/public-apis/{apiId}/document` | Retrieve detailed API documentation, including x-ibm-endpoints.             |
+| GET         | `$(wxmcp_consumer_base_url)/public-apis/{apiId}/document` | Download OpenAPI specification document by API ID.                         |
+
+---
+
+## 5. Access Rights and Role Assignment  
+
+To access all referenced APIs, the consumer application must have:
+
+- **API Connect Consumer Organization Credentials:**
+  - The application must belong to a consumer org and be subscribed to the MCP-related products.
+  - The `client_id` and `client_secret` must be valid for the chosen org and catalog.
+
+- **IBM API Connect Role / Permission:**
+  - The consumer username must have sufficient access to invoke `public-products` and `public-apis` endpoints.
+  - By default, consumer roles in a catalog (such as **Developer Portal Users**) are sufficient for read operations.
+
+- **Assembly Security:**
+  - The policies validate the `X-IBM-Client-Id` header per subscription.
+  - Optionally, JWT validation can be enforced via API Connect assemblies if additional consumer authentication is required.
 
 ---
