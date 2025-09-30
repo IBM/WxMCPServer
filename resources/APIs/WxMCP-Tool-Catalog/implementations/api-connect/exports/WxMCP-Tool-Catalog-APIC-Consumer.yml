@@ -1,86 +1,683 @@
+openapi: 3.0.1
+info:
+  title: WxMCP-Tool-Catalog
+  version: '1.1'
+  description: APIC-compliant implementation of the WxMCP Tool Catalog 1.1
+  x-ibm-name: wxmcp-tool-catalog
+servers:
+  - url: /tool-catalog
+security:
+  - X-IBM-Client-Id: []
+tags:
+  - name: mcp.ignore
+paths:
+  /productInfo:
+    summary: Get details about the product and all related APIs
+    description: >
+      Get information about all APIs exposed by an MCP Tool Catalog,
+      constituting the tools for a particular MCP server.
+    get:
+      operationId: getProductInfo
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductInfo'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /apis/{apiID}:
+    summary: getAPIDetailsById
+    description: >
+      Get metadata about an API, a.k.a. an MCP "tool set".
 
-## A guide for implementing WxMCP-Tool-Catalog API for IBM API Connect
+      If "fileID" is returned in attachments, fetch OpenAPI via GET
+      /files/{fileID}.
 
-## Table of Contents
+      If "uri" is returned, it is a fully-qualified, **unprotected** endpoint to
+      download the spec.
+    get:
+      operationId: getAPIDetailsById
+      parameters:
+        - name: apiID
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiMetadata'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /files/{fileID}:
+    summary: download OpenAPI spec by ID
+    description: Download the OpenAPI 3.x specification by file ID
+    get:
+      operationId: downloadOpenAPISpecificationByID
+      parameters:
+        - name: fileID
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Returns the OpenAPI specification in JSON format
+          content:
+            application/json:
+              schema:
+                type: object
+                description: OpenAPI specification document
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  securitySchemes:
+    X-IBM-Client-Id:
+      type: apiKey
+      in: header
+      name: X-IBM-Client-Id
+  schemas:
+    ProductInfo:
+      type: object
+      required:
+        - apis
+        - name
+        - productID
+        - applicationID
+        - catalogType
+      properties:
+        apis:
+          type: array
+          items:
+            type: string
+        name:
+          type: string
+        description:
+          type: string
+        productID:
+          type: string
+        applicationID:
+          type: string
+        applicationName:
+          type: string
+        catalogType:
+          type: string
+          enum:
+            - WM_DEVELOPER_PORTAL
+            - WM_API_GATEWAY
+            - AZURE_APIMANAGENT
+            - OTHER
+    ApiMetadata:
+      type: object
+      required:
+        - attachments
+        - endPoints
+        - id
+        - name
+        - version
+      properties:
+        owner:
+          type: string
+        providerRef:
+          type: string
+        attachments:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              uri:
+                type: string
+              fileID:
+                type: string
+        name:
+          type: string
+        description:
+          type: string
+        id:
+          type: string
+        version:
+          type: string
+        endPoints:
+          type: array
+          items:
+            type: object
+            required:
+              - baseUrl
+              - name
+            properties:
+              baseUrl:
+                type: string
+              name:
+                type: string
+              tags:
+                type: array
+                items:
+                  type: string
+    ErrorResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+x-ibm-configuration:
+  enforced: true
+  gateway: datapower-api-gateway
+  cors:
+    enabled: true
+  phase: realized
+  properties:
+    token_url:
+      value: https://<APIC-MANAGER-BASE>/api/token
+  assembly:
+    execute:
+      - gatewayscript:
+          version: 2.0.0
+          title: set-bearer-request
+          description: Set consumer bearer request
+          source: >-
+            var apim = require('apim');
+              
+            var wxmcp_consumer_client_id = "$(wxmcp_consumer_client_id)";
 
-- [1. Overview](#1-overview)  
-- [2. Step-by-Step instructions](#2-step-by-step-instructions)  
-- [3. Properties](#3-properties)  
-  - [3.1. Storage Recommendations](#31-storage-recommendations)  
-- [4. Dependencies](#4-dependencies)  
-- [5. Access Rights and Role Assignment](#5-access-rights-and-role-assignment)  
+            var wxmcp_consumer_client_secret =
+            "$(wxmcp_consumer_client_secret)";  
 
-## 1. Overview
+            var wxmcp_consumer_name = "$(wxmcp_consumer_name)";
 
-This directory contains IBM API Connect (API Connect) assembly policies for implementing the **MCP-Tool Catalog API**. The API exposes product, API, and OpenAPI document information in an API Connect-compliant way. It is based on the **WxMCP Tool Catalog 1.1 specification** and integrates with IBM API Connect Manager APIs to retrieve metadata.  
+            var wxmcp_consumer_password = "$(wxmcp_consumer_password)";  
 
-The configuration relies on **API Connect assembly policies (Gatewayscript, Invoke)** and external **properties** for consumer authentication.  
+            var wxmcp_consumer_base_url = "$(wxmcp_consumer_base_url)";  
 
-The API is tagged with `mcp.ignore` to prevent it from being exposed as an MCP tool through **WxMCPServer**.
 
----
+            var apiOrg = apim.getvariable('api.org.name');
 
-## 2. Step-by-Step instructions
+            var catalog = apim.getvariable('api.catalog.name');
 
-- Import the API Connect specific OpenAPI 3.0 implementation [WxMCP-Tool-Catalog API](./exports/WxMCP-Tool-Catalog-APIC-Consumer.yml) into IBM API Connect.
-- On the API Connect homepage, locate the **Download Toolkit** section and download `credentials.json` under **Step 2: Download credentials**. This file contains the **consumer_toolkit** `base URL`, `client ID`, and `client secret` needed for API access.
-- In API Connect, navigate to **Manage**, select the catalog of your choice (or create a new one), then go to **Catalog Settings → Portal**. Log in to the portal to create a new Portal User.
-- Now you have all the values for the **Catalog properties**. Define them (see section 3) so they can be substituted during deployment.
-- Ensure the included assembly policies (`gatewayscript`, `invoke`, `set-variable`, `operation-switch`) exist exactly as provided in the OpenAPI definition.
-- Apply inbound authentication via **X-IBM-Client-Id** (API Key). This is required for tool clients.
-- Keep the tag **mcp.ignore** assigned in API settings so that the catalog API is not itself exposed as a tool.
-- Add at least one business API to the same **Product** as **WxMCP-Tool-Catalog-API** and publish all those APIs to the same product and catalog.
-- Test the operations of **WxMCP-Tool-Catalog-API** inside the API Connect GUI or use external tools like Postman.
-- Configure the MCP client for **WxMCP-Tool-Catalog-API** according to the [examples](https://github.com/IBM/WxMCPServer/?tab=readme-ov-file#7-configuration-examples).
 
----
+            // Define bearer token request payload
 
-## 3. Properties  
 
-The following API-level properties must be configured for the policies to function:
+            var bearerPayload = JSON.stringify({
+              realm: "consumer:"+ apiOrg + ":" + catalog + "/" +catalog + "-idp",
+              grant_type: "password",
+              username: wxmcp_consumer_name,
+              password: wxmcp_consumer_password,
+              client_id: wxmcp_consumer_client_id,
+              client_secret: wxmcp_consumer_client_secret
+            });
 
-| Property                     | Role / Usage                                                      |
-|------------------------------|------------------------------------------------------------------|
-| `wxmcp_consumer_client_id`   | Client ID from **consumer_toolkit**.                             |
-| `wxmcp_consumer_client_secret` | Client Secret from **consumer_toolkit**.                        |
-| `wxmcp_consumer_name`        | Local user name as signed up in the consumer-specific **Portal**.|
-| `wxmcp_consumer_password`    | Password for the `wxmcp_consumer_name` user.                     |
-| `wxmcp_consumer_base_url`    | Base URL as defined in the `endpoint` property of **consumer_toolkit**.|
 
-### 3.1. Storage Recommendations
-- Store secrets (`wxmcp_consumer_client_secret`, `wxmcp_consumer_password`) as **Vault-managed properties** or secure property values.
-- Store others (`wxmcp_consumer_client_id`, `wxmcp_consumer_name`, `wxmcp_consumer_base_url`) as standard string properties.
+            // Set request body for backend (Invoke)
 
----
+            apim.setvariable('message.body', bearerPayload);
 
-## 4. Dependencies  
+            apim.setvariable('message.headers.X-IBM-Consumer-Context',
+            apiOrg+'.'+catalog, 'set');
 
-The assembly policies rely on the following IBM API Connect consumer-facing APIs:
 
-| HTTP Method | API Endpoint                                       | Purpose / Action                                                            |
-|-------------|--------------------------------------------------|-----------------------------------------------------------------------------|
-| POST        | `$(wxmcp_consumer_base_url)/token`                | Obtain access token with password grant using client ID/secret and user credentials. |
-| GET         | `$(wxmcp_consumer_base_url)/public-products`      | Retrieve product list for authenticated consumer.                           |
-| GET         | `$(wxmcp_consumer_base_url)/public-apis/{apiId}`  | Retrieve API metadata.                                                       |
-| GET         | `$(wxmcp_consumer_base_url)/public-apis/{apiId}/document` | Retrieve detailed API documentation, including x-ibm-endpoints.             |
-| GET         | `$(wxmcp_consumer_base_url)/public-apis/{apiId}/document` | Download OpenAPI specification document by API ID.                         |
+            // (OPTIONAL) Set content type if the Invoke doesn't already do so
 
----
+            apim.setvariable('message.headers.content-type',
+            'application/json');
+      - invoke:
+          version: 2.3.0
+          title: get-bearer
+          backend-type: json
+          header-control:
+            type: blocklist
+            values: []
+          parameter-control:
+            type: allowlist
+            values: []
+          http-version: HTTP/1.1
+          timeout: 60
+          verb: POST
+          chunked-uploads: true
+          persistent-connection: true
+          cache-response: protocol
+          cache-ttl: 900
+          websocket-upgrade: false
+          description: Get consumer bearer token
+          target-url: $(wxmcp_consumer_base_url)/token
+          stop-on-error: []
+          output: consumerTokenResponse
+      - gatewayscript:
+          version: 2.0.0
+          title: extract-bearer
+          description: Extreact consumer bearer token from response
+          source: >-
+            var apim = require('apim');
 
-## 5. Access Rights and Role Assignment  
 
-To access all referenced APIs, the consumer application must have:
+            var response = apim.getvariable('consumerTokenResponse.body');
 
-- **API Connect Consumer Organization Credentials:**
-  - The application must belong to a consumer org and be subscribed to the MCP-related products.
-  - The `client_id` and `client_secret` must be valid for the chosen org and catalog.
+            var obj = (typeof response === "string") ? JSON.parse(response) :
+            response;
 
-- **IBM API Connect Role / Permission:**
-  - The consumer username must have sufficient access to invoke `public-products` and `public-apis` endpoints.
-  - By default, consumer roles in a catalog (such as **Developer Portal Users**) are sufficient for read operations.
+            apim.setvariable('consumer_access_token', obj.access_token);
+      - set-variable:
+          version: 2.0.0
+          title: set-bearer-header
+          actions:
+            - set: message.headers.Authorization
+              value: Bearer $(consumer_access_token)
+              type: string
+            - set: message.body
+              value: '{}'
+              type: string
+          description: Set consumer bearer token
+      - operation-switch:
+          version: 2.0.0
+          title: operation-switch
+          case:
+            - operations:
+                - getProductInfo
+              execute:
+                - invoke:
+                    version: 2.3.0
+                    title: get-products
+                    backend-type: detect
+                    header-control:
+                      type: blocklist
+                      values: []
+                    parameter-control:
+                      type: allowlist
+                      values: []
+                    http-version: HTTP/1.1
+                    timeout: 60
+                    verb: GET
+                    chunked-uploads: true
+                    persistent-connection: true
+                    cache-response: protocol
+                    cache-ttl: 900
+                    websocket-upgrade: false
+                    description: Get list of products
+                    target-url: $(wxmcp_consumer_base_url)/public-products
+                    output: consumer_products_response
+                    stop-on-error:
+                      - ConnectionError
+                - gatewayscript:
+                    version: 2.0.0
+                    title: extract-product
+                    description: Get product ID, name and summary
+                    source: >
+                      var apim = require('apim');
 
-- **Assembly Security:**
-  - The policies validate the `X-IBM-Client-Id` header per subscription.
-  - Optionally, JWT validation can be enforced via API Connect assemblies if additional consumer authentication is required.
 
----
+                      var response =
+                      apim.getvariable('consumer_products_response.body');
+
+                      var productResponse = (typeof response === "string") ?
+                      JSON.parse(response) : response;
+
+
+                      var input = apim.getvariable('plan.id');
+
+
+                      if (!input || input.indexOf(':') === -1) {
+                        console.error("Invalid or missing input string");
+                        input = null; // Avoid processing below
+                      }
+
+
+                      var productNameFilter = "";
+
+                      var productVersionFilter = "";
+
+
+                      if (input) {
+                        var parts = input.split(':');
+                        productNameFilter = parts[0];
+                        productVersionFilter = parts[1];
+                      }
+
+
+                      if (!productResponse || !productResponse.results ||
+                      !Array.isArray(productResponse.results)) {
+                        console.error("Invalid or missing productResponse results");
+                        productResponse = { results: [] }; // safe default empty array
+                      }
+
+
+                      var matchedProduct = null;
+
+
+                      for (var i = 0; i < productResponse.results.length; i++) {
+                        var p = productResponse.results[i];
+                        if (p.name === productNameFilter && p.version === productVersionFilter) {
+                          matchedProduct = p;
+                          break;
+                        }
+                      }
+
+
+                      if (matchedProduct) {
+                        apim.setvariable('productId', matchedProduct.id);
+                        apim.setvariable('productName', matchedProduct.name);
+                        apim.setvariable('productSummary', matchedProduct?.summary ?? (""));
+                      } else {
+                        console.error("No matching product found");
+                      }
+
+
+                      var uuidSet = {};
+
+                      var apis = [];
+
+
+                      productResponse.results.forEach(function(item) {
+                          item.api_urls.forEach(function(url) {
+                              // Extract the UUID: after '/apis/' or the UUID pattern
+                              var uuidMatch = url.match(/\/apis\/([a-f0-9\-]{36})/i);
+                              if (uuidMatch && uuidSet[uuidMatch[1]] !== true) {
+                                  uuidSet[uuidMatch[1]] = true;
+                                  apis.push(uuidMatch[1]);
+                              }
+                          });
+                      });
+
+
+                      apim.setvariable('apis', apis);
+                - gatewayscript:
+                    version: 2.0.0
+                    title: set-productinfo
+                    description: >-
+                      Return info about API product and related APIS within that
+                      product
+                    source: >
+                      var apim = require('apim');
+
+
+                      var wxmcp_productId = apim.getvariable('productId');
+
+                      var wxmcp_productName = apim.getvariable('productName');
+
+                      var wxmcp_productSummary =
+                      apim.getvariable('productSummary');
+
+                      var wxmcp_apis = apim.getvariable('apis');
+
+
+                      var payload = {
+                        productID: wxmcp_productId,
+                        name: wxmcp_productName,
+                        catalogType: "IBM_API_CONNECT",
+                        applicationID: apim.getvariable('client.app.id'),
+                        applicationName: apim.getvariable('client.app.name'),
+                        description: wxmcp_productSummary,
+                        apis: wxmcp_apis
+                      };
+
+
+                      var responseBody = JSON.stringify(payload);
+
+
+                      apim.setvariable('message.status.code', 200);
+
+                      apim.setvariable('message.headers.content-type',
+                      'application/json');
+
+                      apim.setvariable('message.body', responseBody);
+
+                      apim.output('application/json');
+            - operations:
+                - getAPIDetailsById
+              execute:
+                - invoke:
+                    version: 2.3.0
+                    title: get-api-details
+                    backend-type: json
+                    header-control:
+                      type: blocklist
+                      values: []
+                    parameter-control:
+                      type: allowlist
+                      values: []
+                    http-version: HTTP/1.1
+                    timeout: 60
+                    verb: GET
+                    chunked-uploads: true
+                    persistent-connection: true
+                    cache-response: protocol
+                    cache-ttl: 900
+                    websocket-upgrade: false
+                    description: Get API Details
+                    target-url: >-
+                      $(wxmcp_consumer_base_url)/public-apis/$(request.parameters.apiID)
+                    stop-on-error:
+                      - ConnectionError
+                    output: api_details_response
+                - invoke:
+                    version: 2.3.0
+                    title: get-api-document
+                    backend-type: json
+                    header-control:
+                      type: blocklist
+                      values: []
+                    parameter-control:
+                      type: allowlist
+                      values: []
+                    http-version: HTTP/1.1
+                    timeout: 60
+                    verb: GET
+                    chunked-uploads: true
+                    persistent-connection: true
+                    cache-response: protocol
+                    cache-ttl: 900
+                    websocket-upgrade: false
+                    description: Get further API details and document
+                    target-url: >-
+                      $(wxmcp_consumer_base_url)/public-apis/$(request.parameters.apiID)/document
+                    stop-on-error:
+                      - ConnectionError
+                    output: api_document_response
+                - gatewayscript:
+                    version: 2.0.0
+                    title: set-api-details
+                    description: Set the API Details response
+                    source: >-
+                      var apim = require('apim');
+
+
+
+                      var response =
+                      apim.getvariable('api_details_response.body');
+
+                      var apiDetailsReponse = (typeof response === "string") ?
+                      JSON.parse(response) : response;
+
+
+                      var dResponse =
+                      apim.getvariable('api_document_response.body');
+
+                      var apiDocumentReponse = (typeof dResponse === "string") ?
+                      JSON.parse(dResponse) : dResponse;
+
+
+                      // Robust tags extraction
+
+                      var tags = [];
+
+                      if (apiDocumentReponse &&
+                      Array.isArray(apiDocumentReponse.tags)) {
+                          tags = apiDocumentReponse.tags.map(function(t) {
+                              // Defensive: ensure t.name is string, fallback to empty string
+                              return t && typeof t.name === "string" ? t.name : "";
+                          }).filter(function(t) { return t !== ""; }); // Remove empty strings if needed
+                      }
+
+
+                      // Ensure 'tags' is an array, even if
+                      missing/null/undefined
+
+                      if (!Array.isArray(tags)) {
+                          tags = [];
+                      }
+
+
+                      // Robust endpoint extraction – KORREKT via
+                      Bracket-Notation
+
+                      var xibmEndpoints = apiDocumentReponse &&
+                      apiDocumentReponse['x-ibm-endpoints'];
+
+                      var endpointUrl = (Array.isArray(xibmEndpoints) &&
+                                         xibmEndpoints.length > 0 &&
+                                         typeof xibmEndpoints[0].url === "string")
+                          ? xibmEndpoints[0].url
+                          : "";
+
+                      var endPoints = [
+                          {
+                              name: "x-ibm-endpoint",
+                              baseUrl: endpointUrl
+                          }
+                      ];
+
+
+                      var payload = {
+                        "name": apiDetailsReponse.name,
+                        "owner": "",
+                        "id": apiDetailsReponse.id,
+                        "description": apiDocumentReponse.info.description,
+                        "providerRef": "",
+                        "version": apiDetailsReponse.version,
+                        "tags": tags,
+                        "attachments": [
+                          {
+                            "name": "openapi-link",
+                            "fileID": apim.getvariable('request.parameters.apiID')
+                          }
+                        ],
+                        "endpoints": endPoints
+                      };
+
+
+                      var responseBody = JSON.stringify(payload);
+
+
+                      apim.setvariable('message.status.code', 200);
+
+                      apim.setvariable('message.headers.content-type',
+                      'application/json; charset=UTF-8');
+
+                      apim.setvariable('message.body', responseBody);
+
+                      apim.output('application/json');
+            - operations:
+                - downloadOpenAPISpecificationByID
+              execute:
+                - invoke:
+                    version: 2.3.0
+                    title: get-api-document
+                    backend-type: detect
+                    header-control:
+                      type: blocklist
+                      values: []
+                    parameter-control:
+                      type: allowlist
+                      values: []
+                    http-version: HTTP/1.1
+                    timeout: 60
+                    verb: GET
+                    chunked-uploads: true
+                    persistent-connection: true
+                    cache-response: protocol
+                    cache-ttl: 900
+                    websocket-upgrade: false
+                    description: Get the Open API specification
+                    target-url: >-
+                      $(wxmcp_consumer_base_url)/public-apis/$(request.parameters.fileID)/document
+                    stop-on-error:
+                      - ConnectionError
+                    output: api_document_response
+                - gatewayscript:
+                    version: 2.0.0
+                    title: set-api-spec
+                    description: Return the OpenAPI specification
+                    source: >-
+                      var apim = require('apim');
+
+
+                      var dResponse =
+                      apim.getvariable('api_document_response.body');
+
+                      var apiDocumentReponse = (typeof dResponse === "string") ?
+                      JSON.parse(dResponse) : dResponse;
+
+
+                      var responseBody = JSON.stringify(apiDocumentReponse);
+
+
+                      apim.setvariable('message.status.code', 200);
+
+                      apim.setvariable('message.headers.content-type',
+                      'application/json; charset=UTF-8');
+
+                      apim.setvariable('message.body', responseBody);
+
+                      apim.output('application/json');
+          otherwise: []
+  type: rest
+  testable: true
+  activity-log:
+    enabled: true
+    success-content: activity
+    error-content: payload
