@@ -1,0 +1,683 @@
+openapi: 3.0.1
+info:
+  title: WxMCP-Tool-Catalog
+  version: '1.1'
+  description: APIC-compliant implementation of the WxMCP Tool Catalog 1.1
+  x-ibm-name: wxmcp-tool-catalog
+servers:
+  - url: /tool-catalog
+security:
+  - X-IBM-Client-Id: []
+tags:
+  - name: mcp.ignore
+paths:
+  /productInfo:
+    summary: Get details about the product and all related APIs
+    description: >
+      Get information about all APIs exposed by an MCP Tool Catalog,
+      constituting the tools for a particular MCP server.
+    get:
+      operationId: getProductInfo
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductInfo'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /apis/{apiID}:
+    summary: getAPIDetailsById
+    description: >
+      Get metadata about an API, a.k.a. an MCP "tool set".
+
+      If "fileID" is returned in attachments, fetch OpenAPI via GET
+      /files/{fileID}.
+
+      If "uri" is returned, it is a fully-qualified, **unprotected** endpoint to
+      download the spec.
+    get:
+      operationId: getAPIDetailsById
+      parameters:
+        - name: apiID
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiMetadata'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /files/{fileID}:
+    summary: download OpenAPI spec by ID
+    description: Download the OpenAPI 3.x specification by file ID
+    get:
+      operationId: downloadOpenAPISpecificationByID
+      parameters:
+        - name: fileID
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Returns the OpenAPI specification in JSON format
+          content:
+            application/json:
+              schema:
+                type: object
+                description: OpenAPI specification document
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  securitySchemes:
+    X-IBM-Client-Id:
+      type: apiKey
+      in: header
+      name: X-IBM-Client-Id
+  schemas:
+    ProductInfo:
+      type: object
+      required:
+        - apis
+        - name
+        - productID
+        - applicationID
+        - catalogType
+      properties:
+        apis:
+          type: array
+          items:
+            type: string
+        name:
+          type: string
+        description:
+          type: string
+        productID:
+          type: string
+        applicationID:
+          type: string
+        applicationName:
+          type: string
+        catalogType:
+          type: string
+          enum:
+            - WM_DEVELOPER_PORTAL
+            - WM_API_GATEWAY
+            - AZURE_APIMANAGENT
+            - OTHER
+    ApiMetadata:
+      type: object
+      required:
+        - attachments
+        - endPoints
+        - id
+        - name
+        - version
+      properties:
+        owner:
+          type: string
+        providerRef:
+          type: string
+        attachments:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              uri:
+                type: string
+              fileID:
+                type: string
+        name:
+          type: string
+        description:
+          type: string
+        id:
+          type: string
+        version:
+          type: string
+        endPoints:
+          type: array
+          items:
+            type: object
+            required:
+              - baseUrl
+              - name
+            properties:
+              baseUrl:
+                type: string
+              name:
+                type: string
+              tags:
+                type: array
+                items:
+                  type: string
+    ErrorResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+x-ibm-configuration:
+  enforced: true
+  gateway: datapower-api-gateway
+  cors:
+    enabled: true
+  phase: realized
+  properties:
+    token_url:
+      value: https://<APIC-MANAGER-BASE>/api/token
+  assembly:
+    execute:
+      - gatewayscript:
+          version: 2.0.0
+          title: set-bearer-request
+          description: Set consumer bearer request
+          source: >-
+            var apim = require('apim');
+              
+            var wxmcp_consumer_client_id = "$(wxmcp_consumer_client_id)";
+
+            var wxmcp_consumer_client_secret =
+            "$(wxmcp_consumer_client_secret)";  
+
+            var wxmcp_consumer_name = "$(wxmcp_consumer_name)";
+
+            var wxmcp_consumer_password = "$(wxmcp_consumer_password)";  
+
+            var wxmcp_consumer_base_url = "$(wxmcp_consumer_base_url)";  
+
+
+            var apiOrg = apim.getvariable('api.org.name');
+
+            var catalog = apim.getvariable('api.catalog.name');
+
+
+            // Define bearer token request payload
+
+
+            var bearerPayload = JSON.stringify({
+              realm: "consumer:"+ apiOrg + ":" + catalog + "/" +catalog + "-idp",
+              grant_type: "password",
+              username: wxmcp_consumer_name,
+              password: wxmcp_consumer_password,
+              client_id: wxmcp_consumer_client_id,
+              client_secret: wxmcp_consumer_client_secret
+            });
+
+
+            // Set request body for backend (Invoke)
+
+            apim.setvariable('message.body', bearerPayload);
+
+            apim.setvariable('message.headers.X-IBM-Consumer-Context',
+            apiOrg+'.'+catalog, 'set');
+
+
+            // (OPTIONAL) Set content type if the Invoke doesn't already do so
+
+            apim.setvariable('message.headers.content-type',
+            'application/json');
+      - invoke:
+          version: 2.3.0
+          title: get-bearer
+          backend-type: json
+          header-control:
+            type: blocklist
+            values: []
+          parameter-control:
+            type: allowlist
+            values: []
+          http-version: HTTP/1.1
+          timeout: 60
+          verb: POST
+          chunked-uploads: true
+          persistent-connection: true
+          cache-response: protocol
+          cache-ttl: 900
+          websocket-upgrade: false
+          description: Get consumer bearer token
+          target-url: $(wxmcp_consumer_base_url)/token
+          stop-on-error: []
+          output: consumerTokenResponse
+      - gatewayscript:
+          version: 2.0.0
+          title: extract-bearer
+          description: Extreact consumer bearer token from response
+          source: >-
+            var apim = require('apim');
+
+
+            var response = apim.getvariable('consumerTokenResponse.body');
+
+            var obj = (typeof response === "string") ? JSON.parse(response) :
+            response;
+
+            apim.setvariable('consumer_access_token', obj.access_token);
+      - set-variable:
+          version: 2.0.0
+          title: set-bearer-header
+          actions:
+            - set: message.headers.Authorization
+              value: Bearer $(consumer_access_token)
+              type: string
+            - set: message.body
+              value: '{}'
+              type: string
+          description: Set consumer bearer token
+      - operation-switch:
+          version: 2.0.0
+          title: operation-switch
+          case:
+            - operations:
+                - getProductInfo
+              execute:
+                - invoke:
+                    version: 2.3.0
+                    title: get-products
+                    backend-type: detect
+                    header-control:
+                      type: blocklist
+                      values: []
+                    parameter-control:
+                      type: allowlist
+                      values: []
+                    http-version: HTTP/1.1
+                    timeout: 60
+                    verb: GET
+                    chunked-uploads: true
+                    persistent-connection: true
+                    cache-response: protocol
+                    cache-ttl: 900
+                    websocket-upgrade: false
+                    description: Get list of products
+                    target-url: $(wxmcp_consumer_base_url)/public-products
+                    output: consumer_products_response
+                    stop-on-error:
+                      - ConnectionError
+                - gatewayscript:
+                    version: 2.0.0
+                    title: extract-product
+                    description: Get product ID, name and summary
+                    source: >
+                      var apim = require('apim');
+
+
+                      var response =
+                      apim.getvariable('consumer_products_response.body');
+
+                      var productResponse = (typeof response === "string") ?
+                      JSON.parse(response) : response;
+
+
+                      var input = apim.getvariable('plan.id');
+
+
+                      if (!input || input.indexOf(':') === -1) {
+                        console.error("Invalid or missing input string");
+                        input = null; // Avoid processing below
+                      }
+
+
+                      var productNameFilter = "";
+
+                      var productVersionFilter = "";
+
+
+                      if (input) {
+                        var parts = input.split(':');
+                        productNameFilter = parts[0];
+                        productVersionFilter = parts[1];
+                      }
+
+
+                      if (!productResponse || !productResponse.results ||
+                      !Array.isArray(productResponse.results)) {
+                        console.error("Invalid or missing productResponse results");
+                        productResponse = { results: [] }; // safe default empty array
+                      }
+
+
+                      var matchedProduct = null;
+
+
+                      for (var i = 0; i < productResponse.results.length; i++) {
+                        var p = productResponse.results[i];
+                        if (p.name === productNameFilter && p.version === productVersionFilter) {
+                          matchedProduct = p;
+                          break;
+                        }
+                      }
+
+
+                      if (matchedProduct) {
+                        apim.setvariable('productId', matchedProduct.id);
+                        apim.setvariable('productName', matchedProduct.name);
+                        apim.setvariable('productSummary', matchedProduct?.summary ?? (""));
+                      } else {
+                        console.error("No matching product found");
+                      }
+
+
+                      var uuidSet = {};
+
+                      var apis = [];
+
+
+                      productResponse.results.forEach(function(item) {
+                          item.api_urls.forEach(function(url) {
+                              // Extract the UUID: after '/apis/' or the UUID pattern
+                              var uuidMatch = url.match(/\/apis\/([a-f0-9\-]{36})/i);
+                              if (uuidMatch && uuidSet[uuidMatch[1]] !== true) {
+                                  uuidSet[uuidMatch[1]] = true;
+                                  apis.push(uuidMatch[1]);
+                              }
+                          });
+                      });
+
+
+                      apim.setvariable('apis', apis);
+                - gatewayscript:
+                    version: 2.0.0
+                    title: set-productinfo
+                    description: >-
+                      Return info about API product and related APIS within that
+                      product
+                    source: >
+                      var apim = require('apim');
+
+
+                      var wxmcp_productId = apim.getvariable('productId');
+
+                      var wxmcp_productName = apim.getvariable('productName');
+
+                      var wxmcp_productSummary =
+                      apim.getvariable('productSummary');
+
+                      var wxmcp_apis = apim.getvariable('apis');
+
+
+                      var payload = {
+                        productID: wxmcp_productId,
+                        name: wxmcp_productName,
+                        catalogType: "IBM_API_CONNECT",
+                        applicationID: apim.getvariable('client.app.id'),
+                        applicationName: apim.getvariable('client.app.name'),
+                        description: wxmcp_productSummary,
+                        apis: wxmcp_apis
+                      };
+
+
+                      var responseBody = JSON.stringify(payload);
+
+
+                      apim.setvariable('message.status.code', 200);
+
+                      apim.setvariable('message.headers.content-type',
+                      'application/json');
+
+                      apim.setvariable('message.body', responseBody);
+
+                      apim.output('application/json');
+            - operations:
+                - getAPIDetailsById
+              execute:
+                - invoke:
+                    version: 2.3.0
+                    title: get-api-details
+                    backend-type: json
+                    header-control:
+                      type: blocklist
+                      values: []
+                    parameter-control:
+                      type: allowlist
+                      values: []
+                    http-version: HTTP/1.1
+                    timeout: 60
+                    verb: GET
+                    chunked-uploads: true
+                    persistent-connection: true
+                    cache-response: protocol
+                    cache-ttl: 900
+                    websocket-upgrade: false
+                    description: Get API Details
+                    target-url: >-
+                      $(wxmcp_consumer_base_url)/public-apis/$(request.parameters.apiID)
+                    stop-on-error:
+                      - ConnectionError
+                    output: api_details_response
+                - invoke:
+                    version: 2.3.0
+                    title: get-api-document
+                    backend-type: json
+                    header-control:
+                      type: blocklist
+                      values: []
+                    parameter-control:
+                      type: allowlist
+                      values: []
+                    http-version: HTTP/1.1
+                    timeout: 60
+                    verb: GET
+                    chunked-uploads: true
+                    persistent-connection: true
+                    cache-response: protocol
+                    cache-ttl: 900
+                    websocket-upgrade: false
+                    description: Get further API details and document
+                    target-url: >-
+                      $(wxmcp_consumer_base_url)/public-apis/$(request.parameters.apiID)/document
+                    stop-on-error:
+                      - ConnectionError
+                    output: api_document_response
+                - gatewayscript:
+                    version: 2.0.0
+                    title: set-api-details
+                    description: Set the API Details response
+                    source: >-
+                      var apim = require('apim');
+
+
+
+                      var response =
+                      apim.getvariable('api_details_response.body');
+
+                      var apiDetailsReponse = (typeof response === "string") ?
+                      JSON.parse(response) : response;
+
+
+                      var dResponse =
+                      apim.getvariable('api_document_response.body');
+
+                      var apiDocumentReponse = (typeof dResponse === "string") ?
+                      JSON.parse(dResponse) : dResponse;
+
+
+                      // Robust tags extraction
+
+                      var tags = [];
+
+                      if (apiDocumentReponse &&
+                      Array.isArray(apiDocumentReponse.tags)) {
+                          tags = apiDocumentReponse.tags.map(function(t) {
+                              // Defensive: ensure t.name is string, fallback to empty string
+                              return t && typeof t.name === "string" ? t.name : "";
+                          }).filter(function(t) { return t !== ""; }); // Remove empty strings if needed
+                      }
+
+
+                      // Ensure 'tags' is an array, even if
+                      missing/null/undefined
+
+                      if (!Array.isArray(tags)) {
+                          tags = [];
+                      }
+
+
+                      // Robust endpoint extraction – KORREKT via
+                      Bracket-Notation
+
+                      var xibmEndpoints = apiDocumentReponse &&
+                      apiDocumentReponse['x-ibm-endpoints'];
+
+                      var endpointUrl = (Array.isArray(xibmEndpoints) &&
+                                         xibmEndpoints.length > 0 &&
+                                         typeof xibmEndpoints[0].url === "string")
+                          ? xibmEndpoints[0].url
+                          : "";
+
+                      var endPoints = [
+                          {
+                              name: "x-ibm-endpoint",
+                              baseUrl: endpointUrl
+                          }
+                      ];
+
+
+                      var payload = {
+                        "name": apiDetailsReponse.name,
+                        "owner": "",
+                        "id": apiDetailsReponse.id,
+                        "description": apiDocumentReponse.info.description,
+                        "providerRef": "",
+                        "version": apiDetailsReponse.version,
+                        "tags": tags,
+                        "attachments": [
+                          {
+                            "name": "openapi-link",
+                            "fileID": apim.getvariable('request.parameters.apiID')
+                          }
+                        ],
+                        "endpoints": endPoints
+                      };
+
+
+                      var responseBody = JSON.stringify(payload);
+
+
+                      apim.setvariable('message.status.code', 200);
+
+                      apim.setvariable('message.headers.content-type',
+                      'application/json; charset=UTF-8');
+
+                      apim.setvariable('message.body', responseBody);
+
+                      apim.output('application/json');
+            - operations:
+                - downloadOpenAPISpecificationByID
+              execute:
+                - invoke:
+                    version: 2.3.0
+                    title: get-api-document
+                    backend-type: detect
+                    header-control:
+                      type: blocklist
+                      values: []
+                    parameter-control:
+                      type: allowlist
+                      values: []
+                    http-version: HTTP/1.1
+                    timeout: 60
+                    verb: GET
+                    chunked-uploads: true
+                    persistent-connection: true
+                    cache-response: protocol
+                    cache-ttl: 900
+                    websocket-upgrade: false
+                    description: Get the Open API specification
+                    target-url: >-
+                      $(wxmcp_consumer_base_url)/public-apis/$(request.parameters.fileID)/document
+                    stop-on-error:
+                      - ConnectionError
+                    output: api_document_response
+                - gatewayscript:
+                    version: 2.0.0
+                    title: set-api-spec
+                    description: Return the OpenAPI specification
+                    source: >-
+                      var apim = require('apim');
+
+
+                      var dResponse =
+                      apim.getvariable('api_document_response.body');
+
+                      var apiDocumentReponse = (typeof dResponse === "string") ?
+                      JSON.parse(dResponse) : dResponse;
+
+
+                      var responseBody = JSON.stringify(apiDocumentReponse);
+
+
+                      apim.setvariable('message.status.code', 200);
+
+                      apim.setvariable('message.headers.content-type',
+                      'application/json; charset=UTF-8');
+
+                      apim.setvariable('message.body', responseBody);
+
+                      apim.output('application/json');
+          otherwise: []
+  type: rest
+  testable: true
+  activity-log:
+    enabled: true
+    success-content: activity
+    error-content: payload
