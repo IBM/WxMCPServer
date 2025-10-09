@@ -1,4 +1,5 @@
 
+
 ## A guide for implementing WxMCP-Tool-Catalog API for IBM API Connect
 
 ## Table of Contents
@@ -24,7 +25,7 @@ The API is tagged with `mcp.ignore` to prevent it from being exposed as an MCP t
 
 - Import the API Connect specific OpenAPI 3.0 implementation [WxMCP-Tool-Catalog API](./exports/WxMCP-Tool-Catalog-APIC-Consumer.yml) into IBM API Connect.
 - On the API Connect homepage, locate the **Download Toolkit** section and download `credentials.json` under **Step 2: Download credentials**. This file contains the **consumer_toolkit** `base URL`, `client ID`, and `client secret` needed for API access.
-- In API Connect, navigate to **Manage**, select the catalog of your choice (or create a new one), then go to **Catalog Settings → Portal**. Log in to the portal to create a new Portal User.
+- In API Connect, navigate to **Manage**, select the catalog of your choice (or create a new one), then go to **Catalog Settings → Portal**. Open the consumer catalog to create a new portal user.
 - Now you have all the values for the **Catalog properties**. Define them (see section 3) so they can be substituted during deployment.
 - Ensure the included assembly policies (`gatewayscript`, `invoke`, `set-variable`, `operation-switch`) exist exactly as provided in the OpenAPI definition.
 - Apply inbound authentication via **X-IBM-Client-Id** (API Key). This is required for tool clients.
