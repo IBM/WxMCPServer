@@ -380,7 +380,16 @@ public final class utils
 						JSONObject op = methods.getJSONObject(method);
 						IData operation = IDataFactory.create();
 						IDataCursor opCursor = operation.getCursor();
-						IDataUtil.put(opCursor, "id", op.optString("operationId", path + "_" + method));
+						
+						// creating a default operationId if it is missing is done as well when creating the mcp tool specification
+						// TODO: create a utility that is used both here and inside wx.mcp.server.services.custom.OAS2MCPConverter
+						String operationId = op.optString("operationid");
+						if (operationId == null || operationId.isBlank()) {
+							String sanitizedPath = path.replaceAll("[{}\\/]", "_").replaceAll("_+", "_");
+							operationId = method.toLowerCase() + "_" + sanitizedPath;
+						}
+						IDataUtil.put(opCursor, "id", operationId);
+		//						IDataUtil.put(opCursor, "id", op.optString("operationId", path + "_" + method));
 						IDataUtil.put(opCursor, "method", method.toLowerCase());
 						IDataUtil.put(opCursor, "path", path);
 						opCursor.destroy();

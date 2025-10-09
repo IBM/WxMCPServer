@@ -107,6 +107,10 @@ public class OAS2MCPConverter {
 					String operationId = operation.getOperationId();
 
 					// generate an operationId, if it is missing
+					// creating a default operationId if it is missing is done as well when creating
+					// the mcp tool specification
+					// TODO: create a utility that is used both here and inside the wM IS Java service
+					// wx.mcp.server.services.utils:extractOperationsFromOpenAPI
 					if (operationId == null || operationId.isBlank()) {
 						String sanitizedPath = oasPath.replaceAll("[{}\\/]", "_").replaceAll("_+", "_");
 						operationId = httpMethod.name().toLowerCase() + "_" + sanitizedPath;
@@ -332,7 +336,7 @@ public class OAS2MCPConverter {
 				cleanSchema(schema);
 			} else if (value instanceof List<?> list) {
 				cleanList(list);
-			} 
+			}
 		}
 
 	}
