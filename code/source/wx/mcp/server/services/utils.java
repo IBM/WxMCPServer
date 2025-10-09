@@ -49,7 +49,7 @@ public final class utils
 		// [o] field:0:required toolJSONString
 		IDataCursor pipelineCursor = pipeline.getCursor();
 		    String openAPIString = IDataUtil.getString(pipelineCursor, "openAPIString");
-		    
+		     
 		    String headerPrefix = IDataUtil.getString(pipelineCursor, "headerPrefix");
 		    String pathParamPrefix = IDataUtil.getString(pipelineCursor, "pathParamPrefix");
 		    String queryPrefix = IDataUtil.getString(pipelineCursor, "queryPrefix");
@@ -912,11 +912,11 @@ public final class utils
 		    if (mcpClientConfig != null) {
 		        IDataCursor mcpClientConfigCursor = mcpClientConfig.getCursor();
 		        String authType = IDataUtil.getString(mcpClientConfigCursor, "authType");
-		        String portalClientBaseURL = IDataUtil.getString(mcpClientConfigCursor, "portalClientBaseURL");
+		        String toolCatalogBaseURL = IDataUtil.getString(mcpClientConfigCursor, "toolCatalogBaseURL");
 		
 		        // Validate portalClientBaseURL
-		        if (portalClientBaseURL == null || portalClientBaseURL.trim().isEmpty()) {
-		            throw new ServiceException("\"portal_client_base_url\" must not be NULL or empty.");
+		        if (toolCatalogBaseURL == null || toolCatalogBaseURL.trim().isEmpty()) {
+		            throw new ServiceException("\"tool_catalog_base_url\" must not be NULL or empty.");
 		        }
 		
 		        // Validate API Key Auth
