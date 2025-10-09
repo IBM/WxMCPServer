@@ -1,14 +1,19 @@
 
 
+
 # WxMCPServer
 
 **WxMCPServer** is a webMethods Integration Server (IS) package that implements an [MCP Server](https://modelcontextprotocol.io/docs/learn/server-concepts) for IBM webMethods Hybrid Integration (IWHI).  
 It requires either **webMethods Integration Server** or **webMethods Microservices Runtime** for hosting.
 
+
 ## Table of Contents
 - [1. Overview](#1-overview)  
 - [2. Key Benefits](#2-key-benefits)  
 - [3. Requirements](#3-requirements)  
+  - [3.1 Implementing Tool Catalog on webMethods API Management](#31-implementing-tool-catalog-on-webmethods-api-management)
+  - [3.2 Implementing Tool Catalog on Azure API Management](#32-implementing-tool-catalog-on-azure-api-management)
+  - [3.3 Implementing Tool Catalog on IBM API Connect](#33-implementing-tool-catalog-on-ibm-api-connect)
 - [4. Roles and Responsibilities](#4-roles-and-responsibilities)  
 - [5. Quick Start](#5-quick-start)  
   - [5.1 MCP Tool Catalog API](#51-mcp-tool-catalog-api)  
@@ -21,7 +26,7 @@ It requires either **webMethods Integration Server** or **webMethods Microservic
   - [7.1 Claude Desktop — stdio \| npx \| API Key](#71-claude-desktop--stdio--npx--api-key)  
   - [7.2 Claude Desktop — stdio \| npx \| OAuth Style](#72-claude-desktop--stdio--npx--oauth-style)  
   - [7.3 IBM watsonx Orchestrate \| Langflow — stdio \| uvx \| API Key](#73-ibm-watsonx-orchestrate--langflow---stdio--uvx--api-key)  
-  - [7.4 VS Code MCP Server — Streamable HTTP](#74-vs-code-mcp-server---streamable-http)   
+  - [7.4 VS Code MCP Server — Streamable HTTP](#74-vs-code-mcp-server---streamable-http)  
 - [8. Limitations](#8-limitations)  
 ---
 
@@ -56,11 +61,14 @@ In the current solution approach, the **MCP Tool Catalog API** is grouped togeth
 **WxMCPServer** requires **IBM webMethods Integration Server** or **IBM webMethods Microservices Runtime** as the server (tested with v11.1).  
 To integrate with API Management solutions, you must implement the [MCP Tool Catalog API](/resources/APIs/WxMCP-Tool-Catalog/WxMCP-Tool-Catalog-1-1.yml).
 
-There are instructions (and pre-configured assets) on how to implement this API on:
+There are instructions (and pre-configured assets) on how to implement this API on various systems
 
-- [webMethods API Management](/resources/APIs/WxMCP-Tool-Catalog/implementations/webMethods/readme.md)  
-- [Azure API Management](/resources/APIs/WxMCP-Tool-Catalog/implementations/azure/readme.md)  
-- [IBM API Connect](/resources/APIs/WxMCP-Tool-Catalog/implementations/api-connect/readme.md)  
+### 3.1 Implementing Tool Catalog on webMethods API Management
+[Detailed description for webMethods API Management](/resources/APIs/WxMCP-Tool-Catalog/implementations/webMethods/readme.md)
+### 3.1 Implementing Tool Catalog on Azure API Management
+[Detailed description for Azure API Management](/resources/APIs/WxMCP-Tool-Catalog/implementations/azure/readme.md) 
+### 3.1 Implementing Tool Catalog on IBM API Connect
+[Detailed description for IBM API Connect](/resources/APIs/WxMCP-Tool-Catalog/implementations/api-connect/readme.md)  
 
 The approach is generally open for 3rd party API Management solutions ("Federated API Management").
 
