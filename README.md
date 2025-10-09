@@ -65,9 +65,9 @@ There are instructions (and pre-configured assets) on how to implement this API 
 
 ### 3.1 Implementing Tool Catalog on webMethods API Management
 [Detailed description for webMethods API Management](/resources/APIs/WxMCP-Tool-Catalog/implementations/webMethods/readme.md)
-### 3.1 Implementing Tool Catalog on Azure API Management
+### 3.2 Implementing Tool Catalog on Azure API Management
 [Detailed description for Azure API Management](/resources/APIs/WxMCP-Tool-Catalog/implementations/azure/readme.md) 
-### 3.1 Implementing Tool Catalog on IBM API Connect
+### 3.3 Implementing Tool Catalog on IBM API Connect
 [Detailed description for IBM API Connect](/resources/APIs/WxMCP-Tool-Catalog/implementations/api-connect/readme.md)  
 
 The approach is generally open for 3rd party API Management solutions ("Federated API Management").
