@@ -21,13 +21,8 @@ It requires either **webMethods Integration Server** or **webMethods Microservic
   - [7.1 Claude Desktop — stdio \| npx \| API Key](#71-claude-desktop--stdio--npx--api-key)  
   - [7.2 Claude Desktop — stdio \| npx \| OAuth Style](#72-claude-desktop--stdio--npx--oauth-style)  
   - [7.3 IBM watsonx Orchestrate \| Langflow — stdio \| uvx \| API Key](#73-ibm-watsonx-orchestrate--langflow---stdio--uvx--api-key)  
-  - [7.4 VS Code MCP Server — Streamable HTTP](#74-vs-code-mcp-server---streamable-http)  
-- [8. MCP Server Model](#8-mcp-server-model)  
-  - [8.1 Tools](#81-tools)  
-  - [8.2 Resources](#82-resources)  
-  - [8.3 Prompts](#83-prompts)  
-  - [8.4 Multi-Server Scenarios](#84-multi-server-scenarios)  
-- [9. Limitations](#9-limitations)  
+  - [7.4 VS Code MCP Server — Streamable HTTP](#74-vs-code-mcp-server---streamable-http)   
+- [8. Limitations](#8-limitations)  
 ---
 
 ## 1. Overview
