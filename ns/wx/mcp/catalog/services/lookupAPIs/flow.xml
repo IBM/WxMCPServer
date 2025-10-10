@@ -446,7 +446,7 @@
   <DATA ENCODING="XMLValues" I18N="true">
 
 <Values version="2.0">
-  <value name="xml">API Product "%mcpClientConfiguration/cache/key%" not found in cache "WxMCP_ApiProducts_Cache" -&gt; invoking APIs from MCP Portal</value>
+  <value name="xml">API Product "%mcpClientConfiguration/cache/key%" not found in cache "WxMCP_ApiProducts_Cache" -&gt; invoking APIs from configured MCP Tool Catalog</value>
   <record name="type" javaclass="com.wm.util.Values">
     <value name="node_type">field</value>
     <value name="node_subtype">unknown</value>
