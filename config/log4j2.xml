@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+    <Appenders>
+        <!-- Default console appender -->
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d [%t] %-5level %logger{36} - %msg%n" />
+        </Console>
+
+        <!-- Custom file appender for com.abc.mypackage -->
+            <RollingFile name="WxMCPServerRollingFile"
+                fileName="./logs/WxMCPServer.log"
+                filePattern="logs/WxMCPServer-%i.log.gz">
+                <PatternLayout>
+                    <Pattern>%d [%t] %-5level %logger{36} - %msg%n</Pattern>
+                </PatternLayout>
+                <Policies>
+                    <SizeBasedTriggeringPolicy size="1MB" />
+                </Policies>
+                <DefaultRolloverStrategy max="5" />
+            </RollingFile>
+    </Appenders>
+
+    <Loggers>
+        <!-- Logger for com.abc.mypackage -->
+        <Logger name="wx.mcp.server" level="debug" additivity="false">
+            <AppenderRef ref="WxMCPServerRollingFile" />
+        </Logger>
+
+        <!-- Root logger -->
+        <Root level="info">
+            <AppenderRef ref="Console" />
+        </Root>
+    </Loggers>
+</Configuration>

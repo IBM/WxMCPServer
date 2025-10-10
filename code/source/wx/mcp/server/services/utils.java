@@ -11,6 +11,7 @@ import org.json.*;
 import java.io.*;
 import java.nio.file.*;
 import java.util.*;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -54,27 +55,26 @@ public final class utils
 		// [i] field:0:required mcpObjectName
 		// [o] field:0:required toolJSONString
 		IDataCursor pipelineCursor = pipeline.getCursor();
-		    String openAPIString = IDataUtil.getString(pipelineCursor, "openAPIString");
-		     
-		    String headerPrefix = IDataUtil.getString(pipelineCursor, "headerPrefix");
-		    String pathParamPrefix = IDataUtil.getString(pipelineCursor, "pathParamPrefix");
-		    String queryPrefix = IDataUtil.getString(pipelineCursor, "queryPrefix");
-		    String mcpObjectName = IDataUtil.getString(pipelineCursor, "mcpObjectName");
-		    
-		    OAS2MCPConverter mcpConverter = new OAS2MCPConverter();
-		    ListToolsResponse mcpTools = mcpConverter.generateMcpToolsFromOAS(openAPIString, headerPrefix, pathParamPrefix, queryPrefix, mcpObjectName);
-		    ObjectMapper jsonMapper = new ObjectMapper(new JsonFactory());
-			jsonMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-			jsonMapper.enable(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS);
-			 
-			String result = null;
-			try {
-				result = jsonMapper.writeValueAsString(mcpTools);
-			} catch(JsonProcessingException jpe) {
-				throw new ServiceException(jpe);
-			}
-		    IDataUtil.put(pipelineCursor, "toolJSONString", result);
-		    pipelineCursor.destroy();
+		String openAPIString = IDataUtil.getString(pipelineCursor, "openAPIString");
+		String headerPrefix = IDataUtil.getString(pipelineCursor, "headerPrefix");
+		String pathParamPrefix = IDataUtil.getString(pipelineCursor, "pathParamPrefix");
+		String queryPrefix = IDataUtil.getString(pipelineCursor, "queryPrefix");
+		String mcpObjectName = IDataUtil.getString(pipelineCursor, "mcpObjectName");
+		
+		OAS2MCPConverter mcpConverter = new OAS2MCPConverter();
+		ListToolsResponse mcpTools = mcpConverter.generateMcpToolsFromOAS(openAPIString, headerPrefix, pathParamPrefix, queryPrefix, mcpObjectName);
+		ObjectMapper jsonMapper = new ObjectMapper(new JsonFactory());
+		jsonMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+		jsonMapper.enable(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS);
+		 
+		String result = null;
+		try {
+			result = jsonMapper.writeValueAsString(mcpTools);
+		} catch(JsonProcessingException jpe) {
+			throw new ServiceException(jpe);
+		}
+		IDataUtil.put(pipelineCursor, "toolJSONString", result);
+		pipelineCursor.destroy();
 		// --- <<IS-END>> ---
 
                 
@@ -657,9 +657,12 @@ public final class utils
 		        String authType = IDataUtil.getString(mcpClientConfigCursor, "authType");
 		        String toolCatalogBaseURL = IDataUtil.getString(mcpClientConfigCursor, "toolCatalogBaseURL");
 		
-		        // Validate portalClientBaseURL
+		        // Validate toolCatalogBaseURL
 		        if (toolCatalogBaseURL == null || toolCatalogBaseURL.trim().isEmpty()) {
 		            throw new ServiceException("\"tool_catalog_base_url\" must not be NULL or empty.");
+		        }
+		        if (!isStrictlyValidURL(toolCatalogBaseURL)) {
+		        	throw new ServiceException("\"tool_catalog_base_url\" is not a valid URL.");
 		        }
 		
 		        // Validate API Key Auth
@@ -767,86 +770,31 @@ public final class utils
 	}
 
 	// --- <<IS-START-SHARED>> ---
-	//	private static void extractParameterDetails(JSONObject param, String queryPrefix, String headerPrefix, String pathParamPrefix, JSONObject components, JSONObject inputProps, JSONArray requiredParams) {
-	//		String name = param.getString("name");
-	//	    String in = param.getString("in");
-	//	    String propertyName;
-	//	    switch (in) {
-	//	        case "query":
-	//	            propertyName = queryPrefix + name;
-	//	            break;
-	//	        case "header":
-	//	            propertyName = headerPrefix + name;
-	//	            break;
-	//	        case "path":
-	//	            propertyName = pathParamPrefix + name;
-	//	            break;
-	//	        default:
-	//	            return;
-	//	    }
-	//	    JSONObject schema = resolveSchema(param.getJSONObject("schema"), components);
-	//	    schema = cleanSchema(schema);
-	//	
-	//	    // If primitive type, only keep relevant keys
-	//	    if (schema.has("type")
-	//	            && !schema.getString("type").equals("object")
-	//	            && !schema.getString("type").equals("array")) {
-	//	        JSONObject primitive = new JSONObject();
-	//	        primitive.put("type", schema.getString("type"));
-	//	        if (schema.has("title")) primitive.put("title", schema.get("title"));
-	//	        if (schema.has("maxLength")) primitive.put("maxLength", schema.get("maxLength"));
-	//	        if (schema.has("minimum")) primitive.put("minimum", schema.get("minimum"));
-	//	        if (schema.has("maximum")) primitive.put("maximum", schema.get("maximum"));
-	//	        if (schema.has("enum")) primitive.put("enum", schema.get("enum"));
-	//	        schema = primitive;
-	//	    }
-	//	    inputProps.put(propertyName, schema);
-	//	    if (param.optBoolean("required", false)) {
-	//	        requiredParams.put(propertyName);
-	//	    }
-	//	}
-	
 	/**
-	 * Recursively traverses the schema and replaces/augments it with 'required' 
-	 * properties from the referenced OpenAPI components (if missing).
-	 * This ensures nested objects and arrays respect the original OpenAPI constraints.
+	 * Validates whether the given string is a strictly valid URL.
+	 * <p>
+	 * This method checks both the syntactic correctness of the URL using {@link java.net.URL}
+	 * and ensures it conforms to URI standards using {@link java.net.URI}. It will return {@code true}
+	 * only if the input string can be successfully parsed as both a URL and a URI, which means it must
+	 * be properly encoded (e.g., spaces must be replaced with {@code %20}).
+	 * </p>
+	 *
+	 * @param urlString the string to validate as a URL
+	 * @return {@code true} if the string is a strictly valid and properly encoded URL, {@code false} otherwise
+	 * @throws NullPointerException if {@code urlString} is {@code null}
+	 *
+	 * @see java.net.URL
+	 * @see java.net.URI
 	 */
-	//	private static void propagateRequiredFromComponents(JSONObject schema, JSONObject components) {
-	//	    if (schema == null) return;
-	//	
-	//	    // Handle $ref case
-	//	    if (schema.has("$ref")) {
-	//	        String ref = schema.getString("$ref");
-	//	        String[] parts = ref.split("/");
-	//	        if (parts.length >= 3 && "components".equals(parts[1]) && "schemas".equals(parts[2])) {
-	//	            String name = parts[parts.length - 1];
-	//	            if (components.has("schemas") && components.getJSONObject("schemas").has(name)) {
-	//	                JSONObject compSchema = components.getJSONObject("schemas").getJSONObject(name);
-	//	                if (compSchema.has("required") && !schema.has("required")) {
-	//	                    schema.put("required", compSchema.getJSONArray("required"));
-	//	                }
-	//	            }
-	//	        }
-	//	    }
-	//	
-	//	    // Recurse into properties
-	//	    if (schema.has("properties")) {
-	//	        for (String key : schema.getJSONObject("properties").keySet()) {
-	//	            JSONObject prop = schema.getJSONObject("properties").optJSONObject(key);
-	//	            if (prop != null) {
-	//	                propagateRequiredFromComponents(prop, components);
-	//	            }
-	//	        }
-	//	    }
-	//	
-	//	    // Recurse into array items
-	//	    if ("array".equals(schema.optString("type")) && schema.has("items")) {
-	//	        JSONObject items = schema.optJSONObject("items");
-	//	        if (items != null) {
-	//	            propagateRequiredFromComponents(items, components);
-	//	        }
-	//	    }
-	//	}
+	public static boolean isStrictlyValidURL(String urlString) {
+	    try {
+	        URL url = new URL(urlString);
+	        url.toURI();
+	        return true;
+	    } catch (Exception e) {
+	        return false;
+	    }
+	}
 	
 	public static String sha256(String value) {
 	    try {
@@ -864,56 +812,7 @@ public final class utils
 	        throw new RuntimeException("SHA-256 nicht verf\u00FCgbar", e);
 	    }
 	}
-	
-	//	private static JSONObject components = new JSONObject();
-	
-	
-	//	public static JSONObject resolveSchema(JSONObject schema, JSONObject components) {
-	//	    if (schema.has("$ref")) {
-	//	        String ref = schema.getString("$ref");
-	//	        String[] parts = ref.replace("#/", "").split("/");
-	//	
-	//	        JSONObject current = components; // components comes from top-level OpenAPI
-	//	
-	//	        for (int i = 1; i < parts.length; i++) {
-	//	            String part = parts[i];
-	//	            if (current.has(part)) {
-	//	                current = current.getJSONObject(part);
-	//	            } else {
-	//	                // Gracefully handle missing part of the ref
-	//	                System.err.println("resolveSchema: Missing part '" + part + "' in $ref: " + ref);
-	//	                return new JSONObject(); // return empty schema to avoid crash
-	//	            }
-	//	        }
-	//	        return resolveSchema(current, components);
-	//	    }
-	//	
-	//	    // Recursively resolve any nested schemas
-	//	    JSONObject result = new JSONObject();
-	//	    for (String key : schema.keySet()) {
-	//	        Object val = schema.get(key);
-	//	        if (val instanceof JSONObject) {
-	//	            result.put(key, resolveSchema((JSONObject) val, components));
-	//	        } else if (val instanceof JSONArray) {
-	//	            JSONArray array = (JSONArray) val;
-	//	            JSONArray newArray = new JSONArray();
-	//	            for (int i = 0; i < array.length(); i++) {
-	//	                Object item = array.get(i);
-	//	                if (item instanceof JSONObject) {
-	//	                    newArray.put(resolveSchema((JSONObject) item, components));
-	//	                } else {
-	//	                    newArray.put(item);
-	//	                }
-	//	            }
-	//	            result.put(key, newArray);
-	//	        } else {
-	//	            result.put(key, val);
-	//	        }
-	//	    }
-	//	    return result;
-	//	}
-	
-	
+		
 	private static String subStringAfter(String input, String prefix){
 		int index = input.indexOf(prefix);
 	
@@ -938,49 +837,7 @@ public final class utils
 	        return s;
 	    }
 	}
-	
-	/**
-	 * Cleans a schema by removing properties with null values and fixing types.
-	 * Also removes keys like "example" or "examples" if their value is null.
-	 */
-	//	private static JSONObject cleanSchema(JSONObject schema) {
-	//	    JSONObject cleaned = new JSONObject();
-	//	    for (String key : schema.keySet()) { 
-	//	        Object val = schema.get(key);
-	//	        // Remove nulls and "example"/"examples" with null value
-	//	        if (val == null || JSONObject.NULL.equals(val)) {
-	//	            continue;
-	//	        }
-	//	        if ((key.equals("example") || key.equals("examples")) && (val == null || JSONObject.NULL.equals(val))) {
-	//	            continue;
-	//	        }
-	//	        if (val instanceof JSONObject) {
-	//	            JSONObject sub = cleanSchema((JSONObject) val);
-	//	            if (sub.length() > 0) cleaned.put(key, sub);
-	//	        } else if (val instanceof JSONArray) {
-	//	            JSONArray arr = (JSONArray) val;
-	//	            JSONArray newArr = new JSONArray();
-	//	            for (int i = 0; i < arr.length(); i++) {
-	//	                Object item = arr.get(i);
-	//	                if (item == null || JSONObject.NULL.equals(item)) continue;
-	//	                if (item instanceof JSONObject) {
-	//	                    JSONObject sub = cleanSchema((JSONObject) item);
-	//	                    if (sub.length() > 0) newArr.put(sub);
-	//	                } else {
-	//	                    newArr.put(item);
-	//	                }
-	//	            }
-	//	            if (newArr.length() > 0) cleaned.put(key, newArr);
-	//	        } else {
-	//	            cleaned.put(key, val);
-	//	        }
-	//	    }
-	//	    // Fix type: if "type" is "object" but no "properties", remove "type"
-	//	    if ("object".equals(cleaned.optString("type")) && !cleaned.has("properties")) {
-	//	        cleaned.remove("type");
-	//	    }
-	//	    return cleaned;
-	//	}
+		
 	// --- <<IS-END-SHARED>> ---
 }
 
