@@ -3914,7 +3914,7 @@
   <DATA ENCODING="XMLValues" I18N="true">
 
 <Values version="2.0">
-  <value name="xml">%mcpClientConfiguration/portalClientBaseURL%/apis/%apiDetails/apiID%</value>
+  <value name="xml">%mcpClientConfiguration/toolCatalogBaseURL%/apis/%apiDetails/apiID%</value>
   <record name="type" javaclass="com.wm.util.Values">
     <value name="node_type">unknown</value>
     <value name="node_subtype">unknown</value>
@@ -6392,26 +6392,21 @@
 <MAPDELETE FIELD="/value;1;0" DISABLED="true">
 </MAPDELETE>
 
+<MAPDELETE FIELD="/pathParam;1;0" DISABLED="true">
+</MAPDELETE>
+
 <MAPSET NAME="Setter" OVERWRITE="true" VARIABLES="true" GLOBALVARIABLES="false" FIELD="/apiDetails;4;0;wx.mcp.catalog.doctypes:ApiDetails/downloadPath;1;0" DISABLED="true">
   <DATA ENCODING="XMLValues" I18N="true">
 
 <Values version="2.0">
-  <value name="xml">%mcpClientConfiguration/portalClientBaseURL%/files/%pathParam%</value>
+  <value name="xml">%mcpClientConfiguration/toolCatalogBaseURL%/files/%pathParam%</value>
   <record name="type" javaclass="com.wm.util.Values">
-    <value name="node_type">record</value>
+    <value name="node_type">unknown</value>
     <value name="node_subtype">unknown</value>
-    <value name="node_comment"></value>
-    <record name="node_hints" javaclass="com.wm.util.Values">
-      <value name="field_usereditable">true</value>
-      <value name="field_largerEditor">false</value>
-      <value name="field_password">false</value>
-    </record>
     <value name="is_public">false</value>
     <value name="field_name">downloadPath</value>
     <value name="field_type">string</value>
     <value name="field_dim">0</value>
-    <array name="field_options" type="value" depth="1">
-    </array>
     <value name="nillable">true</value>
     <value name="form_qualified">false</value>
     <value name="is_global">false</value>
@@ -6419,9 +6414,6 @@
 </Values>
 </DATA>
 </MAPSET>
-
-<MAPDELETE FIELD="/pathParam;1;0" DISABLED="true">
-</MAPDELETE>
 </MAP>
 </SEQUENCE>
 </BRANCH>
@@ -9808,7 +9800,7 @@
   <DATA ENCODING="XMLValues" I18N="true">
 
 <Values version="2.0">
-  <value name="xml">%mcpClientConfiguration/portalClientBaseURL%/files/%apiDetails/download/fileID%</value>
+  <value name="xml">%mcpClientConfiguration/toolCatalogBaseURL%/files/%apiDetails/download/fileID%</value>
   <record name="type" javaclass="com.wm.util.Values">
     <value name="node_type">unknown</value>
     <value name="node_subtype">unknown</value>

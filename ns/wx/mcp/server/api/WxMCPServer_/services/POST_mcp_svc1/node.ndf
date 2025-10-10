@@ -302,7 +302,7 @@
                   <value name="node_type">field</value>
                   <value name="node_subtype">unknown</value>
                   <value name="is_public">false</value>
-                  <value name="field_name">portal_client_base_url</value>
+                  <value name="field_name">tool_catalog_base_url</value>
                   <value name="field_type">string</value>
                   <value name="field_is_jsonSchema">true</value>
                   <value name="field_dim">0</value>
@@ -1000,7 +1000,7 @@ The request and response follow the JSON-RPC 2.0 structure.
     <value>PATCH</value>
   </array>
   <value name="pipeline_option">1</value>
-  <value name="originURI">file://C:\data\sag\v11-1\IntegrationServer\packages\WxMCPServer\resources\APIs\WxMCP-Server\WxMCP-Server-API-1.3.yaml</value>
+  <value name="originURI">file://C:\data\GitHub-IBM\WxMCPServer\resources\APIs\WxMCP-Server\WxMCP-Server-API-1.4.yaml</value>
   <value name="modifiable">true</value>
   <value name="is_public">false</value>
 </Values>

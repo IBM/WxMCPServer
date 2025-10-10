@@ -1057,7 +1057,7 @@
 </SEQUENCE>
 </BRANCH>
 
-<BRANCH TIMEOUT="" SWITCH="/mcpClientConfig/portalClientBaseURL">
+<BRANCH TIMEOUT="" SWITCH="/mcpClientConfig/toolCatalogBaseURL">
   <COMMENT></COMMENT>
 
   <!-- nodes -->
@@ -1179,27 +1179,6 @@
 </DATA>
 </MAPSET>
 
-<MAPSET NAME="Setter" OVERWRITE="true" VARIABLES="true" GLOBALVARIABLES="false" FIELD="/message;1;0">
-  <DATA ENCODING="XMLValues" I18N="true">
-
-<Values version="2.0">
-  <value name="xml">Header "portal_client_base_url" not set, trying to read global variable "wxmcp.portal.client.base.url"</value>
-  <record name="type" javaclass="com.wm.util.Values">
-    <value name="node_type">field</value>
-    <value name="node_subtype">unknown</value>
-    <value name="is_public">false</value>
-    <value name="field_name">message</value>
-    <value name="field_type">string</value>
-    <value name="field_dim">0</value>
-    <value name="field_opt">true</value>
-    <value name="nillable">true</value>
-    <value name="form_qualified">false</value>
-    <value name="is_global">false</value>
-  </record>
-</Values>
-</DATA>
-</MAPSET>
-
 <MAPSET NAME="Setter" OVERWRITE="true" VARIABLES="false" GLOBALVARIABLES="false" FIELD="/level;1;0">
   <DATA ENCODING="XMLValues" I18N="true">
 
@@ -1222,6 +1201,27 @@
       <value>Trace</value>
       <value>Off</value>
     </array>
+    <value name="nillable">true</value>
+    <value name="form_qualified">false</value>
+    <value name="is_global">false</value>
+  </record>
+</Values>
+</DATA>
+</MAPSET>
+
+<MAPSET NAME="Setter" OVERWRITE="true" VARIABLES="true" GLOBALVARIABLES="false" FIELD="/message;1;0">
+  <DATA ENCODING="XMLValues" I18N="true">
+
+<Values version="2.0">
+  <value name="xml">Header "tool_catalog_base_url" not set, trying to read global variable "wxmcp.tool.catalog.base.url"</value>
+  <record name="type" javaclass="com.wm.util.Values">
+    <value name="node_type">field</value>
+    <value name="node_subtype">unknown</value>
+    <value name="is_public">false</value>
+    <value name="field_name">message</value>
+    <value name="field_type">string</value>
+    <value name="field_dim">0</value>
+    <value name="field_opt">true</value>
     <value name="nillable">true</value>
     <value name="form_qualified">false</value>
     <value name="is_global">false</value>
@@ -1413,7 +1413,7 @@
   <DATA ENCODING="XMLValues" I18N="true">
 
 <Values version="2.0">
-  <value name="xml">wxmcp.portal.client.base.url</value>
+  <value name="xml">wxmcp.tool.catalog.base.url</value>
   <record name="type" javaclass="com.wm.util.Values">
     <value name="node_type">field</value>
     <value name="node_subtype">unknown</value>
@@ -1555,7 +1555,7 @@
 <MAPDELETE FIELD="/isSecure;1;0">
 </MAPDELETE>
 
-<MAPCOPY FROM="/value;1;0" TO="/mcpClientConfig;4;0;wx.mcp.server.doctypes:MCPClientConfig/portalClientBaseURL;1;0">
+<MAPCOPY FROM="/value;1;0" TO="/mcpClientConfig;4;0;wx.mcp.server.doctypes:MCPClientConfig/toolCatalogBaseURL;1;0">
 </MAPCOPY>
 </MAP>
 </INVOKE>
@@ -1677,27 +1677,6 @@
 </DATA>
 </MAPSET>
 
-<MAPSET NAME="Setter" OVERWRITE="true" VARIABLES="true" GLOBALVARIABLES="false" FIELD="/message;1;0">
-  <DATA ENCODING="XMLValues" I18N="true">
-
-<Values version="2.0">
-  <value name="xml">"portal_client_base_url" is now set to "%/mcpClientConfig/portalClientBaseURL%"</value>
-  <record name="type" javaclass="com.wm.util.Values">
-    <value name="node_type">field</value>
-    <value name="node_subtype">unknown</value>
-    <value name="is_public">false</value>
-    <value name="field_name">message</value>
-    <value name="field_type">string</value>
-    <value name="field_dim">0</value>
-    <value name="field_opt">true</value>
-    <value name="nillable">true</value>
-    <value name="form_qualified">false</value>
-    <value name="is_global">false</value>
-  </record>
-</Values>
-</DATA>
-</MAPSET>
-
 <MAPSET NAME="Setter" OVERWRITE="true" VARIABLES="false" GLOBALVARIABLES="false" FIELD="/level;1;0">
   <DATA ENCODING="XMLValues" I18N="true">
 
@@ -1720,6 +1699,27 @@
       <value>Trace</value>
       <value>Off</value>
     </array>
+    <value name="nillable">true</value>
+    <value name="form_qualified">false</value>
+    <value name="is_global">false</value>
+  </record>
+</Values>
+</DATA>
+</MAPSET>
+
+<MAPSET NAME="Setter" OVERWRITE="true" VARIABLES="true" GLOBALVARIABLES="false" FIELD="/message;1;0">
+  <DATA ENCODING="XMLValues" I18N="true">
+
+<Values version="2.0">
+  <value name="xml">"tool_catalog_base_url" is now set to "%/mcpClientConfig/toolCatalogBaseURL%"</value>
+  <record name="type" javaclass="com.wm.util.Values">
+    <value name="node_type">field</value>
+    <value name="node_subtype">unknown</value>
+    <value name="is_public">false</value>
+    <value name="field_name">message</value>
+    <value name="field_type">string</value>
+    <value name="field_dim">0</value>
+    <value name="field_opt">true</value>
     <value name="nillable">true</value>
     <value name="form_qualified">false</value>
     <value name="is_global">false</value>
@@ -1951,27 +1951,6 @@
 </DATA>
 </MAPSET>
 
-<MAPSET NAME="Setter" OVERWRITE="true" VARIABLES="true" GLOBALVARIABLES="false" FIELD="/message;1;0">
-  <DATA ENCODING="XMLValues" I18N="true">
-
-<Values version="2.0">
-  <value name="xml">Using value from header "portal_client_base_url": "%/mcpClientConfig/portalClientBaseURL%"</value>
-  <record name="type" javaclass="com.wm.util.Values">
-    <value name="node_type">field</value>
-    <value name="node_subtype">unknown</value>
-    <value name="is_public">false</value>
-    <value name="field_name">message</value>
-    <value name="field_type">string</value>
-    <value name="field_dim">0</value>
-    <value name="field_opt">true</value>
-    <value name="nillable">true</value>
-    <value name="form_qualified">false</value>
-    <value name="is_global">false</value>
-  </record>
-</Values>
-</DATA>
-</MAPSET>
-
 <MAPSET NAME="Setter" OVERWRITE="true" VARIABLES="false" GLOBALVARIABLES="false" FIELD="/level;1;0">
   <DATA ENCODING="XMLValues" I18N="true">
 
@@ -1994,6 +1973,27 @@
       <value>Trace</value>
       <value>Off</value>
     </array>
+    <value name="nillable">true</value>
+    <value name="form_qualified">false</value>
+    <value name="is_global">false</value>
+  </record>
+</Values>
+</DATA>
+</MAPSET>
+
+<MAPSET NAME="Setter" OVERWRITE="true" VARIABLES="true" GLOBALVARIABLES="false" FIELD="/message;1;0">
+  <DATA ENCODING="XMLValues" I18N="true">
+
+<Values version="2.0">
+  <value name="xml">Using value from header "tool_catalog_base_url": "%/mcpClientConfig/toolCatalogBaseURL%"</value>
+  <record name="type" javaclass="com.wm.util.Values">
+    <value name="node_type">field</value>
+    <value name="node_subtype">unknown</value>
+    <value name="is_public">false</value>
+    <value name="field_name">message</value>
+    <value name="field_type">string</value>
+    <value name="field_dim">0</value>
+    <value name="field_opt">true</value>
     <value name="nillable">true</value>
     <value name="form_qualified">false</value>
     <value name="is_global">false</value>
