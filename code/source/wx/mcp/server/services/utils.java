@@ -16,8 +16,14 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import wx.mcp.server.services.custom.OAS2MCPConverter;
+import wx.mcp.server.models.*;
 // --- <<IS-END-IMPORTS>> ---
 
 public final class utils
@@ -55,291 +61,19 @@ public final class utils
 		    String queryPrefix = IDataUtil.getString(pipelineCursor, "queryPrefix");
 		    String mcpObjectName = IDataUtil.getString(pipelineCursor, "mcpObjectName");
 		    
-		    String content = openAPIString;
-		    JSONObject openApi = new JSONObject(content);
-		    JSONObject components = null;
-		    if (openApi.has("components")) {
-		       components = openApi.getJSONObject("components");
-		    }
-		
-		    JSONObject paths = openApi.getJSONObject("paths");
-		    JSONArray tools = new JSONArray();
-		    Set<String> httpMethods = Set.of("get", "post", "put", "delete", "patch", "head", "options");
-		
-		    for (String path : paths.keySet()) {
-		        JSONObject methods = paths.getJSONObject(path);
-		
-		        for (String methodKey : methods.keySet()) {
-		            if (!httpMethods.contains(methodKey.toLowerCase())) continue;
-		
-		            JSONObject op = methods.getJSONObject(methodKey);
-		            if (!op.has("operationId")) continue;
-		
-		            String operationId = op.getString("operationId");
-		            String summary = op.optString("summary", "No description");
-		
-		            // --- Build tool name and ID with mcpObjectName if present ---
-		            String toolName;
-		            if (mcpObjectName != null && !mcpObjectName.isEmpty()) {
-		                toolName = mcpObjectName + "_" + operationId;
-		            } else {
-		                toolName = operationId;
-		            }
-		            String toolID;
-		            if (mcpObjectName != null && !mcpObjectName.isEmpty()) {
-		                toolID = mcpObjectName + "_" + operationId;
-		            } else {
-		                toolID = operationId;
-		            }
-		
-		            // --- Input schema ---
-		            JSONObject inputSchema = new JSONObject();
-		            inputSchema.put("type", "object");
-		            JSONObject inputProps = new JSONObject();
-		            JSONArray requiredParams = new JSONArray();
-		
-		            // Collect parameters
-		            JSONArray parameters = new JSONArray();
-		            if (methods.has("parameters")) {
-		                for (Object p : methods.getJSONArray("parameters")) {
-		                    parameters.put(p);
-		                }
-		            }
-		            if (op.has("parameters")) {
-		                for (Object p : op.getJSONArray("parameters")) {
-		                    parameters.put(p);
-		                }
-		            }
-		
-		            for (int i = 0; i < parameters.length(); i++) {
-		                JSONObject param = parameters.getJSONObject(i);
-		                // If the parameter is specified using an internal reference, this ref needs to be resolved before extracting the info
-						if (param.has("$ref")) {
-					        String ref = param.getString("$ref"); // e.g. "#/components/parameters/X-UnitTest-Param1"
-					        String[] refParts = ref.replace("#/", "").split("/");
-					
-					        JSONObject resolved = openApi;
-					        for (String part : refParts) {
-					            resolved = resolved.getJSONObject(part);
-					        }
-					
-					        extractParameterDetails(resolved, queryPrefix, headerPrefix, pathParamPrefix, components, inputProps, requiredParams);
-					    } else {
-		
-					    	extractParameterDetails(param, queryPrefix, headerPrefix, pathParamPrefix, components, inputProps, requiredParams);
-					    }
-		            }
-		
-		         // --- Handle requestBody ---
-		            
-		            if (op.has("requestBody")) {
-		                try {
-		                    JSONObject bodySchema = op.getJSONObject("requestBody")
-		                            .getJSONObject("content")
-		                            .getJSONObject("application/json")
-		                            .getJSONObject("schema");
-		
-		                    JSONObject resolvedBody = resolveSchema(bodySchema, components);
-		                    JSONObject cleanedBody = cleanSchema(resolvedBody);
-		
-		                    // Ensure root schema is always an object
-		                    if (!"object".equalsIgnoreCase(cleanedBody.optString("type"))) {
-		                        JSONObject wrapper = new JSONObject();
-		                        wrapper.put("type", "object");
-		                        wrapper.put("properties", cleanedBody.optJSONObject("properties"));
-		                        if (cleanedBody.has("required")) {
-		                            wrapper.put("required", cleanedBody.getJSONArray("required"));
-		                        }
-		                        cleanedBody = wrapper;
-		                    }
-		
-		                    // If no required array is specified, assume all properties are required
-		                    if (!cleanedBody.has("required")) {
-		                        JSONArray allRequired = new JSONArray();
-		                        JSONObject bodyProps = cleanedBody.optJSONObject("properties");
-		                        if (bodyProps != null) {
-		                            for (String propName : bodyProps.keySet()) {
-		                                allRequired.put(propName);
-		                            }
-		                        }
-		                        cleanedBody.put("required", allRequired);
-		                    }
-		
-		                    // Merge parameters properties with requestBody properties
-		                    JSONObject mergedSchema = new JSONObject();
-		                    mergedSchema.put("type", "object");
-		
-		                    // Merge inputProps (parameters)
-		                    JSONObject mergedProps = new JSONObject();
-		                    for (String key : inputProps.keySet()) {
-		                        mergedProps.put(key, inputProps.get(key));
-		                    }
-		
-		                    // Merge requestBody properties
-		                    if (cleanedBody.has("properties")) {
-		                        JSONObject bodyProps = cleanedBody.getJSONObject("properties");
-		                        for (String key : bodyProps.keySet()) {
-		                            mergedProps.put(key, bodyProps.get(key));
-		                        }
-		                    }
-		                    mergedSchema.put("properties", mergedProps);
-		
-		                    // Merge required arrays (parameters + requestBody)
-		                    JSONArray mergedRequired = new JSONArray();
-		                    for (int i = 0; i < requiredParams.length(); i++) {
-		                        mergedRequired.put(requiredParams.getString(i));
-		                    }
-		                    JSONArray bodyRequired = cleanedBody.optJSONArray("required");
-		                    if (bodyRequired != null) {
-		                        for (int i = 0; i < bodyRequired.length(); i++) {
-		                            String req = bodyRequired.getString(i);
-		                            if (!mergedRequired.toList().contains(req)) {
-		                                mergedRequired.put(req);
-		                            }
-		                        }
-		                    }
-		
-		                    if (mergedRequired.length() > 0) {
-		                        mergedSchema.put("required", mergedRequired);
-		                    }
-		
-		                    // Recursively propagate required from components if any
-		                    propagateRequiredFromComponents(mergedSchema, components);
-		
-		                    inputSchema = mergedSchema;
-		
-		                } catch (Exception e) {
-		                    System.err.println("Failed to resolve requestBody schema for "
-		                                       + operationId + ": " + e.getMessage());
-		                    // Fallback to parameters only schema if requestBody fails
-		                    inputSchema.put("properties", inputProps);
-		                    if (requiredParams.length() > 0) {
-		                        inputSchema.put("required", requiredParams);
-		                    }
-		                }
-		            } else {
-		                // No requestBody, only parameters
-		                inputSchema.put("properties", inputProps);
-		                if (requiredParams.length() > 0) {
-		                    inputSchema.put("required", requiredParams);
-		                }
-		            }
-		
-		
-		            
-		            /*
-		            if (op.has("requestBody")) {
-		                try {
-		                    JSONObject bodySchema = op.getJSONObject("requestBody")
-		                            .getJSONObject("content")
-		                            .getJSONObject("application/json")
-		                            .getJSONObject("schema");
-		
-		                    // Resolve $ref and merge OpenAPI-required info
-		                    JSONObject resolvedBody = resolveSchema(bodySchema, components);
-		                    JSONObject cleanedBody = cleanSchema(resolvedBody);
-		
-		                    // Ensure root schema is always an object
-		                    if (!"object".equalsIgnoreCase(cleanedBody.optString("type"))) {
-		                        JSONObject wrapper = new JSONObject();
-		                        wrapper.put("type", "object");
-		                        wrapper.put("properties", cleanedBody.optJSONObject("properties"));
-		                        if (cleanedBody.has("required")) {
-		                            wrapper.put("required", cleanedBody.getJSONArray("required"));
-		                        }
-		                        cleanedBody = wrapper;
-		                    }
-		
-		                    // Preserve required array from OpenAPI if available
-		                    if (resolvedBody.has("required")) {
-		                        cleanedBody.put("required", resolvedBody.getJSONArray("required"));
-		                    }
-		                    
-		                    if (cleanedBody.has("properties")) {
-		                        JSONObject props = cleanedBody.getJSONObject("properties");
-		                        JSONArray requiredArr = cleanedBody.optJSONArray("required");
-		
-		                        if (requiredArr == null) {
-		                            requiredArr = new JSONArray();
-		                            for (String propName : props.keySet()) {
-		                                requiredArr.put(propName);
-		                            }
-		                            cleanedBody.put("required", requiredArr);
-		                        } else {
-		                            // Ensure all properties marked required in OpenAPI remain
-		                            // and optionally add any missing ones
-		                            for (String propName : props.keySet()) {
-		                                if (!requiredArr.toList().contains(propName)) {
-		                                    requiredArr.put(propName);
-		                                }
-		                            }
-		                        }
-		                    }
-		
-		                    // Recursively propagate required for nested $ref
-		                    propagateRequiredFromComponents(cleanedBody, components);
-		
-		                    inputSchema = cleanedBody;
-		
-		                } catch (Exception e) {
-		                    System.err.println("Failed to resolve requestBody schema for "
-		                                       + operationId + ": " + e.getMessage());
-		                }
-		            } else {
-		                inputSchema.put("properties", inputProps);
-		                if (requiredParams.length() > 0) {
-		                    inputSchema.put("required", requiredParams);
-		                }
-		            }
-		
-		*/
-		
-		         // --- Output schema ---
-		            JSONObject outputSchema = new JSONObject();
-		            JSONObject responses = op.getJSONObject("responses");  // <-- This must stay
-		            boolean foundJsonResponse = false;
-		
-		            for (String status : responses.keySet()) {
-		                JSONObject resp = responses.getJSONObject(status);
-		                if (resp.has("content")) {
-		                    JSONObject contentObj = resp.getJSONObject("content");
-		                    if (contentObj.has("application/json")) {
-		                        JSONObject schema = contentObj
-		                                .getJSONObject("application/json")
-		                                .getJSONObject("schema");
-		                        JSONObject originalSchema = cleanSchema(resolveSchema(schema, components));
-		                        JSONObject wrappedOutputSchema = new JSONObject();
-		                        wrappedOutputSchema.put("type", "object");
-		                        JSONObject props = new JSONObject();
-		                        props.put("result", originalSchema);
-		                        wrappedOutputSchema.put("properties", props);
-		                        wrappedOutputSchema.put("required", new JSONArray().put("result"));
-		                        outputSchema = wrappedOutputSchema;
-		                        foundJsonResponse = true;
-		                        break;
-		                    }
-		                }
-		            }
-		
-		            if (!foundJsonResponse) {
-		                outputSchema.put("type", "object");
-		                outputSchema.put("properties", new JSONObject());
-		            }
-		
-		            // --- Build tool object ---
-		            JSONObject tool = new JSONObject();
-		            tool.put("name", toolName);
-		            tool.put("description", summary);
-		            tool.put("inputSchema", inputSchema);
-		            tool.put("outputSchema", outputSchema);
-		
-		            tools.put(tool);
-		        }
-		    }
-		
-		    JSONObject result = new JSONObject();
-		    result.put("tools", tools);
-		    IDataUtil.put(pipelineCursor, "toolJSONString", result.toString());
+		    OAS2MCPConverter mcpConverter = new OAS2MCPConverter();
+		    ListToolsResponse mcpTools = mcpConverter.generateMcpToolsFromOAS(openAPIString, headerPrefix, pathParamPrefix, queryPrefix, mcpObjectName);
+		    ObjectMapper jsonMapper = new ObjectMapper(new JsonFactory());
+			jsonMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+			jsonMapper.enable(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS);
+			 
+			String result = null;
+			try {
+				result = jsonMapper.writeValueAsString(mcpTools);
+			} catch(JsonProcessingException jpe) {
+				throw new ServiceException(jpe);
+			}
+		    IDataUtil.put(pipelineCursor, "toolJSONString", result);
 		    pipelineCursor.destroy();
 		// --- <<IS-END>> ---
 
@@ -646,7 +380,16 @@ public final class utils
 						JSONObject op = methods.getJSONObject(method);
 						IData operation = IDataFactory.create();
 						IDataCursor opCursor = operation.getCursor();
-						IDataUtil.put(opCursor, "id", op.optString("operationId", path + "_" + method));
+						
+						// creating a default operationId if it is missing is done as well when creating the mcp tool specification
+						// TODO: create a utility that is used both here and inside wx.mcp.server.services.custom.OAS2MCPConverter
+						String operationId = op.optString("operationid");
+						if (operationId == null || operationId.isBlank()) {
+							String sanitizedPath = path.replaceAll("[{}\\/]", "_").replaceAll("_+", "_");
+							operationId = method.toLowerCase() + "_" + sanitizedPath;
+						}
+						IDataUtil.put(opCursor, "id", operationId);
+		//						IDataUtil.put(opCursor, "id", op.optString("operationId", path + "_" + method));
 						IDataUtil.put(opCursor, "method", method.toLowerCase());
 						IDataUtil.put(opCursor, "path", path);
 						opCursor.destroy();
@@ -1024,86 +767,86 @@ public final class utils
 	}
 
 	// --- <<IS-START-SHARED>> ---
-	private static void extractParameterDetails(JSONObject param, String queryPrefix, String headerPrefix, String pathParamPrefix, JSONObject components, JSONObject inputProps, JSONArray requiredParams) {
-		String name = param.getString("name");
-	    String in = param.getString("in");
-	    String propertyName;
-	    switch (in) {
-	        case "query":
-	            propertyName = queryPrefix + name;
-	            break;
-	        case "header":
-	            propertyName = headerPrefix + name;
-	            break;
-	        case "path":
-	            propertyName = pathParamPrefix + name;
-	            break;
-	        default:
-	            return;
-	    }
-	    JSONObject schema = resolveSchema(param.getJSONObject("schema"), components);
-	    schema = cleanSchema(schema);
-	
-	    // If primitive type, only keep relevant keys
-	    if (schema.has("type")
-	            && !schema.getString("type").equals("object")
-	            && !schema.getString("type").equals("array")) {
-	        JSONObject primitive = new JSONObject();
-	        primitive.put("type", schema.getString("type"));
-	        if (schema.has("title")) primitive.put("title", schema.get("title"));
-	        if (schema.has("maxLength")) primitive.put("maxLength", schema.get("maxLength"));
-	        if (schema.has("minimum")) primitive.put("minimum", schema.get("minimum"));
-	        if (schema.has("maximum")) primitive.put("maximum", schema.get("maximum"));
-	        if (schema.has("enum")) primitive.put("enum", schema.get("enum"));
-	        schema = primitive;
-	    }
-	    inputProps.put(propertyName, schema);
-	    if (param.optBoolean("required", false)) {
-	        requiredParams.put(propertyName);
-	    }
-	}
+	//	private static void extractParameterDetails(JSONObject param, String queryPrefix, String headerPrefix, String pathParamPrefix, JSONObject components, JSONObject inputProps, JSONArray requiredParams) {
+	//		String name = param.getString("name");
+	//	    String in = param.getString("in");
+	//	    String propertyName;
+	//	    switch (in) {
+	//	        case "query":
+	//	            propertyName = queryPrefix + name;
+	//	            break;
+	//	        case "header":
+	//	            propertyName = headerPrefix + name;
+	//	            break;
+	//	        case "path":
+	//	            propertyName = pathParamPrefix + name;
+	//	            break;
+	//	        default:
+	//	            return;
+	//	    }
+	//	    JSONObject schema = resolveSchema(param.getJSONObject("schema"), components);
+	//	    schema = cleanSchema(schema);
+	//	
+	//	    // If primitive type, only keep relevant keys
+	//	    if (schema.has("type")
+	//	            && !schema.getString("type").equals("object")
+	//	            && !schema.getString("type").equals("array")) {
+	//	        JSONObject primitive = new JSONObject();
+	//	        primitive.put("type", schema.getString("type"));
+	//	        if (schema.has("title")) primitive.put("title", schema.get("title"));
+	//	        if (schema.has("maxLength")) primitive.put("maxLength", schema.get("maxLength"));
+	//	        if (schema.has("minimum")) primitive.put("minimum", schema.get("minimum"));
+	//	        if (schema.has("maximum")) primitive.put("maximum", schema.get("maximum"));
+	//	        if (schema.has("enum")) primitive.put("enum", schema.get("enum"));
+	//	        schema = primitive;
+	//	    }
+	//	    inputProps.put(propertyName, schema);
+	//	    if (param.optBoolean("required", false)) {
+	//	        requiredParams.put(propertyName);
+	//	    }
+	//	}
 	
 	/**
 	 * Recursively traverses the schema and replaces/augments it with 'required' 
 	 * properties from the referenced OpenAPI components (if missing).
 	 * This ensures nested objects and arrays respect the original OpenAPI constraints.
 	 */
-	private static void propagateRequiredFromComponents(JSONObject schema, JSONObject components) {
-	    if (schema == null) return;
-	
-	    // Handle $ref case
-	    if (schema.has("$ref")) {
-	        String ref = schema.getString("$ref");
-	        String[] parts = ref.split("/");
-	        if (parts.length >= 3 && "components".equals(parts[1]) && "schemas".equals(parts[2])) {
-	            String name = parts[parts.length - 1];
-	            if (components.has("schemas") && components.getJSONObject("schemas").has(name)) {
-	                JSONObject compSchema = components.getJSONObject("schemas").getJSONObject(name);
-	                if (compSchema.has("required") && !schema.has("required")) {
-	                    schema.put("required", compSchema.getJSONArray("required"));
-	                }
-	            }
-	        }
-	    }
-	
-	    // Recurse into properties
-	    if (schema.has("properties")) {
-	        for (String key : schema.getJSONObject("properties").keySet()) {
-	            JSONObject prop = schema.getJSONObject("properties").optJSONObject(key);
-	            if (prop != null) {
-	                propagateRequiredFromComponents(prop, components);
-	            }
-	        }
-	    }
-	
-	    // Recurse into array items
-	    if ("array".equals(schema.optString("type")) && schema.has("items")) {
-	        JSONObject items = schema.optJSONObject("items");
-	        if (items != null) {
-	            propagateRequiredFromComponents(items, components);
-	        }
-	    }
-	}
+	//	private static void propagateRequiredFromComponents(JSONObject schema, JSONObject components) {
+	//	    if (schema == null) return;
+	//	
+	//	    // Handle $ref case
+	//	    if (schema.has("$ref")) {
+	//	        String ref = schema.getString("$ref");
+	//	        String[] parts = ref.split("/");
+	//	        if (parts.length >= 3 && "components".equals(parts[1]) && "schemas".equals(parts[2])) {
+	//	            String name = parts[parts.length - 1];
+	//	            if (components.has("schemas") && components.getJSONObject("schemas").has(name)) {
+	//	                JSONObject compSchema = components.getJSONObject("schemas").getJSONObject(name);
+	//	                if (compSchema.has("required") && !schema.has("required")) {
+	//	                    schema.put("required", compSchema.getJSONArray("required"));
+	//	                }
+	//	            }
+	//	        }
+	//	    }
+	//	
+	//	    // Recurse into properties
+	//	    if (schema.has("properties")) {
+	//	        for (String key : schema.getJSONObject("properties").keySet()) {
+	//	            JSONObject prop = schema.getJSONObject("properties").optJSONObject(key);
+	//	            if (prop != null) {
+	//	                propagateRequiredFromComponents(prop, components);
+	//	            }
+	//	        }
+	//	    }
+	//	
+	//	    // Recurse into array items
+	//	    if ("array".equals(schema.optString("type")) && schema.has("items")) {
+	//	        JSONObject items = schema.optJSONObject("items");
+	//	        if (items != null) {
+	//	            propagateRequiredFromComponents(items, components);
+	//	        }
+	//	    }
+	//	}
 	
 	public static String sha256(String value) {
 	    try {
@@ -1122,53 +865,53 @@ public final class utils
 	    }
 	}
 	
-	private static JSONObject components = new JSONObject();
+	//	private static JSONObject components = new JSONObject();
 	
 	
-	public static JSONObject resolveSchema(JSONObject schema, JSONObject components) {
-	    if (schema.has("$ref")) {
-	        String ref = schema.getString("$ref");
-	        String[] parts = ref.replace("#/", "").split("/");
-	
-	        JSONObject current = components; // components comes from top-level OpenAPI
-	
-	        for (int i = 1; i < parts.length; i++) {
-	            String part = parts[i];
-	            if (current.has(part)) {
-	                current = current.getJSONObject(part);
-	            } else {
-	                // Gracefully handle missing part of the ref
-	                System.err.println("resolveSchema: Missing part '" + part + "' in $ref: " + ref);
-	                return new JSONObject(); // return empty schema to avoid crash
-	            }
-	        }
-	        return resolveSchema(current, components);
-	    }
-	
-	    // Recursively resolve any nested schemas
-	    JSONObject result = new JSONObject();
-	    for (String key : schema.keySet()) {
-	        Object val = schema.get(key);
-	        if (val instanceof JSONObject) {
-	            result.put(key, resolveSchema((JSONObject) val, components));
-	        } else if (val instanceof JSONArray) {
-	            JSONArray array = (JSONArray) val;
-	            JSONArray newArray = new JSONArray();
-	            for (int i = 0; i < array.length(); i++) {
-	                Object item = array.get(i);
-	                if (item instanceof JSONObject) {
-	                    newArray.put(resolveSchema((JSONObject) item, components));
-	                } else {
-	                    newArray.put(item);
-	                }
-	            }
-	            result.put(key, newArray);
-	        } else {
-	            result.put(key, val);
-	        }
-	    }
-	    return result;
-	}
+	//	public static JSONObject resolveSchema(JSONObject schema, JSONObject components) {
+	//	    if (schema.has("$ref")) {
+	//	        String ref = schema.getString("$ref");
+	//	        String[] parts = ref.replace("#/", "").split("/");
+	//	
+	//	        JSONObject current = components; // components comes from top-level OpenAPI
+	//	
+	//	        for (int i = 1; i < parts.length; i++) {
+	//	            String part = parts[i];
+	//	            if (current.has(part)) {
+	//	                current = current.getJSONObject(part);
+	//	            } else {
+	//	                // Gracefully handle missing part of the ref
+	//	                System.err.println("resolveSchema: Missing part '" + part + "' in $ref: " + ref);
+	//	                return new JSONObject(); // return empty schema to avoid crash
+	//	            }
+	//	        }
+	//	        return resolveSchema(current, components);
+	//	    }
+	//	
+	//	    // Recursively resolve any nested schemas
+	//	    JSONObject result = new JSONObject();
+	//	    for (String key : schema.keySet()) {
+	//	        Object val = schema.get(key);
+	//	        if (val instanceof JSONObject) {
+	//	            result.put(key, resolveSchema((JSONObject) val, components));
+	//	        } else if (val instanceof JSONArray) {
+	//	            JSONArray array = (JSONArray) val;
+	//	            JSONArray newArray = new JSONArray();
+	//	            for (int i = 0; i < array.length(); i++) {
+	//	                Object item = array.get(i);
+	//	                if (item instanceof JSONObject) {
+	//	                    newArray.put(resolveSchema((JSONObject) item, components));
+	//	                } else {
+	//	                    newArray.put(item);
+	//	                }
+	//	            }
+	//	            result.put(key, newArray);
+	//	        } else {
+	//	            result.put(key, val);
+	//	        }
+	//	    }
+	//	    return result;
+	//	}
 	
 	
 	private static String subStringAfter(String input, String prefix){
@@ -1200,44 +943,44 @@ public final class utils
 	 * Cleans a schema by removing properties with null values and fixing types.
 	 * Also removes keys like "example" or "examples" if their value is null.
 	 */
-	private static JSONObject cleanSchema(JSONObject schema) {
-	    JSONObject cleaned = new JSONObject();
-	    for (String key : schema.keySet()) { 
-	        Object val = schema.get(key);
-	        // Remove nulls and "example"/"examples" with null value
-	        if (val == null || JSONObject.NULL.equals(val)) {
-	            continue;
-	        }
-	        if ((key.equals("example") || key.equals("examples")) && (val == null || JSONObject.NULL.equals(val))) {
-	            continue;
-	        }
-	        if (val instanceof JSONObject) {
-	            JSONObject sub = cleanSchema((JSONObject) val);
-	            if (sub.length() > 0) cleaned.put(key, sub);
-	        } else if (val instanceof JSONArray) {
-	            JSONArray arr = (JSONArray) val;
-	            JSONArray newArr = new JSONArray();
-	            for (int i = 0; i < arr.length(); i++) {
-	                Object item = arr.get(i);
-	                if (item == null || JSONObject.NULL.equals(item)) continue;
-	                if (item instanceof JSONObject) {
-	                    JSONObject sub = cleanSchema((JSONObject) item);
-	                    if (sub.length() > 0) newArr.put(sub);
-	                } else {
-	                    newArr.put(item);
-	                }
-	            }
-	            if (newArr.length() > 0) cleaned.put(key, newArr);
-	        } else {
-	            cleaned.put(key, val);
-	        }
-	    }
-	    // Fix type: if "type" is "object" but no "properties", remove "type"
-	    if ("object".equals(cleaned.optString("type")) && !cleaned.has("properties")) {
-	        cleaned.remove("type");
-	    }
-	    return cleaned;
-	}
+	//	private static JSONObject cleanSchema(JSONObject schema) {
+	//	    JSONObject cleaned = new JSONObject();
+	//	    for (String key : schema.keySet()) { 
+	//	        Object val = schema.get(key);
+	//	        // Remove nulls and "example"/"examples" with null value
+	//	        if (val == null || JSONObject.NULL.equals(val)) {
+	//	            continue;
+	//	        }
+	//	        if ((key.equals("example") || key.equals("examples")) && (val == null || JSONObject.NULL.equals(val))) {
+	//	            continue;
+	//	        }
+	//	        if (val instanceof JSONObject) {
+	//	            JSONObject sub = cleanSchema((JSONObject) val);
+	//	            if (sub.length() > 0) cleaned.put(key, sub);
+	//	        } else if (val instanceof JSONArray) {
+	//	            JSONArray arr = (JSONArray) val;
+	//	            JSONArray newArr = new JSONArray();
+	//	            for (int i = 0; i < arr.length(); i++) {
+	//	                Object item = arr.get(i);
+	//	                if (item == null || JSONObject.NULL.equals(item)) continue;
+	//	                if (item instanceof JSONObject) {
+	//	                    JSONObject sub = cleanSchema((JSONObject) item);
+	//	                    if (sub.length() > 0) newArr.put(sub);
+	//	                } else {
+	//	                    newArr.put(item);
+	//	                }
+	//	            }
+	//	            if (newArr.length() > 0) cleaned.put(key, newArr);
+	//	        } else {
+	//	            cleaned.put(key, val);
+	//	        }
+	//	    }
+	//	    // Fix type: if "type" is "object" but no "properties", remove "type"
+	//	    if ("object".equals(cleaned.optString("type")) && !cleaned.has("properties")) {
+	//	        cleaned.remove("type");
+	//	    }
+	//	    return cleaned;
+	//	}
 	// --- <<IS-END-SHARED>> ---
 }
 

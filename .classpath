@@ -1,11 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
+	<classpathentry kind="src" path="code/source"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER">
 		<attributes>
 			<attribute name="module" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="src" path="code/source"/>
 	<classpathentry kind="lib" path="code/jars/json-20250107.jar"/>
+	<classpathentry kind="lib" path="code/jars"/>
+	<classpathentry kind="var" path="IS_CLIENT"/>
+	<classpathentry kind="var" path="IS_SERVER"/>
+	<classpathentry kind="var" path="IS_ENTTK"/>
+	<classpathentry kind="var" path="IS_MAIL"/>
+	<classpathentry kind="var" path="IS_G11N"/>
+	<classpathentry kind="var" path="IS_ICU4J"/>
+	<classpathentry kind="var" path="IS_WSDL4J"/>
+	<classpathentry kind="var" path="IS_JAVAX_XMLSOAP"/>
+	<classpathentry kind="var" path="IS_CORE"/>
+	<classpathentry kind="var" path="IS_EDITOR"/>
+	<classpathentry kind="var" path="IS_UIUTILS"/>
+	<classpathentry kind="var" path="ECLIPSE_OSGI"/>
+	<classpathentry kind="var" path="ECLIPSE_EQUINOX"/>
+	<classpathentry kind="var" path="ECLIPSE_DRAW2D"/>
+	<classpathentry kind="var" path="ECLIPSE_JFACE"/>
+	<classpathentry kind="var" path="ECLIPSE_SWT"/>
+	<classpathentry kind="var" path="ECLIPSE_CORECMD"/>
+	<classpathentry kind="var" path="ECLIPSE_CORERUN"/>
+	<classpathentry kind="var" path="ECLIPSE_UIWB"/>
+	<classpathentry kind="var" path="ECLIPSE_PREF"/>
+	<classpathentry kind="var" path="OSGI_SVC_PREF"/>
+	<classpathentry kind="var" path="ECLIPSE_JOBS"/>
+	<classpathentry kind="var" path="ECLIPSE_EQREG"/>
+	<classpathentry kind="var" path="ECLIPSE_E4_UIWB"/>
+	<classpathentry kind="var" path="ECLIPSE_E4_UIWB3"/>
+	<classpathentry kind="var" path="ECLIPSE_E4_MWB"/>
+	<classpathentry kind="var" path="ECLIPSE_OSGI_SVC"/>
+	<classpathentry kind="var" path="ECLIPSE_E4_CORE"/>
+	<classpathentry kind="lib" path="code/jars/swagger-models-2.2.34.jar"/>
+	<classpathentry kind="lib" path="code/jars/swagger-parser-2.1.33.jar"/>
+	<classpathentry kind="lib" path="code/jars/swagger-parser-core-2.1.33.jar"/>
 	<classpathentry kind="output" path="code/classes"/>
 </classpath>

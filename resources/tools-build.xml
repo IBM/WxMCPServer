@@ -1,0 +1,55 @@
+<project name="WxMCPServer Tools" default="build" basedir=".">
+    <!-- Define properties -->
+    <property name="src.dir" value="code/src"/>
+    <property name="build.dir" value="code/build"/>
+    <property name="package.jar.dir" value="code/jars"/>
+	<property name="wm.common.lib" value="c:/wM/v11_1/common/lib"/>
+	<property name="wm.is.lib" value="c:/wM/v11_1/IntegrationServer/lib"/>
+    <property name="jar.name" value="wxmcpserver-tools.jar"/>
+
+    <!-- Create build and dist directories -->
+    <target name="init">
+        <mkdir dir="${build.dir}"/>
+        <delete file="${jar.dir}/${jar.name}" />
+    </target>
+    <target name="clean">
+        <delete dir="${build.dir}"/>
+    </target>
+
+    <!-- Compile Java files -->
+    <target name="compile" depends="init">
+        <javac srcdir="${src.dir}" destdir="${build.dir}" includeantruntime="false" debug="true">
+            <classpath>
+                <fileset dir="${package.jar.dir}">
+                    <include name="swagger*.jar" />
+                </fileset>
+            	<fileset dir="${wm.common.lib}/ext">
+                    <include name="jackson-*.jar" />
+                </fileset>
+            	<fileset dir="${wm.common.lib}/ext/log4j">
+                    <include name="log4j*.jar" />
+                </fileset>
+            	<fileset dir="${wm.is.lib}/jars">
+                    <include name="slf4j*.jar" />
+                </fileset>
+            </classpath>
+        </javac>
+    </target>
+
+    <!-- Create JAR -->
+    <target name="jar" depends="compile">
+        <jar destfile="${package.jar.dir}/${jar.name}" basedir="${build.dir}">
+            <!-- <manifest>
+                <attribute name="Main-Class" value="your.main.Class"/>
+            </manifest> -->
+        </jar>
+    </target>
+
+    <!-- Default build target -->
+    <target name="build" depends="jar"/>
+
+    <target name="build-and-clean" depends="jar, clean">
+        <!-- Optional: echo or other post-build steps -->
+    </target>
+
+</project>
