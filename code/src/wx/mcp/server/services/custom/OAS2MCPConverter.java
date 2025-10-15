@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.nio.charset.StandardCharsets;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -40,7 +41,9 @@ public class OAS2MCPConverter {
 
 	private static final String[] SUPPORTED_CONTENT_TYPES = { APPLICATION_JSON };
 
-	private static final int MAX_NESTED_SCHEMA_DEPTH = 3;
+	private static final int MAX_NESTED_SCHEMA_DEPTH = 4;
+	private static final int DEFAULT_NESTED_SCHEMA_DEPTH = 7;
+	private static final int MAX_OPENAPI_STRING_SIZE = 4000000;
 
 	private static final Set<PathItem.HttpMethod> allowedMethods = EnumSet.of(
 			PathItem.HttpMethod.GET,
@@ -53,7 +56,7 @@ public class OAS2MCPConverter {
 
 	private static final Set<String> excludedKeys = Set.of("exampleSetFlag", "examples", "types");
 
-	private static final Logger logger = LoggerFactory.getLogger(OAS2MCPConverter.class);
+	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger("wx.mcp.server");
 
 	/**
 	 * @param openAPIString
@@ -82,10 +85,17 @@ public class OAS2MCPConverter {
 			ParseOptions options = new ParseOptions();
 			options.setResolve(true);
 			options.setResolveFully(true);
-
+			
 			SwaggerParseResult parseResult = new OpenAPIParser().readContents(openAPIString, null, options);
 			OpenAPI openAPI = parseResult.getOpenAPI();
-			IterativeSchemaDepthLimiter.limitSchemaDepth(openAPI, MAX_NESTED_SCHEMA_DEPTH);
+			
+			int openApiStringSize = openAPIString.getBytes(StandardCharsets.UTF_8).length;
+			if (openApiStringSize > MAX_OPENAPI_STRING_SIZE) {
+				logger.info("OpenAPI Schema nested depth parsing is limited to " + MAX_NESTED_SCHEMA_DEPTH + " due to the size of the specification");
+				IterativeSchemaDepthLimiter.limitSchemaDepth(openAPI, MAX_NESTED_SCHEMA_DEPTH);
+			} else {
+				IterativeSchemaDepthLimiter.limitSchemaDepth(openAPI, DEFAULT_NESTED_SCHEMA_DEPTH);
+			}
 
 			if (openAPI == null) {
 				logger.error("Failed to parse OpenAPI specification.\n{}", parseResult.getMessages());
@@ -182,12 +192,16 @@ public class OAS2MCPConverter {
 								MediaType appJsonMT = content.get(APPLICATION_JSON);
 								Schema<?> appJsonSchema = appJsonMT.getSchema();
 								Map<String, Schema> properties = appJsonSchema.getProperties();
-
-								properties.forEach((propName, propSchema) -> {
-									PropertiesProperty toolProp = new PropertiesProperty();
-									processSchema(mapper, propSchema, toolProp);
-									inputSchemaProps.setAdditionalProperty(propName, toolProp);
-								});
+								
+								if (properties != null) {
+									properties.forEach((propName, propSchema) -> {
+										PropertiesProperty toolProp = new PropertiesProperty();
+										processSchema(mapper, propSchema, toolProp);
+										inputSchemaProps.setAdditionalProperty(propName, toolProp);
+									});
+								} else {
+									// TODO: ADD WARNING/ERROR/EXCEPTION	
+								}
 								List<String> required = appJsonSchema.getRequired();
 								if (required != null && !required.isEmpty()) {
 									requiredParams.addAll(required);

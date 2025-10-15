@@ -5,6 +5,7 @@ import io.swagger.v3.oas.models.media.Schema;
 
 import java.util.ArrayDeque;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +23,7 @@ public class IterativeSchemaDepthLimiter {
         for (var entry : schemas.entrySet()) {
             var rootSchema = entry.getValue();
             var stack = new ArrayDeque<SchemaTraversalNode>();
+            var visitedRefs = new HashSet<String>(); // Track visited $refs
             stack.push(new SchemaTraversalNode(rootSchema, 0, entry.getKey()));
 
             while (!stack.isEmpty()) {
@@ -30,6 +32,15 @@ public class IterativeSchemaDepthLimiter {
                 var depth = node.depth;
                 var path = node.path;
 
+                String ref = schema.get$ref();
+                if (ref != null) {
+                    if (visitedRefs.contains(ref)) {
+                        logger.warn("Detected recursive reference at %s, pruning.".formatted(path));
+                        continue;
+                    }
+                    visitedRefs.add(ref);
+                }
+                
                 if (depth >= maxDepth) {
                     logger.warn("Pruned schema at depth %d: %s".formatted(depth, path));
                     continue;
