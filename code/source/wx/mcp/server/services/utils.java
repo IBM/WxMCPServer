@@ -62,17 +62,20 @@ public final class utils
 		String mcpObjectName = IDataUtil.getString(pipelineCursor, "mcpObjectName");
 		
 		OAS2MCPConverter mcpConverter = new OAS2MCPConverter();
-		ListToolsResponse mcpTools = mcpConverter.generateMcpToolsFromOAS(openAPIString, headerPrefix, pathParamPrefix, queryPrefix, mcpObjectName);
-		ObjectMapper jsonMapper = new ObjectMapper(new JsonFactory());
-		jsonMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-		jsonMapper.enable(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS);
-		 
-		String result = null;
-		try {
-			result = jsonMapper.writeValueAsString(mcpTools);
-		} catch(JsonProcessingException jpe) {
-			throw new ServiceException(jpe);
-		}
+		String result = mcpConverter.generateMcpToolStringFromOAS(openAPIString, headerPrefix, pathParamPrefix, queryPrefix, mcpObjectName);
+		
+		//		ListToolsResponse mcpTools = mcpConverter.generateMcpToolsFromOAS(openAPIString, headerPrefix, pathParamPrefix, queryPrefix, mcpObjectName);
+		//		ObjectMapper jsonMapper = new ObjectMapper(new JsonFactory());
+		//		jsonMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+		//		jsonMapper.enable(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS);
+		
+		//		String result = null;
+		//		try {
+		//			result = jsonMapper.writeValueAsString(mcpTools);
+		//		} catch(JsonProcessingException jpe) {
+		//			log("Exception while generating MCP Tools from an OpenAPI specification... " + jpe.getMessage());
+		//			throw new ServiceException(jpe);
+		//		}
 		IDataUtil.put(pipelineCursor, "toolJSONString", result);
 		pipelineCursor.destroy();
 		// --- <<IS-END>> ---
@@ -383,13 +386,13 @@ public final class utils
 						
 						// creating a default operationId if it is missing is done as well when creating the mcp tool specification
 						// TODO: create a utility that is used both here and inside wx.mcp.server.services.custom.OAS2MCPConverter
-						String operationId = op.optString("operationid");
+						String operationId = op.optString("operationId");
 						if (operationId == null || operationId.isBlank()) {
 							String sanitizedPath = path.replaceAll("[{}\\/]", "_").replaceAll("_+", "_");
 							operationId = method.toLowerCase() + "_" + sanitizedPath;
 						}
 						IDataUtil.put(opCursor, "id", operationId);
-		//						IDataUtil.put(opCursor, "id", op.optString("operationId", path + "_" + method));
+						// IDataUtil.put(opCursor, "id", op.optString("operationId", path + "_" + method));
 						IDataUtil.put(opCursor, "method", method.toLowerCase());
 						IDataUtil.put(opCursor, "path", path);
 						opCursor.destroy();
@@ -770,6 +773,19 @@ public final class utils
 	}
 
 	// --- <<IS-START-SHARED>> ---
+	private static void log(String msg) {
+		// input
+		IData input = IDataFactory.create();
+		IDataCursor inputCursor = input.getCursor();
+		IDataUtil.put( inputCursor, "message", msg );
+		IDataUtil.put( inputCursor, "function", "[webMethods MCP Server]:" ); 
+		inputCursor.destroy();
+	
+		try{
+			Service.doInvoke( "pub.flow", "debugLog", input );
+		}catch( Exception e){}
+	}
+	
 	/**
 	 * Validates whether the given string is a strictly valid URL.
 	 * <p>
