@@ -25,7 +25,7 @@ public final class SchemaHelper {
     private static final Set<String> excludedKeysLong = Set.of("exampleSetFlag", "examples", "types", "$id", "$schema",
             "xml", "writeOnly", "readOnly", "description");
     private static final Set<String> excludedKeys = Set.of("exampleSetFlag", "types", "$id", "$schema", "xml",
-            "writeOnly", "readOnly");
+            "writeOnly", "readOnly", "examples");
 
     public static boolean isObjectWithProps(Schema<?> s) {
         return s != null && "object".equals(s.getType())
