@@ -62,18 +62,20 @@ public final class utils
 		String mcpObjectName = IDataUtil.getString(pipelineCursor, "mcpObjectName");
 		
 		OAS2MCPConverter mcpConverter = new OAS2MCPConverter();
-		ListToolsResponse mcpTools = mcpConverter.generateMcpToolsFromOAS(openAPIString, headerPrefix, pathParamPrefix, queryPrefix, mcpObjectName);
-		ObjectMapper jsonMapper = new ObjectMapper(new JsonFactory());
-		jsonMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+		String result = mcpConverter.generateMcpToolStringFromOAS(openAPIString, headerPrefix, pathParamPrefix, queryPrefix, mcpObjectName);
+		
+		//		ListToolsResponse mcpTools = mcpConverter.generateMcpToolsFromOAS(openAPIString, headerPrefix, pathParamPrefix, queryPrefix, mcpObjectName);
+		//		ObjectMapper jsonMapper = new ObjectMapper(new JsonFactory());
+		//		jsonMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 		//		jsonMapper.enable(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS);
-		 
-		String result = null;
-		try {
-			result = jsonMapper.writeValueAsString(mcpTools);
-		} catch(JsonProcessingException jpe) {
-			log("Exception while generating MCP Tools from an OpenAPI specification... " + jpe.getMessage());
-			throw new ServiceException(jpe);
-		}
+		
+		//		String result = null;
+		//		try {
+		//			result = jsonMapper.writeValueAsString(mcpTools);
+		//		} catch(JsonProcessingException jpe) {
+		//			log("Exception while generating MCP Tools from an OpenAPI specification... " + jpe.getMessage());
+		//			throw new ServiceException(jpe);
+		//		}
 		IDataUtil.put(pipelineCursor, "toolJSONString", result);
 		pipelineCursor.destroy();
 		// --- <<IS-END>> ---

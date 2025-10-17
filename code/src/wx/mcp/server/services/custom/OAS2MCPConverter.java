@@ -36,13 +36,14 @@ import org.slf4j.LoggerFactory;
 
 public class OAS2MCPConverter {
 
+	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger("wx.mcp.server");
+	
 	private static final String APPLICATION_JSON = "application/json";
 	private static final String X_WWW_FORM_URLENCODED = "application/x-www-form-urlencoded";
-
 	private static final String[] SUPPORTED_CONTENT_TYPES = { APPLICATION_JSON };
 
 	private static final int MAX_NESTED_SCHEMA_DEPTH = 4;
-	private static final int DEFAULT_NESTED_SCHEMA_DEPTH = 7;
+	private static final int DEFAULT_NESTED_SCHEMA_DEPTH = 6;
 	private static final int MAX_OPENAPI_STRING_SIZE = 4000000;
 
 	private static final Set<PathItem.HttpMethod> allowedMethods = EnumSet.of(
@@ -54,9 +55,61 @@ public class OAS2MCPConverter {
 			PathItem.HttpMethod.HEAD,
 			PathItem.HttpMethod.OPTIONS);
 
-	private static final Set<String> excludedKeys = Set.of("exampleSetFlag", "examples", "types");
+	private static final Set<String> excludedKeys = Set.of("exampleSetFlag", "types","$id", "$schema","xml","writeOnly","readOnly");
 
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger("wx.mcp.server");
+
+	/**
+	 * @param openAPIString
+	 * @param headerPrefix
+	 * @param pathParamPrefix
+	 * @param queryPrefix
+	 * @param mcpObjectName
+	 * @return
+	 */
+	public String generateMcpToolStringFromOAS(String openAPIString, String headerPrefix, String pathParamPrefix,
+			String queryPrefix, String mcpObjectName) {
+		int openApiStringSize = 0;
+		String toolsAString = null;
+		try {
+			if (isNullOrEmpty(openAPIString) || isNullOrEmpty(headerPrefix) || isNullOrEmpty(pathParamPrefix)
+					|| isNullOrEmpty(queryPrefix)) {
+				logger.error("One or more required parameters are null or empty.");
+				throw new IllegalArgumentException("One or more required parameters are null or empty.");
+			}
+
+			// parse the OpenAPI spec and resolve all internal references
+			ParseOptions options = new ParseOptions();
+			options.setResolve(true);
+			options.setResolveFully(true);
+
+			openApiStringSize = openAPIString.getBytes(StandardCharsets.UTF_8).length;
+			logger.debug("starting OpenAPI spec parsing (utf8 byte Size: {})", openApiStringSize);
+			SwaggerParseResult parseResult = new OpenAPIParser().readContents(openAPIString, null, options);
+
+			OpenAPI openAPI = parseResult.getOpenAPI();
+			// IterativeSchemaDepthLimiter.limitSchemaDepthOnlyCyclic(openAPI, 6);
+			boolean isLargeSpec = openApiStringSize > MAX_OPENAPI_STRING_SIZE ? true : false;
+			if (isLargeSpec) {
+				logger.debug("OpenAPI Schema nested schema depth limited to {} levels due to specification size",
+						MAX_NESTED_SCHEMA_DEPTH);
+				IterativeSchemaDepthLimiter.limitSchemaDepthOnlyCyclic(openAPI, MAX_NESTED_SCHEMA_DEPTH);
+			} else {
+				logger.debug("OpenAPI Schema limited to {} levels to avoid infinite nesting",
+						DEFAULT_NESTED_SCHEMA_DEPTH);
+				IterativeSchemaDepthLimiter.limitSchemaDepthOnlyCyclic(openAPI, DEFAULT_NESTED_SCHEMA_DEPTH);
+			}
+
+			Iterable<Tool> toolsProducer = OpenApiToolIterable.from(openAPI, headerPrefix, pathParamPrefix, queryPrefix,
+					mcpObjectName, isLargeSpec);
+			toolsAString = McpToolWriter.listToolsToString(null, null, toolsProducer);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+		}
+
+		return toolsAString;
+	}
 
 	/**
 	 * @param openAPIString
@@ -85,13 +138,14 @@ public class OAS2MCPConverter {
 			ParseOptions options = new ParseOptions();
 			options.setResolve(true);
 			options.setResolveFully(true);
-			
+
 			SwaggerParseResult parseResult = new OpenAPIParser().readContents(openAPIString, null, options);
 			OpenAPI openAPI = parseResult.getOpenAPI();
-			
+
 			int openApiStringSize = openAPIString.getBytes(StandardCharsets.UTF_8).length;
 			if (openApiStringSize > MAX_OPENAPI_STRING_SIZE) {
-				logger.info("OpenAPI Schema nested depth parsing is limited to " + MAX_NESTED_SCHEMA_DEPTH + " due to the size of the specification");
+				logger.info("OpenAPI Schema nested depth parsing is limited to " + MAX_NESTED_SCHEMA_DEPTH
+						+ " due to the size of the specification");
 				IterativeSchemaDepthLimiter.limitSchemaDepth(openAPI, MAX_NESTED_SCHEMA_DEPTH);
 			} else {
 				IterativeSchemaDepthLimiter.limitSchemaDepth(openAPI, DEFAULT_NESTED_SCHEMA_DEPTH);
@@ -119,7 +173,8 @@ public class OAS2MCPConverter {
 					// generate an operationId, if it is missing
 					// creating a default operationId if it is missing is done as well when creating
 					// the mcp tool specification
-					// TODO: create a utility that is used both here and inside the wM IS Java service
+					// TODO: create a utility that is used both here and inside the wM IS Java
+					// service
 					// wx.mcp.server.services.utils:extractOperationsFromOpenAPI
 					if (operationId == null || operationId.isBlank()) {
 						String sanitizedPath = oasPath.replaceAll("[{}\\/]", "_").replaceAll("_+", "_");
@@ -192,7 +247,7 @@ public class OAS2MCPConverter {
 								MediaType appJsonMT = content.get(APPLICATION_JSON);
 								Schema<?> appJsonSchema = appJsonMT.getSchema();
 								Map<String, Schema> properties = appJsonSchema.getProperties();
-								
+
 								if (properties != null) {
 									properties.forEach((propName, propSchema) -> {
 										PropertiesProperty toolProp = new PropertiesProperty();
@@ -200,7 +255,7 @@ public class OAS2MCPConverter {
 										inputSchemaProps.setAdditionalProperty(propName, toolProp);
 									});
 								} else {
-									// TODO: ADD WARNING/ERROR/EXCEPTION	
+									// TODO: ADD WARNING/ERROR/EXCEPTION
 								}
 								List<String> required = appJsonSchema.getRequired();
 								if (required != null && !required.isEmpty()) {
