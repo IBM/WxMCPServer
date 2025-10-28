@@ -10,6 +10,7 @@ paths:
   /mcp:
     post:
       summary: MCP Operation
+      operationId: processMcpRequest
       description: |
         Initiates an MCP operation using either API Key or OAuth2 authentication.
         All parameters are passed as HTTP headers.
