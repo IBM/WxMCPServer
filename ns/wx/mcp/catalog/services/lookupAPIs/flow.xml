@@ -156,7 +156,7 @@
   <DATA ENCODING="XMLValues" I18N="true">
 
 <Values version="2.0">
-  <value name="xml">Check "WxMCP_ApiProducts_Cache" for API Product "%mcpClientConfiguration/cache/key%"</value>
+  <value name="xml">Check "WxMCP_ApiProducts_Cache" for security context "%mcpClientConfiguration/cache/key%"</value>
   <record name="type" javaclass="com.wm.util.Values">
     <value name="node_type">field</value>
     <value name="node_subtype">unknown</value>
@@ -446,7 +446,7 @@
   <DATA ENCODING="XMLValues" I18N="true">
 
 <Values version="2.0">
-  <value name="xml">API Product "%mcpClientConfiguration/cache/key%" not found in cache "WxMCP_ApiProducts_Cache" -&gt; invoking APIs from configured MCP Tool Catalog</value>
+  <value name="xml">Security context "%mcpClientConfiguration/cache/key%" not found in cache "WxMCP_ApiProducts_Cache" -&gt; invoking APIs from configured MCP Tool Catalog</value>
   <record name="type" javaclass="com.wm.util.Values">
     <value name="node_type">field</value>
     <value name="node_subtype">unknown</value>
@@ -12371,7 +12371,7 @@
   <DATA ENCODING="XMLValues" I18N="true">
 
 <Values version="2.0">
-  <value name="xml">No external API call. API Product "%mcpClientConfiguration/cache/key%"  found in cache "WxMCP_ApiProducts_Cache"</value>
+  <value name="xml">No external API call. Security context "%mcpClientConfiguration/cache/key%"  found in cache "WxMCP_ApiProducts_Cache"</value>
   <record name="type" javaclass="com.wm.util.Values">
     <value name="node_type">field</value>
     <value name="node_subtype">unknown</value>

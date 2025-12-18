@@ -3,7 +3,7 @@
 <Values version="2.0">
   <value name="enabled">yes</value>
   <value name="system_package">no</value>
-  <value name="version">1.2.1</value>
+  <value name="version">1.2.1.1</value>
   <record name="startup_services" javaclass="com.wm.util.Values">
     <null name="wx.mcp.server.services.cachemanager:createCacheManager"/>
     <null name="wx.mcp.server.services.cache:createCaches"/>
@@ -40,4 +40,5 @@ Check public GitHub repository for more details: https://github.com/IBM/WxMCPSer
     </record>
   </array>
   <null name="target_server_version"/>
+  <value name="name">WxMCPServer</value>
 </Values>
