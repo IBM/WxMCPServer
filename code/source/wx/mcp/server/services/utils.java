@@ -58,79 +58,6 @@ public final class utils
 
 
 
-	public static final void convertISFlowsToMCPTools (IData pipeline)
-        throws ServiceException
-	{
-		// --- <<IS-START(convertISFlowsToMCPTools)>> ---
-		// @sigtype java 3.5
-		// [i] field:1:required flows
-		// [i] field:1:required folders
-		// [o] field:0:required toolJSONString
-		// [o] record:1:required skippedTools
-		// [o] - field:0:required flowPath
-		// [o] - field:0:required explanation
-		IDataCursor pipelineCursor = pipeline.getCursor();
-		String[] flows = IDataUtil.getStringArray(pipelineCursor, "flows");
-		String[] folders = IDataUtil.getStringArray(pipelineCursor, "folders");
-		 
-		ObjectMapper mapper = new ObjectMapper();
-		ArrayNode toolsArray = mapper.createArrayNode();
-		List<IData> skippedToolsList = new ArrayList<IData>();
-		
-		try {
-		    Set<String> serviceNames = new HashSet<String>();
-		    if (flows != null) serviceNames.addAll(Arrays.asList(flows));
-		
-		    // 1. Resolve folders recursively using Namespace.current()
-		    Namespace ns = Namespace.current();
-		    if (folders != null) {
-		        for (String folder : folders) {
-		            resolveFolder(ns, folder, serviceNames);
-		        }
-		    }
-		  
-		    // 2. Process each service
-		    for (String servicePath : serviceNames) {
-		        try {
-		            NSName nsName = NSName.create(servicePath);
-		            NSService service = (NSService) ns.getNode(nsName);
-		            
-		            if (service == null) throw new Exception("Service not found in Namespace: " + servicePath);
-		
-		            ObjectNode tool = mapper.createObjectNode();
-		            tool.put("name", servicePath.replace(':', '_').replace('.', '_'));
-		            tool.put("description", "webMethods flow: " + servicePath);
-		
-		            // Introspect Input Signature
-		            NSRecord inputSig = service.getSignature().getInput();
-		            tool.set("inputSchema", convertSignatureToJsonSchema(inputSig, mapper));
-		
-		            toolsArray.add(tool);
-		        } catch (Exception e) {
-		            IData skipped = IDataFactory.create();
-		            IDataCursor sc = skipped.getCursor();
-		            IDataUtil.put(sc, "flowPath", servicePath);
-		            IDataUtil.put(sc, "explanation", e.toString());
-		            sc.destroy();
-		            skippedToolsList.add(skipped);
-		        }
-		    }
-		
-		    IDataUtil.put(pipelineCursor, "toolJSONString", mapper.writerWithDefaultPrettyPrinter().writeValueAsString(toolsArray));
-		    IDataUtil.put(pipelineCursor, "skippedTools", skippedToolsList.toArray(new IData[0]));
-		
-		} catch (Exception e) {
-		    throw new ServiceException(e);
-		} finally {
-		    pipelineCursor.destroy();
-		}
-		// --- <<IS-END>> ---
-
-                
-	}
-
-
-
 	public static final void convertOASToMCP (IData pipeline)
         throws ServiceException
 	{
@@ -148,7 +75,7 @@ public final class utils
 		String pathParamPrefix = IDataUtil.getString(pipelineCursor, "pathParamPrefix");
 		String queryPrefix = IDataUtil.getString(pipelineCursor, "queryPrefix");
 		String mcpObjectName = IDataUtil.getString(pipelineCursor, "mcpObjectName");
-		     
+		      
 		OAS2MCPConverter mcpConverter = new OAS2MCPConverter();
 		String result = mcpConverter.generateMcpToolStringFromOAS(openAPIString, headerPrefix, pathParamPrefix, queryPrefix, mcpObjectName);
 		
@@ -829,66 +756,6 @@ public final class utils
 
 	// --- <<IS-START-SHARED>> ---
 	
-	// Fixed recursion: Cast node to NSPackage or NSInterface to access getNodes()
-	private static void resolveFolder(Namespace ns, String folderName, Set<String> serviceNames) {
-	    NSNode node = ns.getNode(NSName.create(folderName));
-	    
-	    if (node instanceof NSService) {
-	        // Das ist ein Flow Service
-	        serviceNames.add(node.getNSName().getFullName());
-	        return;
-	    } 
-	    
-	    // Folder: Children \u00FCber getChildNames() holen
-	    try {
-	        java.util.Enumeration childEnum = node.children();
-	        while (childEnum.hasMoreElements()) {
-	            NSNode child = (NSNode) childEnum.nextElement();
-	            
-	            String childName = child.getNSName().getNounName();
-	            String fullChildPath = folderName + "." + childName;
-	            
-	            // Rekursiv weiter
-	            resolveFolder(ns, fullChildPath, serviceNames);
-	        }
-	    } catch (Exception e) {
-	        // Folder hat keine Children oder Zugriffsfehler
-	    }
-	}
-	
-	private static ObjectNode convertSignatureToJsonSchema(NSRecord signature, ObjectMapper mapper) throws Exception {
-	    ObjectNode schema = mapper.createObjectNode();
-	    schema.put("type", "object");
-	    ObjectNode properties = mapper.createObjectNode();
-	    ArrayNode required = mapper.createArrayNode();
-	
-	    NSField[] fields = signature.getFields();
-	    if (fields != null) {
-	        for (NSField field : fields) {
-	            String name = field.getName();
-	            ObjectNode prop = mapper.createObjectNode();
-	
-	            if (field instanceof NSRecord) {
-	                prop.setAll(convertSignatureToJsonSchema((NSRecord) field, mapper));
-	            } else {
-	                if (field.getDimensions() > 0) {
-	                    prop.put("type", "array");
-	                    ObjectNode items = mapper.createObjectNode();
-	                    items.put("type", "string");
-	                    prop.set("items", items);
-	                } else {
-	                    prop.put("type", "string"); 
-	                }
-	            }
-	            properties.set(name, prop);
-	            // NSField provides isOptional() in 11.x to check if the field is mandatory
-	            if (!field.isOptional()) required.add(name);
-	        }
-	    }
-	    schema.set("properties", properties);
-	    if (required.size() > 0) schema.set("required", required);
-	    return schema;
-	}
 	
 	private static void log(String msg) {
 		// input
