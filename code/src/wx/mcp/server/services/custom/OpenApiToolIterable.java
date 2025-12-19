@@ -1,22 +1,23 @@
 package wx.mcp.server.services.custom;
 
-import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.PathItem;
-import io.swagger.v3.oas.models.Operation;
-import io.swagger.v3.oas.models.Paths;
-import io.swagger.v3.oas.models.parameters.Parameter;
-import wx.mcp.server.models.Tool;
-import wx.mcp.server.services.custom.helpers.McpToolBuilder;
-import wx.mcp.server.services.custom.helpers.ParameterHelper;
-import io.swagger.v3.oas.models.PathItem.HttpMethod;
-
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.Operation;
+import io.swagger.v3.oas.models.PathItem;
+import io.swagger.v3.oas.models.PathItem.HttpMethod;
+import io.swagger.v3.oas.models.Paths;
+import io.swagger.v3.oas.models.parameters.Parameter;
+import wx.mcp.server.models.Tool;
+import wx.mcp.server.services.custom.helpers.McpToolBuilder;
+import wx.mcp.server.services.custom.helpers.ParameterHelper;
 
 public final class OpenApiToolIterable {
 
@@ -72,6 +73,7 @@ public final class OpenApiToolIterable {
 
                     // 1) Merge path-level + op-level params (op overrides)
                     List<Parameter> mergedParams = ParameterHelper.effectiveParameters(currentPathItem, op);
+                    
                     next = McpToolBuilder.buildMcpTool(currentPath, e.getKey(), e.getValue(), headerPrefix, pathParamPrefix, queryPrefix,
                             mcpObjectName, mergedParams, isLargeSpec);
                     if (next != null)

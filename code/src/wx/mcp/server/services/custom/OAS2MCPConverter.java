@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
 public class OAS2MCPConverter {
 
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger("wx.mcp.server");
-	
+
 	private static final String APPLICATION_JSON = "application/json";
 	private static final String X_WWW_FORM_URLENCODED = "application/x-www-form-urlencoded";
 	private static final String[] SUPPORTED_CONTENT_TYPES = { APPLICATION_JSON };
@@ -46,17 +46,12 @@ public class OAS2MCPConverter {
 	private static final int DEFAULT_NESTED_SCHEMA_DEPTH = 6;
 	private static final int MAX_OPENAPI_STRING_SIZE = 4000000;
 
-	private static final Set<PathItem.HttpMethod> allowedMethods = EnumSet.of(
-			PathItem.HttpMethod.GET,
-			PathItem.HttpMethod.POST,
-			PathItem.HttpMethod.PUT,
-			PathItem.HttpMethod.DELETE,
-			PathItem.HttpMethod.PATCH,
-			PathItem.HttpMethod.HEAD,
-			PathItem.HttpMethod.OPTIONS);
+	private static final Set<PathItem.HttpMethod> allowedMethods = EnumSet.of(PathItem.HttpMethod.GET,
+			PathItem.HttpMethod.POST, PathItem.HttpMethod.PUT, PathItem.HttpMethod.DELETE, PathItem.HttpMethod.PATCH,
+			PathItem.HttpMethod.HEAD, PathItem.HttpMethod.OPTIONS);
 
-	private static final Set<String> excludedKeys = Set.of("exampleSetFlag", "types","$id", "$schema","xml","writeOnly","readOnly");
-
+	private static final Set<String> excludedKeys = Set.of("exampleSetFlag", "types", "$id", "$schema", "xml",
+			"writeOnly", "readOnly");
 
 	/**
 	 * @param openAPIString
@@ -214,10 +209,8 @@ public class OAS2MCPConverter {
 					allParams.addAll(operationParams);
 
 					// get the required parameters
-					List<String> requiredParams = allParams.stream()
-							.filter(Parameter::getRequired)
-							.map(Parameter::getName)
-							.collect(Collectors.toList());
+					List<String> requiredParams = allParams.stream().filter(Parameter::getRequired)
+							.map(Parameter::getName).collect(Collectors.toList());
 
 					allParams.forEach((param) -> {
 						logger.debug("\t\tparameter {}", param.getName());
@@ -236,8 +229,7 @@ public class OAS2MCPConverter {
 						// if (!content.containsKey(APPLICATION_JSON) ) {
 						if (!containsSupportedContent) {
 							Set<String> keySet = content.keySet();
-							String unhandledKeys = keySet.stream()
-									.collect(Collectors.joining(","));
+							String unhandledKeys = keySet.stream().collect(Collectors.joining(","));
 							logger.debug(
 									"\t\tMCP Tool will not be generated -> request body contains only unhandled keys: {}",
 									unhandledKeys);
@@ -321,8 +313,7 @@ public class OAS2MCPConverter {
 								logger.debug("\t\thandled application/json response schema");
 							} else {
 								Set<String> keySet = respStatusContent.keySet();
-								String unhandledKeys = keySet.stream()
-										.collect(Collectors.joining(","));
+								String unhandledKeys = keySet.stream().collect(Collectors.joining(","));
 								logger.debug(
 										"MCP Tool will not be generated -> response does only contain unhandled content-types {}",
 										unhandledKeys);
@@ -349,10 +340,8 @@ public class OAS2MCPConverter {
 			return;
 
 		// Convert the schema to a Map<String, Object>
-		Map<String, Object> schemaMap = mapper.convertValue(
-				propSchema,
-				new TypeReference<Map<String, Object>>() {
-				});
+		Map<String, Object> schemaMap = mapper.convertValue(propSchema, new TypeReference<Map<String, Object>>() {
+		});
 
 		// Clean the map (e.g., remove nulls and excluded keys)
 		cleanMap(schemaMap);
@@ -444,10 +433,7 @@ public class OAS2MCPConverter {
 		return (value == null || value.isBlank()) ? defaultValue : value;
 	}
 
-	private List<Parameter> handleParameterPrefixes(
-			List<Parameter> params,
-			String queryPrefix,
-			String headerPrefix,
+	private List<Parameter> handleParameterPrefixes(List<Parameter> params, String queryPrefix, String headerPrefix,
 			String pathParamPrefix) {
 
 		if (params == null || params.isEmpty()) {
@@ -459,10 +445,10 @@ public class OAS2MCPConverter {
 			String in = param.getIn();
 
 			String propertyName = switch (in) {
-				case "query" -> name.startsWith(queryPrefix) ? name : queryPrefix + name;
-				case "header" -> name.startsWith(headerPrefix) ? name : headerPrefix + name;
-				case "path" -> name.startsWith(pathParamPrefix) ? name : pathParamPrefix + name;
-				default -> null;
+			case "query" -> name.startsWith(queryPrefix) ? name : queryPrefix + name;
+			case "header" -> name.startsWith(headerPrefix) ? name : headerPrefix + name;
+			case "path" -> name.startsWith(pathParamPrefix) ? name : pathParamPrefix + name;
+			default -> null;
 			};
 
 			if (propertyName != null) {
