@@ -28,3 +28,5 @@ hs_err_pid*
 config/WORK-txnPassStore.dat
 config/txnPassStore.dat
 config/jmpw.dat
+code/.classpath
+code/.project

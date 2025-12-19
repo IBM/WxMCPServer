@@ -39,5 +39,10 @@
 	<classpathentry kind="lib" path="code/jars/swagger-models-2.2.34.jar"/>
 	<classpathentry kind="lib" path="code/jars/swagger-parser-2.1.33.jar"/>
 	<classpathentry kind="lib" path="code/jars/swagger-parser-core-2.1.33.jar"/>
+	<classpathentry kind="lib" path="code/jars/wxmcpserver-tools.jar"/>
+	<classpathentry kind="var" path="WEBMETHODS_HOME/common/lib/ext/jackson-databind.jar"/>
+	<classpathentry kind="var" path="WEBMETHODS_HOME/common/lib/ext/jackson-dataformat-yaml.jar"/>
+	<classpathentry kind="var" path="WEBMETHODS_HOME/common/lib/ext/jackson-annotations.jar"/>
+	<classpathentry kind="var" path="WEBMETHODS_HOME/common/lib/ext/jackson-core.jar"/>
 	<classpathentry kind="output" path="code/classes"/>
 </classpath>
