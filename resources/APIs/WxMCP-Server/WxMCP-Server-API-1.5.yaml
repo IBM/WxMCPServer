@@ -1,0 +1,220 @@
+openapi: 3.0.3
+info:
+  title: WxMCP-Server-API
+  version: "1.5.0"
+  description: |
+    WxMCP-Server-API provides endpoints for managing MCP operations and handling secrets.
+tags:
+  - name: mcp.ignore
+    description: Ignore operations of this API being exposed as MCP tools
+servers:
+  - url: https://api.example.com
+
+paths:
+  /mcp:
+    post:
+      summary: MCP Operation
+      operationId: processMcpRequest
+      description: |
+        Initiates an MCP operation using either API Key or OAuth2 authentication.
+        All parameters are passed as HTTP headers.
+        The request and response follow the JSON-RPC 2.0 structure.
+      # Security: OAuth2 with wxmcp.server OR API key
+      security:
+        - oauth2:
+            - wxmcp.server
+      parameters:
+        - name: x-auth-type
+          in: header
+          required: false
+          schema:
+            type: string
+            enum: [API_KEY, OAUTH]
+          description: The authentication method to use. If not set, the global variable "wxmcp.auth.type" is read. If unset, an exception is thrown.
+        - name: x-tool-header-prefix
+          in: header
+          required: false
+          schema:
+            type: string
+          description: Prefix for header properties in the tool input schema. If not set, the global variable "wxmcp.tool.header.prefix" is read, else defaults to "header-".
+        - name: x-tool-query-prefix
+          in: header
+          required: false
+          schema:
+            type: string
+          description: Prefix for query properties in the tool input schema. If not set, "wxmcp.tool.query.prefix" is read; else defaults to "query-".
+        - name: x-tool-path-prefix
+          in: header
+          required: false
+          schema:
+            type: string
+          description: Prefix for path parameter properties in the tool input schema. If not set, "wxmcp.tool.path.prefix" is read; else defaults to "path-".
+        - name: x-tool-response-mode
+          in: header
+          required: false
+          schema:
+            type: string
+            enum: [structured, text, both]
+          description: Structure of tool responses. If not set, "wxmcp.tool.response.mode" is read; else defaults to "both".
+        - name: x-response-code
+          in: header
+          required: false
+          schema:
+            type: string
+            enum: [stdio, http]
+          description: Return HTTP code style. If not set, "wxmcp.response.code" is read; else defaults to "stdio".
+        - name: x-tool-catalog-base-url
+          in: header
+          required: false
+          schema:
+            type: string
+            format: uri
+          description: Base URL for the tool catalog API. If not set, "wxmcp.tool.catalog.base.url" is read; else an exception is thrown.
+        - name: x-api-key-headername
+          in: header
+          required: false
+          schema:
+            type: string
+          description: HTTP header name for the API Key (required for API_KEY). If not set, "wxmcp.api.key.headername" is read; else an exception is thrown.
+        - name: x-api-key
+          in: header
+          required: false
+          schema:
+            type: string
+          description: The API Key value (required if x-auth-type is "API_KEY").
+        - name: x-oauth-bearer-token
+          in: header
+          required: false
+          schema:
+            type: string
+          description: Bearer token for OAuth2 authentication (required if x-auth-type is "OAUTH").
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JsonRpcRequest'
+            example:
+              jsonrpc: "2.0"
+              id: 1
+              method: "doSomething"
+              params:
+                key: value
+      responses:
+        '200':
+          description: Successful MCP operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JsonRpcResponse'
+              examples:
+                success:
+                  summary: Example JSON-RPC 2.0 response
+                  value:
+                    jsonrpc: "2.0"
+                    id: 2
+                    result:
+                      status: "ok"
+                      data: {}
+        '400':
+          description: Invalid request parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JsonRpcErrorResponse'
+              example:
+                jsonrpc: "2.0"
+                id: 3
+                error:
+                  code: -32602
+                  message: "Unknown tool: invalid_tool_name"
+        '404':
+          description: Resource or method not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JsonRpcErrorResponse'
+              example:
+                jsonrpc: "2.0"
+                id: 3
+                error:
+                  code: -32602
+                  message: "Unknown tool: invalid_tool_name"
+        '500':
+          description: Internal server error during MCP processing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JsonRpcErrorResponse'
+              example:
+                jsonrpc: "2.0"
+                id: 3
+                error:
+                  code: -32602
+                  message: "Unknown tool: invalid_tool_name"
+        '401':
+          description: Unauthorized
+
+components:
+  securitySchemes:
+    oauth2:
+      type: oauth2
+      description: OAuth2 client credentials for WxMCP server access
+      flows:
+        clientCredentials:
+          tokenUrl: https://auth.example.com/oauth2/token
+          scopes:
+            wxmcp.server: Access MCP server operations
+  schemas:
+    JsonRpcRequest:
+      type: object
+      required: [jsonrpc, id, method, params]
+      properties:
+        jsonrpc:
+          type: string
+          enum: ["2.0"]
+          description: JSON-RPC protocol version.
+        id:
+          type: integer
+          description: Request identifier.
+        method:
+          type: string
+          description: Name of the method to be invoked.
+        params:
+          type: object
+    JsonRpcResponse:
+      type: object
+      required: [jsonrpc, id]
+      properties:
+        jsonrpc:
+          type: string
+          enum: ["2.0"]
+          description: JSON-RPC protocol version.
+        id:
+          type: integer
+          description: Response identifier.
+        result:
+          type: object
+        error:
+          type: object
+    JsonRpcErrorResponse:
+      type: object
+      required: [jsonrpc, id, error]
+      properties:
+        jsonrpc:
+          type: string
+          enum: ["2.0"]
+          description: JSON-RPC protocol version.
+        id:
+          type: integer
+          description: Response identifier.
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code:
+              type: integer
+              description: JSON-RPC error code.
+            message:
+              type: string
+              description: Error message.

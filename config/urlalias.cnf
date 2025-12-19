@@ -11,13 +11,13 @@
     <record name="portMap" javaclass="com.wm.util.Values">
     </record>
   </record>
-  <record name="api/v1/mcp/sse" javaclass="com.wm.util.Values">
-    <value name="urlPath">invoke/wx.mcp.server.services/mcpProxy</value>
+  <record name="v1/mcp" javaclass="com.wm.util.Values">
+    <value name="urlPath">rad/wx.mcp.server.api:WxMCPServer/mcp</value>
     <record name="portMap" javaclass="com.wm.util.Values">
     </record>
   </record>
-  <record name="v1/mcp" javaclass="com.wm.util.Values">
-    <value name="urlPath">rad/wx.mcp.server.api:WxMCPServer/mcp</value>
+  <record name="v1_5_0/mcp" javaclass="com.wm.util.Values">
+    <value name="urlPath">rad/wx.mcp.server.api._1_5_0:WxMCPServer/mcp</value>
     <record name="portMap" javaclass="com.wm.util.Values">
     </record>
   </record>

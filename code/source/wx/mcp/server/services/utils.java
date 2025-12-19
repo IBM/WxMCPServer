@@ -7,6 +7,19 @@ import com.wm.util.Values;
 import com.wm.app.b2b.server.Service;
 import com.wm.app.b2b.server.ServiceException;
 // --- <<IS-START-IMPORTS>> ---
+import com.wm.app.b2b.server.Server;
+import com.wm.lang.ns.DependencyManager;
+import com.wm.lang.ns.NSField;
+import com.wm.lang.ns.NSInterface;
+import com.wm.lang.ns.NSName;
+import com.wm.lang.ns.NSNode;
+import com.wm.lang.ns.NSPackage;
+import com.wm.lang.ns.NSRecord;
+import com.wm.lang.ns.NSService;
+import com.wm.lang.ns.openapi.NSProviderDescriptor;
+import com.wm.lang.ns.rsd.RestTag;
+import com.wm.app.b2b.server.ns.NSDependencyManager;
+import com.wm.app.b2b.server.ns.Namespace;
 import org.json.*;
 import java.io.*;
 import java.nio.file.*;
@@ -23,6 +36,8 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import wx.mcp.server.services.custom.OAS2MCPConverter;
 import wx.mcp.server.models.*;
 // --- <<IS-END-IMPORTS>> ---
@@ -60,7 +75,7 @@ public final class utils
 		String pathParamPrefix = IDataUtil.getString(pipelineCursor, "pathParamPrefix");
 		String queryPrefix = IDataUtil.getString(pipelineCursor, "queryPrefix");
 		String mcpObjectName = IDataUtil.getString(pipelineCursor, "mcpObjectName");
-		
+		      
 		OAS2MCPConverter mcpConverter = new OAS2MCPConverter();
 		String result = mcpConverter.generateMcpToolStringFromOAS(openAPIString, headerPrefix, pathParamPrefix, queryPrefix, mcpObjectName);
 		
@@ -316,7 +331,7 @@ public final class utils
 		// [o] - field:0:required method
 		IDataCursor pipelineCursor = pipeline.getCursor();
 		String openAPISpec = IDataUtil.getString(pipelineCursor, "openAPISpec");
-		 
+		  
 		try {
 			JSONObject openAPI = new JSONObject(openAPISpec);
 		
@@ -480,39 +495,6 @@ public final class utils
 		
 		// put result into pipeline
 		IDataUtil.put(pipelineCursor, "mcpObjectName", mcpObjectName);
-		pipelineCursor.destroy();
-		// --- <<IS-END>> ---
-
-                
-	}
-
-
-
-	public static final void listHasValue (IData pipeline)
-        throws ServiceException
-	{
-		// --- <<IS-START(listHasValue)>> ---
-		// @sigtype java 3.5
-		// [i] field:1:required theList
-		// [i] field:0:required theValue
-		// [o] object:0:required hasValue
-		// pipeline
-		IDataCursor pipelineCursor = pipeline.getCursor();
-		String[] theList = IDataUtil.getStringArray(pipelineCursor, "theList");
-		String theValue = IDataUtil.getString(pipelineCursor, "theValue");
-		
-		boolean _bool = false;
-		
-		if (theList != null && theValue != null) {
-		    for (String s : theList) {
-		        if (theValue.equals(s)) {  // theValue is guaranteed non-null here
-		            _bool = true;
-		            break; // can stop early
-		        }
-		    }
-		}
-		
-		IDataUtil.put(pipelineCursor, "hasValue", Boolean.valueOf(_bool));
 		pipelineCursor.destroy();
 		// --- <<IS-END>> ---
 
@@ -744,7 +726,7 @@ public final class utils
 			String	inputString = IDataUtil.getString( pipelineCursor, "inputString" );
 			String	detectedFormat = "json";
 			String	outputJson = null;
-			
+			 
 		    ObjectMapper jsonMapper = new ObjectMapper();
 		    ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
 		
@@ -773,6 +755,8 @@ public final class utils
 	}
 
 	// --- <<IS-START-SHARED>> ---
+	
+	
 	private static void log(String msg) {
 		// input
 		IData input = IDataFactory.create();
@@ -802,6 +786,7 @@ public final class utils
 	 * @see java.net.URL
 	 * @see java.net.URI
 	 */
+	
 	public static boolean isStrictlyValidURL(String urlString) {
 	    try {
 	        URL url = new URL(urlString);
@@ -825,7 +810,7 @@ public final class utils
 	        }
 	        return hexString.toString();
 	    } catch (NoSuchAlgorithmException e) {
-	        throw new RuntimeException("SHA-256 nicht verf\u00FCgbar", e);
+	        throw new RuntimeException("SHA-256 not available", e);
 	    }
 	}
 		
