@@ -30,3 +30,4 @@ config/txnPassStore.dat
 config/jmpw.dat
 code/.classpath
 code/.project
+code/build/
