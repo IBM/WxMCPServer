@@ -36,7 +36,7 @@ public final class McpToolBuilder {
 	private static final Logger logger = LoggerFactory.getLogger("wx.mcp.server");
 	
 	private static final String DEFAULT_RESPONSE_MODE = "both";
-	private static final String UNSTRUCTURED_RESPONSE_MODE = "unstructured";
+	private static final String UNSTRUCTURED_RESPONSE_MODE = "text";
 
 	private static final Set<PathItem.HttpMethod> allowedMethods = EnumSet.of(PathItem.HttpMethod.GET,
 			PathItem.HttpMethod.POST, PathItem.HttpMethod.PUT, PathItem.HttpMethod.DELETE, PathItem.HttpMethod.PATCH,

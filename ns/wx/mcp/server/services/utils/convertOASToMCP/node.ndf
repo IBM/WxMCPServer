@@ -132,7 +132,7 @@
           <value name="field_dim">0</value>
           <array name="field_options" type="value" depth="1">
             <value>structured</value>
-            <value>unstructured</value>
+            <value>text</value>
             <value>both</value>
           </array>
           <value name="nillable">true</value>
