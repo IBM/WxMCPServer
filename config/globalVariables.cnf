@@ -35,7 +35,7 @@
       </record>
       <record javaclass="com.wm.data.ISMemDataImpl">
         <value name="key">wxmcp.tool.response.mode</value>
-        <value name="value">both</value>
+        <value name="value">text</value>
         <value name="isSecure">false</value>
       </record>
       <record javaclass="com.wm.data.ISMemDataImpl">
