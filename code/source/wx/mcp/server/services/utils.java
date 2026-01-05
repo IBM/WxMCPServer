@@ -68,6 +68,7 @@ public final class utils
 		// [i] field:0:required headerPrefix
 		// [i] field:0:required pathParamPrefix
 		// [i] field:0:required mcpObjectName
+		// [i] field:0:required responseMode {"structured","unstructured","both"}
 		// [o] field:0:required toolJSONString
 		IDataCursor pipelineCursor = pipeline.getCursor();
 		String openAPIString = IDataUtil.getString(pipelineCursor, "openAPIString");
@@ -75,9 +76,10 @@ public final class utils
 		String pathParamPrefix = IDataUtil.getString(pipelineCursor, "pathParamPrefix");
 		String queryPrefix = IDataUtil.getString(pipelineCursor, "queryPrefix");
 		String mcpObjectName = IDataUtil.getString(pipelineCursor, "mcpObjectName");
+		String responseMode = IDataUtil.getString(pipelineCursor, "responseMode");
 		      
 		OAS2MCPConverter mcpConverter = new OAS2MCPConverter();
-		String result = mcpConverter.generateMcpToolStringFromOAS(openAPIString, headerPrefix, pathParamPrefix, queryPrefix, mcpObjectName);
+		String result = mcpConverter.generateMcpToolStringFromOAS(openAPIString, headerPrefix, pathParamPrefix, queryPrefix, mcpObjectName, responseMode);
 		
 		IDataUtil.put(pipelineCursor, "toolJSONString", result);
 		pipelineCursor.destroy();

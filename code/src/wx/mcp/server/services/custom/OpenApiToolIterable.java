@@ -31,8 +31,8 @@ public final class OpenApiToolIterable {
      * operation).
      */
     public static Iterable<Tool> from(OpenAPI openAPI, String headerPrefix, String pathParamPrefix,
-            String queryPrefix, String mcpObjectName, boolean isLargeSpec) {
-        return () -> new OpenApiToolIterator(openAPI, headerPrefix, pathParamPrefix, queryPrefix, mcpObjectName, isLargeSpec);
+            String queryPrefix, String mcpObjectName, boolean isLargeSpec, String responseMode) {
+        return () -> new OpenApiToolIterator(openAPI, headerPrefix, pathParamPrefix, queryPrefix, mcpObjectName, isLargeSpec, responseMode);
     }
 
     private static final class OpenApiToolIterator implements Iterator<Tool> {
@@ -45,15 +45,17 @@ public final class OpenApiToolIterable {
         private String pathParamPrefix;
         private String queryPrefix;
         private String mcpObjectName;
+        private String responseMode;
         private boolean isLargeSpec = true;
 
         OpenApiToolIterator(OpenAPI openAPI, String headerPrefix, String pathParamPrefix,
-                String queryPrefix, String mcpObjectName, boolean isLargeSpec) {
+                String queryPrefix, String mcpObjectName, boolean isLargeSpec, String responseMode) {
             this.headerPrefix = headerPrefix;
             this.pathParamPrefix = pathParamPrefix;
             this.queryPrefix = queryPrefix;
             this.mcpObjectName = mcpObjectName;
             this.isLargeSpec = isLargeSpec;
+            this.responseMode = responseMode;
             Paths paths = (openAPI != null) ? openAPI.getPaths() : null;
             this.pathIt = (paths == null)
                     ? Collections.<Map.Entry<String, PathItem>>emptyIterator()
@@ -75,7 +77,7 @@ public final class OpenApiToolIterable {
                     List<Parameter> mergedParams = ParameterHelper.effectiveParameters(currentPathItem, op);
                     
                     next = McpToolBuilder.buildMcpTool(currentPath, e.getKey(), e.getValue(), headerPrefix, pathParamPrefix, queryPrefix,
-                            mcpObjectName, mergedParams, isLargeSpec);
+                            mcpObjectName, mergedParams, isLargeSpec, responseMode);
                     if (next != null)
                         return true; // skip nulls if your mapping filters some ops
                 } else if (pathIt.hasNext()) {

@@ -34,6 +34,9 @@ import wx.mcp.server.models.Tool;
 public final class McpToolBuilder {
 
 	private static final Logger logger = LoggerFactory.getLogger("wx.mcp.server");
+	
+	private static final String DEFAULT_RESPONSE_MODE = "both";
+	private static final String UNSTRUCTURED_RESPONSE_MODE = "unstructured";
 
 	private static final Set<PathItem.HttpMethod> allowedMethods = EnumSet.of(PathItem.HttpMethod.GET,
 			PathItem.HttpMethod.POST, PathItem.HttpMethod.PUT, PathItem.HttpMethod.DELETE, PathItem.HttpMethod.PATCH,
@@ -45,10 +48,14 @@ public final class McpToolBuilder {
 	 */
 	public static Tool buildMcpTool(String path, HttpMethod method, Operation op, String headerPrefix,
 			String pathParamPrefix, String queryPrefix, String mcpObjectName, List<Parameter> mergedParameters,
-			boolean isLargeSpec) {
+			boolean isLargeSpec, String responseMode) {
 		if (!allowedMethods.contains(method)) {
 			logger.debug("\tmethod {} is NOT in the allowed list", method);
 			return null;
+		}
+		
+		if (responseMode == null || responseMode.isBlank() || responseMode.isEmpty()) {
+			responseMode = DEFAULT_RESPONSE_MODE;
 		}
 		// Example sketch — replace with your actual mapping:
 		Tool t = new Tool();
@@ -104,11 +111,12 @@ public final class McpToolBuilder {
 		t.setInputSchema(inputSchema);
 
 		// MCP TOOL OUTPUT SCHEMA ------------------
+		// Output Schema will be added only for structured/both response modes
+		if (!responseMode.equalsIgnoreCase(UNSTRUCTURED_RESPONSE_MODE)) {
+			OutputSchema out = buildOutputSchemaSuccessOnly(op, objectMapper, /* addOneOf = */ false, isLargeSpec);
+			t.setOutputSchema(out);			
+		}
 
-		OutputSchema out = buildOutputSchemaSuccessOnly(op, objectMapper, /* addOneOf = */ false, isLargeSpec);
-		t.setOutputSchema(out);
-
-		// ...
 		return t;
 	}
 

@@ -62,7 +62,7 @@ public class OAS2MCPConverter {
 	 * @return
 	 */
 	public String generateMcpToolStringFromOAS(String openAPIString, String headerPrefix, String pathParamPrefix,
-			String queryPrefix, String mcpObjectName) {
+			String queryPrefix, String mcpObjectName, String responseMode) {
 		int openApiStringSize = 0;
 		String toolsAString = null;
 		try {
@@ -95,7 +95,7 @@ public class OAS2MCPConverter {
 			}
 
 			Iterable<Tool> toolsProducer = OpenApiToolIterable.from(openAPI, headerPrefix, pathParamPrefix, queryPrefix,
-					mcpObjectName, isLargeSpec);
+					mcpObjectName, isLargeSpec, responseMode);
 			toolsAString = McpToolWriter.listToolsToString(null, null, toolsProducer);
 
 		} catch (Exception e) {
