@@ -5,7 +5,7 @@
 **WxMCPServer** is a webMethods Integration Server (IS) package that implements an [MCP Server](https://modelcontextprotocol.io/specification/2025-06-18) (currently as of 18-06-2025) for IBM webMethods Hybrid Integration (IWHI).  
 It requires either **webMethods Integration Server** or **webMethods Microservices Runtime** for hosting.
 ## What's New
-**v1.5.0 (Dec 18, 2025)** 
+**v1.5.0 (January 6, 2026)** 
 - Introduced new header names, please refer to latest [WxMCPServer 1.5 API specification](/resources/APIs/WxMCP-Server/WxMCP-Server-API-1.5.yaml)
 - Introduced new webMethods IS endpoint `https://<server>:<port>/v1_5_0/mcp`
 - Introduced on-demand loading of tools. If tools are not presented in local cache (i.e. due to refreshing the package), they are loaded even without enforcing "tools/list"
