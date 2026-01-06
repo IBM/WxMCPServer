@@ -1,8 +1,14 @@
+
+
 # WxMCPServer
 
-**WxMCPServer** is a webMethods Integration Server (IS) package that implements an [MCP Server](https://modelcontextprotocol.io/docs/learn/server-concepts) for IBM webMethods Hybrid Integration (IWHI).  
+**WxMCPServer** is a webMethods Integration Server (IS) package that implements an [MCP Server](https://modelcontextprotocol.io/specification/2025-06-18) (currently as of 18-06-2025) for IBM webMethods Hybrid Integration (IWHI).  
 It requires either **webMethods Integration Server** or **webMethods Microservices Runtime** for hosting.
-
+## What's New
+**v1.5.0 (Dec 18, 2025)** 
+- Introduced new header names, please refer to latest [WxMCPServer 1.5 API specification](/resources/APIs/WxMCP-Server/WxMCP-Server-API-1.5.yaml)
+- Introduced new webMethods IS endpoint `https://<server>:<port>/v1_5_0/mcp`
+- Introduced on-demand loading of tools. If tools are not presented in local cache (i.e. due to refreshing the package), they are loaded even without enforcing "tools/list"
 ## Table of Contents
 
 - [1. Overview](#1-overview)  
@@ -22,7 +28,7 @@ It requires either **webMethods Integration Server** or **webMethods Microservic
 - [7. Configuration Examples](#7-configuration-examples)  
   - [7.1 Claude Desktop — stdio \| npx \| API Key](#71-claude-desktop--stdio--npx--api-key)  
   - [7.2 Claude Desktop — stdio \| npx \| OAuth Style](#72-claude-desktop--stdio--npx--oauth-style)  
-  - [7.3 IBM watsonx Orchestrate \| Langflow — stdio \| uvx \| API Key](#73-ibm-watsonx-orchestrate--langflow---stdio--uvx--api-key)  
+  - [7.3 IBM watsonx Orchestrate | Langflow — stdio | uvx | API Key](#73-ibm-watsonx-orchestrate-langflow-stdio-uvx-api-key) 
   - [7.4 VS Code MCP Server — Streamable HTTP](#74-vs-code-mcp-server---streamable-http)  
 - [8. Limitations](#8-limitations)
 
@@ -116,11 +122,11 @@ The following graphic provides an overview of the architecture:
 
 ### 5.4 Configuring WxMCPServer
 
--Use the [global variables](#6-configuration-examples) to define MCP server-wide settings. Use the API specifc configuration headers to overwrite these settings per **MCP client**.
+-Use the [global variables](#6-integration-server-global-variables) to define MCP server-wide settings. Use the API specifc configuration headers to overwrite these settings per **MCP client**.
 
 ### 5.5 Protecting WxMCPServer implementation
 
-If you do not run a local MCP server , but a shared one used for enterprise  scenarios, you should put the [WxMCPServer API](/resources/APIs/WxMCP-Server/WxMCP-Server-API-1.4.yaml) on the API Gateway in front of the **WxMCPServer** implementation. Ideally you put it into the same API product than **MCP Tool Catalog** API, so that all APIs share the same credentials ("Invoke, what you can list and vice versa").
+If you do not run a local MCP server , but a shared one used for enterprise  scenarios, you should put the [WxMCPServer API](/resources/APIs/WxMCP-Server/WxMCP-Server-API-1.5.yaml) on the API Gateway in front of the **WxMCPServer** implementation. Ideally you put it into the same API product than **MCP Tool Catalog** API, so that all APIs share the same credentials ("Invoke, what you can list and vice versa").
 See full enterprise architecture below:
 
 ![Screenshot](/resources/images/enterprise-architecture.png)
@@ -145,7 +151,7 @@ You can set default values for `WxMCPServer`, which are used if no corresponding
 | `wxmcp.tool.query.prefix`     | No          | `query_`                         | Default prefix for tool query parameter properties.                                                |
 | `wxmcp.tool.path.prefix`      | No          | `path_`                         | Default prefix for tool path parameter properties.                                                 |
 | `wxmcp.tool.response.mode`    | No          | `both`                          | Tool response format: `text`, `structured`, or `both`.                                            |
-| `wxmcp.response.code.mode`    | No          | `stdio`                         | Response mode: `"stdio"` (always HTTP 200) or `"http"` (actual status codes).                       |
+| `wxmcp.response.code`    | No          | `stdio`                         | Response mode: `"stdio"` (always HTTP 200) or `"http"` (actual status codes).                       |
 
 ---
 
@@ -163,23 +169,23 @@ You can set default values for `WxMCPServer`, which are used if no corresponding
         "mcp-remote",
         "http://<Integration Server Host>:<Integration Server Port>/mcp",
         "--header",
-        "auth_type:API_KEY",
+        "x-auth-type:API_KEY",
         "--header",
-        "api_key:<The API Key>",
+        "x-api-key:<The API Key>",
         "--header",
-        "tool_catalog_base_url:https://<webMethods API Gateway Host>:<webMethods API Gateway Port>/gateway/WxMCP-Tool-Catalog/1.1",
+        "x-tool-catalog-base-url:https://<webMethods API Gateway Host>:<webMethods API Gateway Port>/gateway/WxMCP-Tool-Catalog/1.1",
         "--header",
-        "api_key_headername:<Your API Key header - i.e. x-Gateway-APIKey for webMethods>",
+        "x-api-key-headername:<Your API Key header - i.e. x-Gateway-APIKey for webMethods>",
         "--header",
-        "tool_header_prefix:header_",
+        "x-tool-header-prefix:header_",
         "--header",
-        "tool_query_prefix:query_",
+        "x-tool-query-prefix:query_",
         "--header",
-        "tool_path_prefix:path_",
+        "x-tool-path-prefix:path_",
         "--header",
-        "tool_response_mode:structured",
+        "x-tool-response-mode:structured",
         "--header",
-        "response_code:http"
+        "x-response-code:http"
       ]
     }
   }
@@ -198,21 +204,21 @@ You can set default values for `WxMCPServer`, which are used if no corresponding
         "mcp-remote",
         "http://<Integration Server Host>:<Integration Server Port>/mcp",
         "--header",
-        "auth_type:OAUTH",
+        "x-auth-type:OAUTH",
         "--header",
-        "tool_catalog_base_url:https://<webMethods API Gateway Host>:<webMethods API Gateway Port>/gateway/WxMCP-Tool-Catalog/1.1",
+        "x-tool-catalog-base-url:https://<webMethods API Gateway Host>:<webMethods API Gateway Port>/gateway/WxMCP-Tool-Catalog/1.1",
         "--header",
-        "oauth_bearer_token:<The bearer token>",
+        "x-oauth-bearer-token:<The bearer token>",
         "--header",
-        "tool_header_prefix:header_",
+        "x-tool-header-prefix:header_",
         "--header",
-        "tool_query_prefix:query_",
+        "x-tool-query-prefix:query_",
         "--header",
-        "tool_path_prefix:path_",
+        "x-tool-path-prefix:path_",
         "--header",
-        "tool_response_mode:structured",
+        "x-tool-response-mode:structured",
         "--header",
-        "response_code:http"
+        "x-response-code:http"
       ]
     }
   }
@@ -221,10 +227,10 @@ You can set default values for `WxMCPServer`, which are used if no corresponding
 
 ### 7.3 IBM watsonx Orchestrate | Langflow  - stdio | uvx | API Key
 
-```ps
+```undefined
 uvx mcp-proxy 
---headers api_key <Your API Key header - i.e. x-Gateway-APIKey for webMethods>
---headers tool_catalog_base_url https://<webMethods API Gateway Host>:<webMethods API Gateway Port>/gateway/WxMCP-Tool-Catalog/1.1
+--headers x-api-key <Your API Key header - i.e. x-Gateway-APIKey for webMethods>
+--headers x-tool-catalog-base-url https://<webMethods API Gateway Host>:<webMethods API Gateway Port>/gateway/WxMCP-Tool-Catalog/1.1
 http://<Integration Server Host>:<Integration Server Port>/mcp --transport streamablehttp
 ```
 
@@ -237,11 +243,11 @@ http://<Integration Server Host>:<Integration Server Port>/mcp --transport strea
       "url": "http://<Integration Server Host>:<Integration Server Port>/mcp",
       "type": "http",
       "headers": {
-        "auth_type": "API_KEY",
-        "tool_catalog_base_url": "https://<webMethods API Gateway Host>:<webMethods API Gateway Port>/gateway/WxMCP-Tool-Catalog/1.1",
-        "api_key": "<Your API Key header - i.e. x-Gateway-APIKey for webMethods>",
+        "x-auth-type": "API_KEY",
+        "x-tool-catalog-base-url": "https://<webMethods API Gateway Host>:<webMethods API Gateway Port>/gateway/WxMCP-Tool-Catalog/1.1",
+        "x-api-key": "<Your API Key header - i.e. x-Gateway-APIKey for webMethods>",
         "Content-Type": "application/json",
-        "api_key_headername": "x-Gateway-APIKey"
+        "x-api-key-headername": "x-Gateway-APIKey"
       }
     }
   },
@@ -254,3 +260,4 @@ http://<Integration Server Host>:<Integration Server Port>/mcp --transport strea
 ## 8. Limitations
 
 - Only `"Content-Type": "application/json"` is supported for sending and receiving data to APIs.
+- The [Token-Passtrough anti-pattern](https://modelcontextprotocol.io/specification/2025-06-18/basic/security_best_practices#token-passthrough) will be addressed shortly by introducing token swapping capabilities
