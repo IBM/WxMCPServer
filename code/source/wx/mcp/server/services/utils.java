@@ -38,6 +38,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import wx.mcp.server.services.custom.OAS2MCPConverter;
 import wx.mcp.server.models.*;
 // --- <<IS-END-IMPORTS>> ---
@@ -719,6 +720,14 @@ public final class utils
 			 
 		    ObjectMapper jsonMapper = new ObjectMapper();
 		    ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
+		
+			 // Register Java 8 date/time support on BOTH mappers
+			 yamlMapper.registerModule(new JavaTimeModule());
+			 jsonMapper.registerModule(new JavaTimeModule());
+		
+			 // Optional but common: write ISO-8601 strings for dates (not timestamps)
+			 yamlMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+			 jsonMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 		
 		    try {
 		    		jsonMapper.readTree(inputString);

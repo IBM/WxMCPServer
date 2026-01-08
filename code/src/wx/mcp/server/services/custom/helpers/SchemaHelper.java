@@ -8,9 +8,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -21,7 +18,6 @@ import io.swagger.v3.oas.models.parameters.Parameter;
 
 public final class SchemaHelper {
 
-    private static final Logger logger = LoggerFactory.getLogger("wx.mcp.server");
     private static final Set<String> excludedKeysLong = Set.of("exampleSetFlag", "examples", "types", "$id", "$schema",
             "xml", "writeOnly", "readOnly", "description");
     private static final Set<String> excludedKeys = Set.of("exampleSetFlag", "types", "$id", "$schema", "xml",

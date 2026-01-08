@@ -1,5 +1,6 @@
 package wx.mcp.server.services.custom;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -8,12 +9,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.nio.charset.StandardCharsets;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import io.swagger.parser.OpenAPIParser;
+import io.swagger.v3.parser.OpenAPIV3Parser;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.Paths;
@@ -31,12 +34,7 @@ import wx.mcp.server.models.Properties;
 import wx.mcp.server.models.PropertiesProperty;
 import wx.mcp.server.models.Tool;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public class OAS2MCPConverter {
-
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger("wx.mcp.server");
 
 	private static final String APPLICATION_JSON = "application/json";
 	private static final String X_WWW_FORM_URLENCODED = "application/x-www-form-urlencoded";
@@ -68,7 +66,6 @@ public class OAS2MCPConverter {
 		try {
 			if (isNullOrEmpty(openAPIString) || isNullOrEmpty(headerPrefix) || isNullOrEmpty(pathParamPrefix)
 					|| isNullOrEmpty(queryPrefix)) {
-				logger.error("One or more required parameters are null or empty.");
 				throw new IllegalArgumentException("One or more required parameters are null or empty.");
 			}
 
@@ -78,19 +75,21 @@ public class OAS2MCPConverter {
 			options.setResolveFully(true);
 
 			openApiStringSize = openAPIString.getBytes(StandardCharsets.UTF_8).length;
-			logger.debug("starting OpenAPI spec parsing (utf8 byte Size: {})", openApiStringSize);
-			SwaggerParseResult parseResult = new OpenAPIParser().readContents(openAPIString, null, options);
+			//SwaggerParseResult parseResult = new OpenAPIParser().readContents(openAPIString, null, options);
+//			SwaggerParseResult parseResult =
+//    			OpenAPIFactory.createParser().readContents(openAPIString, null, options);
+
+			SwaggerParseResult parseResult =
+			    new OpenAPIV3Parser().readContents(openAPIString, null, options);
+
+
 
 			OpenAPI openAPI = parseResult.getOpenAPI();
 			// IterativeSchemaDepthLimiter.limitSchemaDepthOnlyCyclic(openAPI, 6);
 			boolean isLargeSpec = openApiStringSize > MAX_OPENAPI_STRING_SIZE ? true : false;
 			if (isLargeSpec) {
-				logger.debug("OpenAPI Schema nested schema depth limited to {} levels due to specification size",
-						MAX_NESTED_SCHEMA_DEPTH);
 				IterativeSchemaDepthLimiter.limitSchemaDepthOnlyCyclic(openAPI, MAX_NESTED_SCHEMA_DEPTH);
 			} else {
-				logger.debug("OpenAPI Schema limited to {} levels to avoid infinite nesting",
-						DEFAULT_NESTED_SCHEMA_DEPTH);
 				IterativeSchemaDepthLimiter.limitSchemaDepthOnlyCyclic(openAPI, DEFAULT_NESTED_SCHEMA_DEPTH);
 			}
 
@@ -122,10 +121,12 @@ public class OAS2MCPConverter {
 			mcpTools.setTools(new ArrayList<Tool>());
 		}
 		ObjectMapper mapper = new ObjectMapper();
+		mapper.registerModule(new JavaTimeModule());
+		mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+		
 		try {
 			if (isNullOrEmpty(openAPIString) || isNullOrEmpty(headerPrefix) || isNullOrEmpty(pathParamPrefix)
 					|| isNullOrEmpty(queryPrefix)) {
-				logger.error("One or more required parameters are null or empty.");
 				throw new IllegalArgumentException("One or more required parameters are null or empty.");
 			}
 
@@ -139,28 +140,22 @@ public class OAS2MCPConverter {
 
 			int openApiStringSize = openAPIString.getBytes(StandardCharsets.UTF_8).length;
 			if (openApiStringSize > MAX_OPENAPI_STRING_SIZE) {
-				logger.info("OpenAPI Schema nested depth parsing is limited to " + MAX_NESTED_SCHEMA_DEPTH
-						+ " due to the size of the specification");
 				IterativeSchemaDepthLimiter.limitSchemaDepth(openAPI, MAX_NESTED_SCHEMA_DEPTH);
 			} else {
 				IterativeSchemaDepthLimiter.limitSchemaDepth(openAPI, DEFAULT_NESTED_SCHEMA_DEPTH);
 			}
 
 			if (openAPI == null) {
-				logger.error("Failed to parse OpenAPI specification.\n{}", parseResult.getMessages());
 				throw new Exception("Failed to parse OpenAPI specification.\n" + parseResult.getMessages());
 			}
 
 			Paths oasPaths = openAPI.getPaths();
 			oasPaths.forEach((oasPath, pathItem) -> {
 				// read parameters common to all operations in this 'path'
-				logger.debug("working on {}", oasPath);
 				List<Parameter> pathItemParameters = handleParameterPrefixes(pathItem.getParameters(), queryPrefix,
 						headerPrefix, pathParamPrefix);
 
 				pathItem.readOperationsMap().forEach((httpMethod, operation) -> {
-					logger.debug("\tmethod {}", httpMethod);
-
 					String summary = defaultIfBlank(operation.getSummary(), "No summary");
 
 					String operationId = operation.getOperationId();
@@ -177,7 +172,6 @@ public class OAS2MCPConverter {
 						// return;
 					}
 					if (!allowedMethods.contains(httpMethod)) {
-						logger.debug("\tmethod {} is in the allowed list", httpMethod);
 						return;
 					}
 
@@ -195,7 +189,6 @@ public class OAS2MCPConverter {
 					mcpTool.setDescription(summary);
 
 					// MCP TOOL INPUT SCHEMA ------------------
-					logger.debug("working on the input schema");
 					InputSchema inputSchema = new InputSchema();
 					inputSchema.setType("object");
 					Properties inputSchemaProps = new Properties();
@@ -209,11 +202,12 @@ public class OAS2MCPConverter {
 					allParams.addAll(operationParams);
 
 					// get the required parameters
-					List<String> requiredParams = allParams.stream().filter(Parameter::getRequired)
-							.map(Parameter::getName).collect(Collectors.toList());
+					List<String> requiredParams = allParams.stream()
+							.filter(Parameter::getRequired)
+							.map(Parameter::getName)
+							.collect(Collectors.toList());
 
 					allParams.forEach((param) -> {
-						logger.debug("\t\tparameter {}", param.getName());
 						Schema<?> schema = param.getSchema();
 						PropertiesProperty prop = new PropertiesProperty();
 
@@ -229,10 +223,8 @@ public class OAS2MCPConverter {
 						// if (!content.containsKey(APPLICATION_JSON) ) {
 						if (!containsSupportedContent) {
 							Set<String> keySet = content.keySet();
-							String unhandledKeys = keySet.stream().collect(Collectors.joining(","));
-							logger.debug(
-									"\t\tMCP Tool will not be generated -> request body contains only unhandled keys: {}",
-									unhandledKeys);
+							String unhandledKeys = keySet.stream()
+									.collect(Collectors.joining(","));
 							return;
 						} else {
 							if (content.containsKey(APPLICATION_JSON)) {
@@ -268,7 +260,7 @@ public class OAS2MCPConverter {
 									requiredParams.addAll(required);
 								}
 							} else {
-								logger.error(
+								System.err.println(
 										"MPC Tool will not be generated -> conflict while resolving the request body");
 							}
 						}
@@ -284,7 +276,6 @@ public class OAS2MCPConverter {
 
 					// MCP TOOL OUTPUT SCHEMA
 					// ---------------------------------------------------------------------------
-					logger.debug("working on the output schema");
 					OutputSchema outputSchema = new OutputSchema();
 					Properties resultProperty = new Properties();
 					PropertiesProperty oneOfProperty = new PropertiesProperty();
@@ -301,7 +292,6 @@ public class OAS2MCPConverter {
 
 					ApiResponses pathItemResponses = operation.getResponses();
 					pathItemResponses.forEach((status, apiResponse) -> {
-						logger.debug("response {}", status);
 						Content respStatusContent = apiResponse.getContent();
 						if (respStatusContent != null) {
 							if (respStatusContent.containsKey(APPLICATION_JSON)) {
@@ -310,13 +300,10 @@ public class OAS2MCPConverter {
 								PropertiesProperty currentResponseProps = new PropertiesProperty();
 								processSchema(mapper, schema, currentResponseProps);
 								listOfProps.add(currentResponseProps);
-								logger.debug("\t\thandled application/json response schema");
 							} else {
 								Set<String> keySet = respStatusContent.keySet();
-								String unhandledKeys = keySet.stream().collect(Collectors.joining(","));
-								logger.debug(
-										"MCP Tool will not be generated -> response does only contain unhandled content-types {}",
-										unhandledKeys);
+								String unhandledKeys = keySet.stream()
+										.collect(Collectors.joining(","));
 							}
 						}
 					});
@@ -340,7 +327,9 @@ public class OAS2MCPConverter {
 			return;
 
 		// Convert the schema to a Map<String, Object>
-		Map<String, Object> schemaMap = mapper.convertValue(propSchema, new TypeReference<Map<String, Object>>() {
+		Map<String, Object> schemaMap = mapper.convertValue(
+				propSchema,
+				new TypeReference<Map<String, Object>>() {
 		});
 
 		// Clean the map (e.g., remove nulls and excluded keys)
@@ -413,10 +402,8 @@ public class OAS2MCPConverter {
 			}
 
 			if (item instanceof Map<?, ?> map) {
-				logger.debug("map item from list will be cleaned");
 				cleanMap((Map<String, Object>) map);
 			} else if (item instanceof Schema<?> schema) {
-				logger.debug("schema item from list will be cleaned");
 				cleanSchema(schema);
 			}
 
@@ -433,7 +420,10 @@ public class OAS2MCPConverter {
 		return (value == null || value.isBlank()) ? defaultValue : value;
 	}
 
-	private List<Parameter> handleParameterPrefixes(List<Parameter> params, String queryPrefix, String headerPrefix,
+	private List<Parameter> handleParameterPrefixes(
+			List<Parameter> params,
+			String queryPrefix,
+			String headerPrefix,
 			String pathParamPrefix) {
 
 		if (params == null || params.isEmpty()) {

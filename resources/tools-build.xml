@@ -22,7 +22,9 @@
             <classpath>
                 <fileset dir="${package.jar.dir}">
                     <include name="swagger*.jar" />
+                	<include name="jackson-*.jar" />
                 </fileset>
+            	<!--
             	<fileset dir="${wm.common.lib}/ext">
                     <include name="jackson-*.jar" />
                 </fileset>
@@ -32,6 +34,7 @@
             	<fileset dir="${wm.is.lib}/jars">
                     <include name="slf4j*.jar" />
                 </fileset>
+                -->
             </classpath>
         </javac>
     </target>

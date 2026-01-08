@@ -7,12 +7,8 @@ import java.util.ArrayDeque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class IterativeSchemaDepthLimiter {
-
-    private static final Logger logger = LoggerFactory.getLogger(IterativeSchemaDepthLimiter.class.getName());
 
     public static void limitSchemaDepthOnlyCyclic(OpenAPI openAPI, int maxDepth) {
         if (openAPI.getComponents() == null || openAPI.getComponents().getSchemas() == null)
@@ -34,14 +30,12 @@ public class IterativeSchemaDepthLimiter {
                 String ref = schema.get$ref();
                 if (ref != null) {
                     if (visitedRefs.contains(ref)) {
-                        logger.warn("Detected recursive reference at %s, pruning.".formatted(path));
                         continue;
                     }
                     visitedRefs.add(ref);
                 }
 
                 if (depth >= maxDepth) {
-                    logger.warn("Pruned schema at depth %d: %s".formatted(depth, path));
                     continue;
                 }
 
@@ -51,13 +45,12 @@ public class IterativeSchemaDepthLimiter {
                         var propName = propEntry.getKey();
                         var propSchema = propEntry.getValue();
                         var propPath = path + "." + propName;
-                        logger.debug("Visiting property at depth %d: %s".formatted(depth, propPath));
 
                         if (depth + 1 < maxDepth) {
                             stack.push(new SchemaTraversalNode(propSchema, depth + 1, propPath));
                             newProps.put(propName, propSchema);
                         } else {
-                            logger.debug("Pruned property at depth %d: %s".formatted(depth + 1, propPath));
+                            System.err.println("Pruned property at depth %d: %s".formatted(depth + 1, propPath));
                         }
                     }
                     // schema.setProperties((Map<String, Schema<?>>) (Map<?, ?>) newProps);
@@ -69,12 +62,10 @@ public class IterativeSchemaDepthLimiter {
                 }
 
                 if ("array".equals(schema.getType()) && schema.getItems() != null) {
-                    logger.debug("visiting 'array' properties on " + path + " at depth " + depth);
                     var itemPath = path + "[]";
                     if (depth + 1 < maxDepth) {
                         stack.push(new SchemaTraversalNode(schema.getItems(), depth + 1, itemPath));
                     } else {
-                        logger.debug("Pruned array items at depth %d: %s".formatted(depth + 1, itemPath));
                         schema.setItems(null);
                     }
                 }
@@ -103,14 +94,12 @@ public class IterativeSchemaDepthLimiter {
                 String ref = schema.get$ref();
                 if (ref != null) {
                     if (visitedRefs.contains(ref)) {
-                        logger.warn("Detected recursive reference at %s, pruning.".formatted(path));
                         continue;
                     }
                     visitedRefs.add(ref);
                 }
                 
                 if (depth >= maxDepth) {
-                    logger.warn("Pruned schema at depth %d: %s".formatted(depth, path));
                     continue;
                 }
 
@@ -125,7 +114,7 @@ public class IterativeSchemaDepthLimiter {
                             stack.push(new SchemaTraversalNode(propSchema, depth + 1, propPath));
                             newProps.put(propName, propSchema);
                         } else {
-                            logger.info("Pruned property at depth %d: %s".formatted(depth + 1, propPath));
+                            System.err.println("Pruned property at depth %d: %s".formatted(depth + 1, propPath));
                         }
                     }
                     // schema.setProperties(newProps);
@@ -137,7 +126,6 @@ public class IterativeSchemaDepthLimiter {
                     if (depth + 1 < maxDepth) {
                         stack.push(new SchemaTraversalNode(schema.getItems(), depth + 1, itemPath));
                     } else {
-                        logger.info("Pruned array items at depth %d: %s".formatted(depth + 1, itemPath));
                         schema.setItems(null);
                     }
                 }

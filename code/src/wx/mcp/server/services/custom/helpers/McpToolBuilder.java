@@ -11,10 +11,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
@@ -33,35 +32,35 @@ import wx.mcp.server.models.Tool;
 
 public final class McpToolBuilder {
 
-	private static final Logger logger = LoggerFactory.getLogger("wx.mcp.server");
-	
 	private static final String DEFAULT_RESPONSE_MODE = "both";
 	private static final String UNSTRUCTURED_RESPONSE_MODE = "text";
 
-	private static final Set<PathItem.HttpMethod> allowedMethods = EnumSet.of(PathItem.HttpMethod.GET,
-			PathItem.HttpMethod.POST, PathItem.HttpMethod.PUT, PathItem.HttpMethod.DELETE, PathItem.HttpMethod.PATCH,
-			PathItem.HttpMethod.HEAD, PathItem.HttpMethod.OPTIONS);
+	private static final Set<PathItem.HttpMethod> allowedMethods = EnumSet.of(
+			PathItem.HttpMethod.GET,
+			PathItem.HttpMethod.POST,
+			PathItem.HttpMethod.PUT,
+			PathItem.HttpMethod.DELETE,
+			PathItem.HttpMethod.PATCH,
+			PathItem.HttpMethod.HEAD,
+			PathItem.HttpMethod.OPTIONS);
 
 	/**
-	 * Your mapping from OpenAPI Operation to MCP Tool. Implement this to construct
-	 * a Tool with the info you need.
+     * Your mapping from OpenAPI Operation to MCP Tool.
+     * Implement this to construct a Tool with the info you need.
 	 */
 	public static Tool buildMcpTool(String path, HttpMethod method, Operation op, String headerPrefix,
 			String pathParamPrefix, String queryPrefix, String mcpObjectName, List<Parameter> mergedParameters,
 			boolean isLargeSpec, String responseMode) {
 		if (!allowedMethods.contains(method)) {
-			logger.debug("\tmethod {} is NOT in the allowed list", method);
 			return null;
 		}
-		
+
 		if (responseMode == null || responseMode.isBlank() || responseMode.isEmpty()) {
 			responseMode = DEFAULT_RESPONSE_MODE;
 		}
 		// Example sketch — replace with your actual mapping:
 		Tool t = new Tool();
 		t.setDescription(op.getSummary() != null ? op.getSummary() : op.getDescription());
-		logger.debug("inside to-mcp-tool for path {}\t\t method: {}\t\tTool Name: {} with {} path params", path,
-				method.name(), t.getName(), mergedParameters.size());
 
 		String operationId = op.getOperationId();
 		// generate an operationId, if it is missing
@@ -80,13 +79,14 @@ public final class McpToolBuilder {
 		t.setName(toolName);
 
 		// MCP TOOL INPUT SCHEMA ------------------
-
-		logger.debug("working on the input schema");
 		ObjectMapper objectMapper = new ObjectMapper();
+		objectMapper.registerModule(new JavaTimeModule());
+		objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
 		// Naming strategy for all properties (headers, path, query, body)
 		// currently, body properties are not renamed
-		NameMapper nameMapper = new NameMapper(NameMapper.DEFAULT_STRATEGY, headerPrefix, pathParamPrefix, queryPrefix);
+		NameMapper nameMapper = new NameMapper(NameMapper.DEFAULT_STRATEGY,
+				headerPrefix, pathParamPrefix, queryPrefix);
 
 		InputSchema inputSchema = new InputSchema();
 		inputSchema.setType("object");
@@ -114,7 +114,7 @@ public final class McpToolBuilder {
 		// Output Schema will be added only for structured/both response modes
 		if (!responseMode.equalsIgnoreCase(UNSTRUCTURED_RESPONSE_MODE)) {
 			OutputSchema out = buildOutputSchemaSuccessOnly(op, objectMapper, /* addOneOf = */ false, isLargeSpec);
-			t.setOutputSchema(out);			
+			t.setOutputSchema(out);
 		}
 
 		return t;
@@ -128,10 +128,13 @@ public final class McpToolBuilder {
 	 * - Applies the provided {@link NameMapper} for deterministic, collision-free
 	 * names.<br>
 	 * - Pulls a parameter's schema either from {@code parameter.schema} or the
-	 * first entry in {@code parameter.content}.<br>
+     * first entry in
+     * {@code parameter.content}.<br>
 	 * - Adds helpful metadata (description, x-in, deprecated) to each property.
 	 */
-	private static InputSchema buildInputSchema(List<Parameter> mergedParams, NameMapper names, ObjectMapper mapper,
+    private static InputSchema buildInputSchema(List<Parameter> mergedParams,
+            NameMapper names,
+            ObjectMapper mapper,
 			boolean isLargeSpec) {
 		InputSchema input = new InputSchema();
 		input.setType("object");
@@ -192,7 +195,9 @@ public final class McpToolBuilder {
 	}
 
 	private static OutputSchema buildOutputSchemaSuccessOnlyWithResponseWrapper(Operation operation,
-			ObjectMapper mapper, boolean addOneOf, boolean isLargeSpec) {
+            ObjectMapper mapper,
+            boolean addOneOf,
+            boolean isLargeSpec) {
 
 		OutputSchema out = new OutputSchema();
 		out.setType("object");
@@ -217,7 +222,8 @@ public final class McpToolBuilder {
 			}
 		}
 
-		List<String> orderedCodes = success.keySet().stream().filter(code -> code.matches("\\d+"))
+        List<String> orderedCodes = success.keySet().stream()
+                .filter(code -> code.matches("\\d+"))
 				.sorted((a, b) -> Integer.compare(Integer.parseInt(b), Integer.parseInt(a)))
 				.collect(Collectors.toList());
 
@@ -234,11 +240,14 @@ public final class McpToolBuilder {
 			// continue;
 			if (content == null || content.isEmpty()) {
 				// Emit an empty object schema for responses with no content
-				Map<String, Object> emptySchema = Map.of("type", "object", "properties", Map.of());
+                Map<String, Object> emptySchema = Map.of(
+                        "type", "object",
+                        "properties", Map.of());
 
 				Map<String, Object> responseWrapper = new LinkedHashMap<>();
 				responseWrapper.put("type", "object");
-				responseWrapper.put("properties", Map.of("response_" + code.toLowerCase(Locale.ROOT), emptySchema));
+                responseWrapper.put("properties", Map.of(
+                        "response_" + code.toLowerCase(Locale.ROOT), emptySchema));
 				responseWrapper.put("required", List.of("response_" + code.toLowerCase(Locale.ROOT)));
 
 				oneOfList.add(responseWrapper);
@@ -276,7 +285,9 @@ public final class McpToolBuilder {
 		return out;
 	}
 
-	private static OutputSchema buildOutputSchemaSuccessOnly(Operation operation, ObjectMapper mapper, boolean addOneOf,
+    private static OutputSchema buildOutputSchemaSuccessOnly(Operation operation,
+            ObjectMapper mapper,
+            boolean addOneOf,
 			boolean isLargeSpec) {
 
 		OutputSchema out = new OutputSchema();
@@ -300,7 +311,8 @@ public final class McpToolBuilder {
 		}
 
 		// Collect only success responses (e.g., 2xx)
-		Map<String, ApiResponse> success = responses.entrySet().stream().filter(e -> isSuccessStatusKey(e.getKey()))
+		Map<String, ApiResponse> success = responses.entrySet().stream()
+				.filter(e -> isSuccessStatusKey(e.getKey()))
 				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
 		for (Map.Entry<String, ApiResponse> entry : success.entrySet()) {
@@ -322,13 +334,12 @@ public final class McpToolBuilder {
 			SchemaHelper.cleanMap(schemaMap, isLargeSpec);
 
 			// START FIXED RESULT BUILDING ---------------------------------
-			boolean looksLikeFullSchema =
-					schemaMap.containsKey("type")
-				|| schemaMap.containsKey("$ref")
-				|| schemaMap.containsKey("oneOf")
-				|| schemaMap.containsKey("anyOf")
-				|| schemaMap.containsKey("allOf")
-				|| schemaMap.containsKey("items");
+			boolean looksLikeFullSchema = schemaMap.containsKey("type")
+					|| schemaMap.containsKey("$ref")
+					|| schemaMap.containsKey("oneOf")
+					|| schemaMap.containsKey("anyOf")
+					|| schemaMap.containsKey("allOf")
+					|| schemaMap.containsKey("items");
 			Map<String, Object> candidate = new LinkedHashMap<>();
 			if (looksLikeFullSchema) {
 				candidate.putAll(schemaMap); // vollständiges Schema übernehmen
@@ -356,8 +367,10 @@ public final class McpToolBuilder {
 			Map<String, Object> single = oneOfList.get(0);
 			// PREVIOUS RESULT BUILDING ---------------------------------
 			// Expecting keys: "type", "properties"
-			// resultProp.setAdditionalProperty("type", single.getOrDefault("type", "object"));
-			// resultProp.setAdditionalProperty("properties", single.getOrDefault("properties", new LinkedHashMap<>()));
+			// resultProp.setAdditionalProperty("type", single.getOrDefault("type",
+			// "object"));
+			// resultProp.setAdditionalProperty("properties",
+			// single.getOrDefault("properties", new LinkedHashMap<>()));
 			// END PREVIOUS RESULT BUILDING ---------------------------------
 			// START FIXED RESULT BUILDING ---------------------------------
 			for (Map.Entry<String, Object> e : single.entrySet()) {
@@ -374,9 +387,11 @@ public final class McpToolBuilder {
 
 		return out;
 	}
-	
-	private static OutputSchema previousBuildOutputSchemaSuccessOnly(Operation operation, ObjectMapper mapper,
-			boolean addOneOf, boolean isLargeSpec) {
+
+    private static OutputSchema previousBuildOutputSchemaSuccessOnly(Operation operation,
+            ObjectMapper mapper,
+            boolean addOneOf,
+            boolean isLargeSpec) {
 		OutputSchema out = new OutputSchema();
 		out.setType("object");
 
@@ -405,9 +420,8 @@ public final class McpToolBuilder {
 		}
 
 		// sort the response codes... non numeric codes will be filtered
-		List<String> orderedCodes = success.keySet().stream().filter(code -> code.matches("\\d+")) // optional: filter
-																									// only numeric
-																									// codes
+        List<String> orderedCodes = success.keySet().stream()
+                .filter(code -> code.matches("\\d+")) // optional: filter only numeric codes
 				.sorted((a, b) -> Integer.compare(Integer.parseInt(b), Integer.parseInt(a)))
 				.collect(Collectors.toList());
 
@@ -542,8 +556,12 @@ public final class McpToolBuilder {
 	 * This avoids turning an optional entire body into multiple required top-level
 	 * fields.
 	 */
-	static void addRequestBodyFlattenTopLevelProps(Operation operation, NameMapper nameMapper, ObjectMapper mapper,
-			Properties inputSchemaProps, List<String> inputSchemaRequired, boolean isLargeSpec) {
+    static void addRequestBodyFlattenTopLevelProps(Operation operation,
+            NameMapper nameMapper,
+            ObjectMapper mapper,
+            Properties inputSchemaProps,
+            List<String> inputSchemaRequired,
+            boolean isLargeSpec) {
 
 		RequestBody rb = operation.getRequestBody();
 		if (rb == null)

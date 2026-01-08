@@ -88,6 +88,7 @@ ICAgIHJldHVybiBzOwogICAgfQp9Cgk=</value>
     <value>com.fasterxml.jackson.dataformat.yaml.YAMLFactory</value>
     <value>com.fasterxml.jackson.databind.node.ObjectNode</value>
     <value>com.fasterxml.jackson.databind.node.ArrayNode</value>
+    <value>com.fasterxml.jackson.datatype.jsr310.JavaTimeModule</value>
     <value>wx.mcp.server.services.custom.OAS2MCPConverter</value>
     <value>wx.mcp.server.models.*</value>
   </array>

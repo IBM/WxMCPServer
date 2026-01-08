@@ -6,9 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
@@ -20,8 +17,6 @@ import wx.mcp.server.services.custom.helpers.McpToolBuilder;
 import wx.mcp.server.services.custom.helpers.ParameterHelper;
 
 public final class OpenApiToolIterable {
-
-    private static final Logger logger = LoggerFactory.getLogger("wx.mcp.server");
 
     private OpenApiToolIterable() {
     }
