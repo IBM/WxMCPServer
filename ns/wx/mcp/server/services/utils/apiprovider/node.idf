@@ -57,13 +57,17 @@ ICAgIHJldHVybiBzOwogICAgfQp9Cgk=</value>
   <array name="implements" type="value" depth="1">
   </array>
   <array name="imports" type="value" depth="1">
+    <value>com.wm.app.b2b.server.ServiceThread</value>
     <value>com.wm.app.b2b.server.Server</value>
     <value>com.wm.lang.ns.DependencyManager</value>
     <value>com.wm.lang.ns.NSInterface</value>
     <value>com.wm.lang.ns.NSName</value>
     <value>com.wm.lang.ns.NSNode</value>
     <value>com.wm.lang.ns.openapi.NSProviderDescriptor</value>
+    <value>com.wm.lang.ns.openapi.models.Operation</value>
+    <value>com.wm.lang.ns.openapi.models.PathItem</value>
     <value>com.wm.lang.ns.rsd.RestTag</value>
+    <value>com.wm.net.HTTPMethod</value>
     <value>com.wm.app.b2b.server.ns.NSDependencyManager</value>
     <value>com.wm.app.b2b.server.ns.Namespace</value>
     <value>org.json.*</value>

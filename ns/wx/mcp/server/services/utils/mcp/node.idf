@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Values version="2.0">
+  <value name="node_type">interface</value>
+  <value name="node_subtype">unknown</value>
+  <value name="node_nsName">wx.mcp.server.services.utils.mcp</value>
+  <value name="node_pkg">WxMCPServer</value>
+  <value name="is_public">false</value>
+  <value name="shared">Cgpwcml2YXRlIHN0YXRpYyB2b2lkIGxvZyhTdHJpbmcgbXNnKSB7CgkvLyBpbnB1dAoJSURhdGEg
+aW5wdXQgPSBJRGF0YUZhY3RvcnkuY3JlYXRlKCk7CglJRGF0YUN1cnNvciBpbnB1dEN1cnNvciA9
+IGlucHV0LmdldEN1cnNvcigpOwoJSURhdGFVdGlsLnB1dCggaW5wdXRDdXJzb3IsICJtZXNzYWdl
+IiwgbXNnICk7CglJRGF0YVV0aWwucHV0KCBpbnB1dEN1cnNvciwgImZ1bmN0aW9uIiwgIlt3ZWJN
+ZXRob2RzIE1DUCBTZXJ2ZXJdOiIgKTsgCglpbnB1dEN1cnNvci5kZXN0cm95KCk7CgoJdHJ5ewoJ
+CVNlcnZpY2UuZG9JbnZva2UoICJwdWIuZmxvdyIsICJkZWJ1Z0xvZyIsIGlucHV0ICk7Cgl9Y2F0
+Y2goIEV4Y2VwdGlvbiBlKXt9Cn0KCi8qKgogKiBWYWxpZGF0ZXMgd2hldGhlciB0aGUgZ2l2ZW4g
+c3RyaW5nIGlzIGEgc3RyaWN0bHkgdmFsaWQgVVJMLgogKiA8cD4KICogVGhpcyBtZXRob2QgY2hl
+Y2tzIGJvdGggdGhlIHN5bnRhY3RpYyBjb3JyZWN0bmVzcyBvZiB0aGUgVVJMIHVzaW5nIHtAbGlu
+ayBqYXZhLm5ldC5VUkx9CiAqIGFuZCBlbnN1cmVzIGl0IGNvbmZvcm1zIHRvIFVSSSBzdGFuZGFy
+ZHMgdXNpbmcge0BsaW5rIGphdmEubmV0LlVSSX0uIEl0IHdpbGwgcmV0dXJuIHtAY29kZSB0cnVl
+fQogKiBvbmx5IGlmIHRoZSBpbnB1dCBzdHJpbmcgY2FuIGJlIHN1Y2Nlc3NmdWxseSBwYXJzZWQg
+YXMgYm90aCBhIFVSTCBhbmQgYSBVUkksIHdoaWNoIG1lYW5zIGl0IG11c3QKICogYmUgcHJvcGVy
+bHkgZW5jb2RlZCAoZS5nLiwgc3BhY2VzIG11c3QgYmUgcmVwbGFjZWQgd2l0aCB7QGNvZGUgJTIw
+fSkuCiAqIDwvcD4KICoKICogQHBhcmFtIHVybFN0cmluZyB0aGUgc3RyaW5nIHRvIHZhbGlkYXRl
+IGFzIGEgVVJMCiAqIEByZXR1cm4ge0Bjb2RlIHRydWV9IGlmIHRoZSBzdHJpbmcgaXMgYSBzdHJp
+Y3RseSB2YWxpZCBhbmQgcHJvcGVybHkgZW5jb2RlZCBVUkwsIHtAY29kZSBmYWxzZX0gb3RoZXJ3
+aXNlCiAqIEB0aHJvd3MgTnVsbFBvaW50ZXJFeGNlcHRpb24gaWYge0Bjb2RlIHVybFN0cmluZ30g
+aXMge0Bjb2RlIG51bGx9CiAqCiAqIEBzZWUgamF2YS5uZXQuVVJMCiAqIEBzZWUgamF2YS5uZXQu
+VVJJCiAqLwoKcHVibGljIHN0YXRpYyBib29sZWFuIGlzU3RyaWN0bHlWYWxpZFVSTChTdHJpbmcg
+dXJsU3RyaW5nKSB7CiAgICB0cnkgewogICAgICAgIFVSTCB1cmwgPSBuZXcgVVJMKHVybFN0cmlu
+Zyk7CiAgICAgICAgdXJsLnRvVVJJKCk7CiAgICAgICAgcmV0dXJuIHRydWU7CiAgICB9IGNhdGNo
+IChFeGNlcHRpb24gZSkgewogICAgICAgIHJldHVybiBmYWxzZTsKICAgIH0KfQoKcHVibGljIHN0
+YXRpYyBTdHJpbmcgc2hhMjU2KFN0cmluZyB2YWx1ZSkgewogICAgdHJ5IHsKICAgICAgICBNZXNz
+YWdlRGlnZXN0IGRpZ2VzdCA9IE1lc3NhZ2VEaWdlc3QuZ2V0SW5zdGFuY2UoIlNIQS0yNTYiKTsK
+ICAgICAgICBieXRlW10gaGFzaCA9IGRpZ2VzdC5kaWdlc3QodmFsdWUuZ2V0Qnl0ZXMoU3RhbmRh
+cmRDaGFyc2V0cy5VVEZfOCkpOwogICAgICAgIC8vIEhleC1TdHJpbmcgZXJ6ZXVnZW4KICAgICAg
+ICBTdHJpbmdCdWlsZGVyIGhleFN0cmluZyA9IG5ldyBTdHJpbmdCdWlsZGVyKCk7CiAgICAgICAg
+Zm9yIChieXRlIGIgOiBoYXNoKSB7CiAgICAgICAgICAgIFN0cmluZyBoZXggPSBJbnRlZ2VyLnRv
+SGV4U3RyaW5nKDB4ZmYgJiBiKTsKICAgICAgICAgICAgaWYgKGhleC5sZW5ndGgoKSA9PSAxKSBo
+ZXhTdHJpbmcuYXBwZW5kKCcwJyk7CiAgICAgICAgICAgIGhleFN0cmluZy5hcHBlbmQoaGV4KTsK
+ICAgICAgICB9CiAgICAgICAgcmV0dXJuIGhleFN0cmluZy50b1N0cmluZygpOwogICAgfSBjYXRj
+aCAoTm9TdWNoQWxnb3JpdGhtRXhjZXB0aW9uIGUpIHsKICAgICAgICB0aHJvdyBuZXcgUnVudGlt
+ZUV4Y2VwdGlvbigiU0hBLTI1NiBub3QgYXZhaWxhYmxlIiwgZSk7CiAgICB9Cn0KCQpwcml2YXRl
+IHN0YXRpYyBTdHJpbmcgc3ViU3RyaW5nQWZ0ZXIoU3RyaW5nIGlucHV0LCBTdHJpbmcgcHJlZml4
+KXsKCWludCBpbmRleCA9IGlucHV0LmluZGV4T2YocHJlZml4KTsKCglTdHJpbmcgcmVzdWx0ID0g
+aW5wdXQ7CglpZiAoaW5kZXggIT0gLTEpIHsKCSAgICByZXN1bHQgPSBpbnB1dC5zdWJzdHJpbmco
+aW5kZXggKyBwcmVmaXgubGVuZ3RoKCkpOwoJfQoJcmV0dXJuIHJlc3VsdDsKfQoKcHJpdmF0ZSBz
+dGF0aWMgU3RyaW5nIGVuY29kZVVSSUNvbXBvbmVudChTdHJpbmcgcykgewogICAgaWYgKHMgPT0g
+bnVsbCkgcmV0dXJuICIiOwogICAgdHJ5IHsKICAgICAgICByZXR1cm4gamF2YS5uZXQuVVJMRW5j
+b2Rlci5lbmNvZGUocywgIlVURi04IikKICAgICAgICAgICAgLnJlcGxhY2VBbGwoIlxcKyIsICIl
+MjAiKQogICAgICAgICAgICAucmVwbGFjZUFsbCgiXFwlMjEiLCAiISIpCiAgICAgICAgICAgIC5y
+ZXBsYWNlQWxsKCJcXCUyNyIsICInIikKICAgICAgICAgICAgLnJlcGxhY2VBbGwoIlxcJTI4Iiwg
+IigiKQogICAgICAgICAgICAucmVwbGFjZUFsbCgiXFwlMjkiLCAiKSIpCiAgICAgICAgICAgIC5y
+ZXBsYWNlQWxsKCJcXCU3RSIsICJ+Iik7CiAgICB9IGNhdGNoIChFeGNlcHRpb24gZSkgewogICAg
+ICAgIHJldHVybiBzOwogICAgfQp9Cgk=</value>
+  <value name="encodeutf8">true</value>
+  <value name="extends"></value>
+  <array name="implements" type="value" depth="1">
+  </array>
+  <array name="imports" type="value" depth="1">
+    <value>com.wm.app.b2b.server.Server</value>
+    <value>com.wm.lang.ns.DependencyManager</value>
+    <value>com.wm.lang.ns.NSField</value>
+    <value>com.wm.lang.ns.NSInterface</value>
+    <value>com.wm.lang.ns.NSName</value>
+    <value>com.wm.lang.ns.NSNode</value>
+    <value>com.wm.lang.ns.NSPackage</value>
+    <value>com.wm.lang.ns.NSRecord</value>
+    <value>com.wm.lang.ns.NSService</value>
+    <value>com.wm.lang.ns.openapi.NSProviderDescriptor</value>
+    <value>com.wm.lang.ns.rsd.RestTag</value>
+    <value>com.wm.app.b2b.server.ns.NSDependencyManager</value>
+    <value>com.wm.app.b2b.server.ns.Namespace</value>
+    <value>org.json.*</value>
+    <value>java.io.*</value>
+    <value>java.nio.file.*</value>
+    <value>java.util.*</value>
+    <value>java.net.URL</value>
+    <value>java.nio.charset.StandardCharsets</value>
+    <value>java.security.MessageDigest</value>
+    <value>java.security.NoSuchAlgorithmException</value>
+    <value>java.util.Arrays</value>
+    <value>com.fasterxml.jackson.databind.JsonNode</value>
+    <value>com.fasterxml.jackson.annotation.JsonInclude</value>
+    <value>com.fasterxml.jackson.databind.ObjectMapper</value>
+    <value>com.fasterxml.jackson.databind.SerializationFeature</value>
+    <value>com.fasterxml.jackson.core.JsonFactory</value>
+    <value>com.fasterxml.jackson.core.JsonProcessingException</value>
+    <value>com.fasterxml.jackson.dataformat.yaml.YAMLFactory</value>
+    <value>com.fasterxml.jackson.databind.node.ObjectNode</value>
+    <value>com.fasterxml.jackson.databind.node.ArrayNode</value>
+    <value>com.fasterxml.jackson.datatype.jsr310.JavaTimeModule</value>
+    <value>wx.mcp.server.services.custom.OAS2MCPConverter</value>
+    <value>wx.mcp.server.models.*</value>
+  </array>
+</Values>

@@ -3,8 +3,7 @@
 <Values version="2.0">
   <value name="enabled">yes</value>
   <value name="system_package">no</value>
-  <value name="version">1.3.1</value>
-  <!-- enable package classloader -->
+  <value name="version">1.3.2</value>
   <value name="classloader">package</value>
   <record name="startup_services" javaclass="com.wm.util.Values">
     <null name="wx.mcp.server.services.cachemanager:createCacheManager"/>
@@ -21,7 +20,8 @@
   <value name="reloadWithDependentPackage">yes</value>
   <value name="build"></value>
   <value name="description">This package implements a Model Context Protocol Server (MCP) based on webMethods Integration Server.
-Check public GitHub repository for more details: https://github.com/IBM/WxMCPServer</value>
+Check public GitHub repository for more details: https://github.com/IBM/WxMCPServer.
+Since 1.3.2 also with preliminary support for local IS flow service MCP tools</value>
   <value name="created_date">12-05-2025 19:01:34 MESZ</value>
   <array name="extendedProperties" type="record" depth="1">
     <record javaclass="com.wm.util.Values">

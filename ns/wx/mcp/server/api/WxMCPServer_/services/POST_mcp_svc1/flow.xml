@@ -827,7 +827,7 @@
 </MAP>
 </SEQUENCE>
 
-<INVOKE TIMEOUT="" SERVICE="wx.mcp.server.services.utils:setMCPClientConfigDefaults" VALIDATE-IN="$none" VALIDATE-OUT="$none">
+<INVOKE TIMEOUT="" SERVICE="wx.mcp.server.services.utils.mcp:setMCPClientConfigDefaults" VALIDATE-IN="$none" VALIDATE-OUT="$none">
   <COMMENT></COMMENT>
 
   <!-- nodes -->
@@ -1240,7 +1240,7 @@
 
   <!-- nodes -->
 
-<MAPINVOKE SERVICE="wx.mcp.server.services.utils:createCacheKeyFromSecurityContext" VALIDATE-IN="$none" VALIDATE-OUT="$none" DISABLED="true" INVOKE-ORDER="0">
+<MAPINVOKE SERVICE="wx.mcp.server.services.utils.common:createCacheKeyFromSecurityContext" VALIDATE-IN="$none" VALIDATE-OUT="$none" DISABLED="true" INVOKE-ORDER="0">
 
   <!-- nodes -->
 

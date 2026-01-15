@@ -82,6 +82,7 @@ ICAgIHJldHVybiBzOwogICAgfQp9Cgk=</value>
     <value>com.fasterxml.jackson.core.JsonFactory</value>
     <value>com.fasterxml.jackson.core.JsonProcessingException</value>
     <value>com.fasterxml.jackson.dataformat.yaml.YAMLFactory</value>
+    <value>com.fasterxml.jackson.datatype.jsr310.*</value>
     <value>wx.mcp.server.services.custom.OAS2MCPConverter</value>
     <value>wx.mcp.server.models.*</value>
   </array>

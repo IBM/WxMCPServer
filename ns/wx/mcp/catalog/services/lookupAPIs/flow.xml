@@ -593,7 +593,7 @@
 
   <!-- nodes -->
 
-<INVOKE TIMEOUT="" SERVICE="wx.mcp.server.services.utils:generateHttpHeadersInclAuth" VALIDATE-IN="$none" VALIDATE-OUT="$none">
+<INVOKE TIMEOUT="" SERVICE="wx.mcp.server.services.utils.apiprovider:generateHttpHeadersInclAuth" VALIDATE-IN="$none" VALIDATE-OUT="$none">
   <COMMENT></COMMENT>
 
   <!-- nodes -->
@@ -2902,7 +2902,7 @@
 
   <!-- nodes -->
 
-<INVOKE TIMEOUT="" SERVICE="wx.mcp.server.services.utils:generateHttpHeadersInclAuth" VALIDATE-IN="$none" VALIDATE-OUT="$none">
+<INVOKE TIMEOUT="" SERVICE="wx.mcp.server.services.utils.apiprovider:generateHttpHeadersInclAuth" VALIDATE-IN="$none" VALIDATE-OUT="$none">
   <COMMENT></COMMENT>
 
   <!-- nodes -->
@@ -5690,7 +5690,7 @@
 
   <!-- nodes -->
 
-<INVOKE TIMEOUT="" SERVICE="wx.mcp.server.services.utils:extractPathParamFromURL" VALIDATE-IN="$none" VALIDATE-OUT="$none" DISABLED="true">
+<INVOKE TIMEOUT="" SERVICE="wx.mcp.server.services.utils.apiprovider:extractPathParamFromURL" VALIDATE-IN="$none" VALIDATE-OUT="$none" DISABLED="true">
   <COMMENT></COMMENT>
 
   <!-- nodes -->
@@ -6126,7 +6126,7 @@
 
   <!-- nodes -->
 
-<INVOKE TIMEOUT="" SERVICE="wx.mcp.server.services.utils:extractPathParamFromURL" VALIDATE-IN="$none" VALIDATE-OUT="$none" DISABLED="true">
+<INVOKE TIMEOUT="" SERVICE="wx.mcp.server.services.utils.apiprovider:extractPathParamFromURL" VALIDATE-IN="$none" VALIDATE-OUT="$none" DISABLED="true">
   <COMMENT></COMMENT>
 
   <!-- nodes -->
@@ -7081,7 +7081,7 @@
 
   <!-- nodes -->
 
-<INVOKE TIMEOUT="" SERVICE="wx.mcp.server.services.utils:generateHttpHeadersInclAuth" VALIDATE-IN="$none" VALIDATE-OUT="$none">
+<INVOKE TIMEOUT="" SERVICE="wx.mcp.server.services.utils.apiprovider:generateHttpHeadersInclAuth" VALIDATE-IN="$none" VALIDATE-OUT="$none">
   <COMMENT></COMMENT>
 
   <!-- nodes -->
@@ -8756,7 +8756,7 @@
 
   <!-- nodes -->
 
-<INVOKE TIMEOUT="" SERVICE="wx.mcp.server.services.utils:generateHttpHeadersInclAuth" VALIDATE-IN="$none" VALIDATE-OUT="$none">
+<INVOKE TIMEOUT="" SERVICE="wx.mcp.server.services.utils.apiprovider:generateHttpHeadersInclAuth" VALIDATE-IN="$none" VALIDATE-OUT="$none">
   <COMMENT></COMMENT>
 
   <!-- nodes -->
@@ -10880,7 +10880,7 @@
 </MAPINVOKE>
 </MAP>
 
-<INVOKE TIMEOUT="" SERVICE="wx.mcp.server.services.utils:yamlJsonMapper" VALIDATE-IN="$none" VALIDATE-OUT="$none">
+<INVOKE TIMEOUT="" SERVICE="wx.mcp.server.services.utils.common:yamlJsonMapper" VALIDATE-IN="$none" VALIDATE-OUT="$none">
   <COMMENT></COMMENT>
 
   <!-- nodes -->

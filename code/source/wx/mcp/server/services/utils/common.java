@@ -32,6 +32,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.fasterxml.jackson.datatype.jsr310.*;
 import wx.mcp.server.services.custom.OAS2MCPConverter;
 import wx.mcp.server.models.*;
 // --- <<IS-END-IMPORTS>> ---
@@ -52,6 +53,115 @@ public final class common
 
 
 
+	public static final void createCacheKeyFromSecurityContext (IData pipeline)
+        throws ServiceException
+	{
+		// --- <<IS-START(createCacheKeyFromSecurityContext)>> ---
+		// @sigtype java 3.5
+		// [i] field:0:required authType {"API_KEY","OAUTH"}
+		// [i] field:0:required apiKey
+		// [i] field:0:required aud
+		// [i] field:0:required clientId
+		// [i] field:0:required scopes
+		// [i] field:0:required bearerToken
+		// [o] field:0:required cacheKey
+		// pipeline
+				 
+		IDataCursor cursor = pipeline.getCursor();
+		String apiKey   = IDataUtil.getString(cursor, "apiKey");
+		String aud      = IDataUtil.getString(cursor, "aud");
+		String clientId = IDataUtil.getString(cursor, "clientId");
+		String scopes   = IDataUtil.getString(cursor, "scopes");
+		String authType = IDataUtil.getString(cursor, "authType");
+		String bearerToken = IDataUtil.getString(cursor, "bearerToken");
+		String cacheKey = null;
+		
+		// Validate authType
+		if (authType == null || authType.trim().isEmpty()) {
+		    throw new IllegalArgumentException("authType must be provided and non-empty (OAUTH or API_KEY)");
+		}
+		
+		authType = authType.trim().toUpperCase();
+		String[] scopeArray = null;
+		String scopeString = null;
+		String rawKey = null;
+		switch (authType) {
+		    case "API_KEY":
+		        if (apiKey == null || apiKey.trim().isEmpty()) {
+		            throw new IllegalArgumentException("API_KEY authentication requires 'apiKey' parameter");
+		        }
+		        cacheKey = "APIKEY_" + sha256(apiKey.trim());
+		        break;
+		
+		    case "OAUTH":
+		        if (bearerToken == null || bearerToken.trim().isEmpty()) {
+		            throw new IllegalArgumentException("OAUTH authentication requires 'bearerToken' parameter");
+		        }
+		        cacheKey = "OAUTH_" + sha256(bearerToken.trim());		    	
+		        if (aud == null || aud.trim().isEmpty() ||
+		            clientId == null || clientId.trim().isEmpty() ||
+		            scopes == null || scopes.trim().isEmpty()) {
+		            throw new IllegalArgumentException("OAUTH authentication requires 'aud', 'clientId', and 'scopes' parameters");
+		        }
+		        // Sort scopes alphabetically
+		        scopeArray = scopes.trim().split("\\s+");
+		        Arrays.sort(scopeArray);
+		        scopeString = String.join(" ", scopeArray);
+		        rawKey = aud.trim() + "|" + clientId.trim() + "|" + scopeString;
+		        cacheKey = "OAUTH_" + sha256(rawKey);
+		        break;
+		    case "INTERNAL":	    	
+		        if (clientId == null || clientId.trim().isEmpty() ||
+		            scopes == null || scopes.trim().isEmpty()) {
+		            throw new IllegalArgumentException("INTERNAL authentical requires at least 'clientId', and 'scopes' parameters");
+		        } 
+		        // Sort scopes alphabetically
+		        scopeArray = scopes.trim().split("\\s+");
+		        Arrays.sort(scopeArray);
+		        scopeString = String.join(" ", scopeArray);
+		        rawKey = aud.trim() + "|" + clientId.trim() + "|" + scopeString;
+		        cacheKey = "INTERNAL_" + sha256(rawKey);
+		        break;
+		    default:
+		        throw new IllegalArgumentException("Invalid authType: " + authType + ". Only 'OAUTH' or 'API_KEY' are supported.");
+		}
+		
+		// You may want to put cacheKey back into the pipeline if needed:
+		IDataUtil.put(cursor, "cacheKey", cacheKey);
+		cursor.destroy();
+		// --- <<IS-END>> ---
+
+                
+	}
+
+
+
+	public static final void createObjectPrefix (IData pipeline)
+        throws ServiceException
+	{
+		// --- <<IS-START(createObjectPrefix)>> ---
+		// @sigtype java 3.5
+		// [i] field:0:required objName
+		// [o] field:0:required effectivePrefix
+		// pipeline
+		IDataCursor pipelineCursor = pipeline.getCursor();
+		String	objName = IDataUtil.getString( pipelineCursor, "objName" );
+		String effectivePrefix = "";
+		 
+		if( objName != null){
+			if( objName.trim().length() > 0){
+				effectivePrefix = objName + "_";
+			}
+		}
+		IDataUtil.put( pipelineCursor, "effectivePrefix", effectivePrefix );
+		pipelineCursor.destroy();
+		// --- <<IS-END>> ---
+
+                
+	}
+
+
+
 	public static final void listHasValue (IData pipeline)
         throws ServiceException
 	{
@@ -64,7 +174,7 @@ public final class common
 		IDataCursor pipelineCursor = pipeline.getCursor(); 
 		String[] theList = IDataUtil.getStringArray(pipelineCursor, "theList");
 		String theValue = IDataUtil.getString(pipelineCursor, "theValue");
-		
+		  
 		boolean _bool = false;
 		
 		if (theList != null && theValue != null) {
@@ -107,6 +217,57 @@ public final class common
 		
 		IDataUtil.put( pipelineCursor, "stringElements", stringElements );
 		pipelineCursor.destroy();
+		// --- <<IS-END>> ---
+
+                
+	}
+
+
+
+	public static final void yamlJsonMapper (IData pipeline)
+        throws ServiceException
+	{
+		// --- <<IS-START(yamlJsonMapper)>> ---
+		// @sigtype java 3.5
+		// [i] field:0:required inputString
+		// [o] field:0:required outputJson
+		// [o] field:0:required detectedFormat {"yaml","json"}
+		try{
+			IDataCursor pipelineCursor = pipeline.getCursor();
+			String	inputString = IDataUtil.getString( pipelineCursor, "inputString" );
+			String	detectedFormat = "json";
+			String	outputJson = null;
+			  
+		    ObjectMapper jsonMapper = new ObjectMapper();
+		    ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
+		
+			 // Register Java 8 date/time support on BOTH mappers
+			 yamlMapper.registerModule(new JavaTimeModule());
+			 jsonMapper.registerModule(new JavaTimeModule());
+		
+			 // Optional but common: write ISO-8601 strings for dates (not timestamps)
+			 yamlMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+			 jsonMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+		
+		    try {
+		    		jsonMapper.readTree(inputString);
+		    		outputJson = inputString;
+		        } 
+		    catch (Exception e) {
+		    			JsonNode node = yamlMapper.readTree(inputString);
+		    			if(node.isValueNode()) {
+		    			    throw new IllegalArgumentException("Input string is plain text, expected JSON or YAML");
+		    			}
+		            	detectedFormat = "yaml";
+		            	outputJson = jsonMapper.writeValueAsString(node);
+		            	
+		    }
+		    IDataUtil.put( pipelineCursor, "outputJson", outputJson );
+			IDataUtil.put( pipelineCursor, "detectedFormat", detectedFormat );
+			pipelineCursor.destroy();
+		}catch(Exception e){
+			throw new ServiceException(e);
+		}
 		// --- <<IS-END>> ---
 
                 

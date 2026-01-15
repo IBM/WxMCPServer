@@ -192,7 +192,7 @@
 </MAPSET>
 </MAP>
 
-<INVOKE TIMEOUT="" SERVICE="wx.mcp.server.services.utils:extractMCPArguments" VALIDATE-IN="$none" VALIDATE-OUT="$none" DISABLED="true">
+<INVOKE TIMEOUT="" SERVICE="wx.mcp.server.services.utils.mcp:extractMCPArguments" VALIDATE-IN="$none" VALIDATE-OUT="$none" DISABLED="true">
   <COMMENT></COMMENT>
 </INVOKE>
 
@@ -446,7 +446,7 @@
 
   <!-- nodes -->
 
-<INVOKE TIMEOUT="" SERVICE="wx.mcp.server.services.utils:mcpToRESTCall" VALIDATE-IN="$none" VALIDATE-OUT="$none">
+<INVOKE TIMEOUT="" SERVICE="wx.mcp.server.services.utils.mcp:mcpToRESTCall" VALIDATE-IN="$none" VALIDATE-OUT="$none">
   <COMMENT></COMMENT>
 
   <!-- nodes -->

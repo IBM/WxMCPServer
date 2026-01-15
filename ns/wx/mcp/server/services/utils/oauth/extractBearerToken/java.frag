@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Values version="2.0">
+  <value name="name">extractBearerToken</value>
+  <value name="encodeutf8">true</value>
+  <value name="body">Ly8gcGlwZWxpbmUNCklEYXRhQ3Vyc29yIHBpcGVsaW5lQ3Vyc29yID0gcGlwZWxpbmUuZ2V0Q3Vy
+c29yKCk7DQpTdHJpbmcgYmVhcmVyVG9rZW4gPSBJRGF0YVV0aWwuZ2V0U3RyaW5nKHBpcGVsaW5l
+Q3Vyc29yLCAiYmVhcmVyVG9rZW4iKTsNCg0KU3RyaW5nIHRva2VuID0gYmVhcmVyVG9rZW47DQpp
+ZiAodG9rZW4gIT0gbnVsbCkgew0KICAgIHRva2VuID0gdG9rZW4udHJpbSgpLnRvTG93ZXJDYXNl
+KCk7DQogICAgaWYgKHRva2VuLnN0YXJ0c1dpdGgoImJlYXJlciAiKSkgew0KICAgICAgICB0b2tl
+biA9IHRva2VuLnN1YnN0cmluZyg3KTsNCiAgICB9DQp9DQoNCklEYXRhVXRpbC5wdXQocGlwZWxp
+bmVDdXJzb3IsICJ0b2tlbiIsIHRva2VuKTsNCnBpcGVsaW5lQ3Vyc29yLmRlc3Ryb3koKTs=</value>
+</Values>
