@@ -20,6 +20,7 @@
 This directory contains exported archives for the **MCP-Tool Catalog API** implementation. These archives provide preconfigured APIs and alias definitions to integrate the API with the IBM webMethods API Gateway (in both **SaaS** and **self-hosted** environments).
 
 **IMPORTANT NOTE**
+
 If you cannot import the archives, because you are running on older versions thant **11.1**, then you have to manually configure the API and policies.
 The instructions can be found ([here](./configure-manually.md))
 
