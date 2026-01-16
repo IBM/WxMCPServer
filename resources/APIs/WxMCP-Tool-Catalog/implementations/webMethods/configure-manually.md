@@ -11,10 +11,10 @@ The implementation relies on the internal webMethods API Gateway Admin APIs and 
 
 ### API import and policy configuration
 - Import the **MCP-ToolCatalog API** from this GitHub repository ([Specification](../../WxMCP-Tool-Catalog-1-1.yml)) into webMethods API Gateway (Create an API of type `OpenAPI`).
-- Add 3 scopes to the **MCP-ToolCatalog-API**:
-  -- `getApiDetails` (Path /apis/{apiID})
-  -- `getProductInfo` (Path /productInfo)
-  -- `downloadOpenAPI` (Path /files/{fileID})
+- Add 3 scopes to the **MCP-ToolCatalog API**:
+  - `getApiDetails` (Path `/apis/{apiID}`)
+  - `getProductInfo` (Path `/productInfo`)
+  - `downloadOpenAPI` (Path `/files/{fileID}`)
 - Switch to **Identify & Authorize** policy and add `API Key`  or `OAuth2 Token`
 - Switch to **Identify & Authorize** policy and add `API Key`  or `OAuth2 Token`
 - Switch to **Request Processing**  policy and add **Request Transformation** policy action for scope `getApiDetails`:
@@ -135,5 +135,5 @@ These policy fragments depend on the following webMethods Admin APIs and endpoin
 | HTTP Method | API Endpoint                                                                                                                      | Purpose/Action                   |
 |-------------|----------------------------------------------------------------------------------------------------------------------------------|---------------------------------|
 | GET         | `/rest/apigateway/apis/{apiId}`                      | Retrieve API metadata incl. API tags, endpoints and file Id for OpenAPI specification           |
-| GET         | `rest/apigateway/packages/${packageId}` | Get metadata for the API package (product) described by the current security context (API Key or OAuth2 Token) |
-| GET         | `rest/apigateway/apis/${request.path.fileID}?format=openapi`                | Get the OpenAPI 3.x specification belonging to the current API as returned by GET /rest/apigateway/apis/{apiId}                |
+| GET         | `/rest/apigateway/packages/${packageId}` | Get metadata for the API package (product) described by the current security context (API Key or OAuth2 Token) |
+| GET         | `/rest/apigateway/apis/${request.path.fileID}?format=openapi`                | Get the OpenAPI 3.x specification belonging to the current API as returned by GET /rest/apigateway/apis/{apiId}                |
