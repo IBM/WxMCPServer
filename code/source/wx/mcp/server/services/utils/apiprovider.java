@@ -36,8 +36,14 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import wx.mcp.server.services.custom.OAS2MCPConverter;
 import wx.mcp.server.models.*;
+import com.wm.data.IData;
+import com.wm.data.IDataCursor;
+import com.wm.data.IDataUtil;
+import com.wm.data.IDataFactory;
 // --- <<IS-END-IMPORTS>> ---
 
 public final class apiprovider
@@ -410,6 +416,131 @@ public final class apiprovider
 
 
 
+	public static final void filterApiOperationsByScopes (IData pipeline)
+        throws ServiceException
+	{
+		// --- <<IS-START(filterApiOperationsByScopes)>> ---
+		// @sigtype java 3.5
+		// [i] field:1:required scopes
+		// [i] field:0:required openAPISpec
+		// [o] field:0:required scopedOpenAPISpec
+		// [o] record:1:required outOfScopeOperations
+		// [o] - field:0:required id
+		// [o] - field:0:required path
+		// [o] record:1:required inScopeOperations
+		// [o] - field:0:required id
+		// [o] - field:0:required path
+		IDataCursor pipelineCursor = pipeline.getCursor();
+		        String[] scopes = IDataUtil.getStringArray(pipelineCursor, "scopes");
+		        String openAPISpec = IDataUtil.getString(pipelineCursor, "openAPISpec");
+		        pipelineCursor.destroy();
+		
+		        if (openAPISpec == null || openAPISpec.trim().isEmpty()) {
+		            outputEmptyResults(pipeline, openAPISpec);
+		            return;
+		        }
+		
+		        ObjectMapper mapper = new ObjectMapper();
+		        JsonNode root;
+		        try {
+		            root = mapper.readTree(openAPISpec);
+		        } catch (Exception e) {
+		            throw new ServiceException("Invalid OpenAPI JSON: " + e.getMessage());
+		        }
+		
+		        if (scopes == null || scopes.length == 0) {
+		            outputEmptyResults(pipeline, openAPISpec);
+		            return;
+		        }
+		
+		        JsonNode pathsNode = root.path("paths");
+		        if (!pathsNode.isObject()) {
+		            outputEmptyResults(pipeline, openAPISpec);
+		            return;
+		        }
+		
+		        List<IData> inScopeList = new ArrayList<>();
+		        List<IData> outOfScopeList = new ArrayList<>();
+		        ObjectNode newPaths = mapper.createObjectNode();
+		
+		        // Valid HTTP methods only
+		        String[] validHttpMethods = {"GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS"};
+		
+		        Iterator<Map.Entry<String, JsonNode>> pathIter = ((ObjectNode) pathsNode).fields();
+		        while (pathIter.hasNext()) {
+		            Map.Entry<String, JsonNode> pathEntry = pathIter.next();
+		            String pathKey = pathEntry.getKey();
+		            JsonNode methodsNode = pathEntry.getValue();
+		            if (!methodsNode.isObject()) continue;
+		
+		            ObjectNode allowedMethods = mapper.createObjectNode();
+		            Iterator<Map.Entry<String, JsonNode>> methodIter = ((ObjectNode) methodsNode).fields();
+		            while (methodIter.hasNext()) {
+		                Map.Entry<String, JsonNode> methodEntry = methodIter.next();
+		                String httpMethodKey = methodEntry.getKey().toUpperCase();
+		                
+		                // Skip non-HTTP methods (summary, parameters, etc.)
+		                boolean isValidHttpMethod = false;
+		                for (String validMethod : validHttpMethods) {
+		                    if (httpMethodKey.equals(validMethod)) {
+		                        isValidHttpMethod = true;
+		                        break;
+		                    }
+		                }
+		                if (!isValidHttpMethod) {
+		                    continue;
+		                }
+		
+		                String httpMethod = httpMethodKey;
+		                JsonNode operation = methodEntry.getValue();
+		
+		                String operationId = getOperationId(operation);
+		                if (operationId == null) {
+		                    throw new ServiceException("Missing operationId in " + httpMethod + " " + pathKey);
+		                }
+		
+		                boolean isInScope = hasMatchingScope(operation, scopes, mapper);
+		                String operationPath = httpMethod + "_" + pathKey;
+		
+		                IData opRecord = IDataFactory.create();
+		                IDataCursor opCursor = opRecord.getCursor();
+		                IDataUtil.put(opCursor, "id", operationId);
+		                IDataUtil.put(opCursor, "path", operationPath);
+		                opCursor.destroy();
+		
+		                if (isInScope) {
+		                    allowedMethods.set(httpMethod.toLowerCase(), operation);
+		                    inScopeList.add(opRecord);
+		                } else {
+		                    outOfScopeList.add(opRecord);
+		                }
+		            }
+		
+		            if (allowedMethods.size() > 0) {
+		                newPaths.set(pathKey, allowedMethods);
+		            }
+		        }
+		
+		        ((ObjectNode) root).set("paths", newPaths);
+		        String filteredSpec;
+		        try {
+		            filteredSpec = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(root);
+		        } catch (Exception e) {
+		            throw new ServiceException("Failed to serialize filtered spec: " + e.getMessage());
+		        }
+		
+		        IDataCursor outCursor = pipeline.getCursor();
+		        IDataUtil.put(outCursor, "scopedOpenAPISpec", filteredSpec);
+		        IDataUtil.put(outCursor, "inScopeOperations", inScopeList.toArray(new IData[0]));
+		        IDataUtil.put(outCursor, "outOfScopeOperations", outOfScopeList.toArray(new IData[0]));
+		        outCursor.destroy();
+		// --- <<IS-END>> ---
+
+                
+	}
+
+
+
 	public static final void getOASNodeDetails (IData pipeline)
         throws ServiceException
 	{
@@ -663,6 +794,43 @@ public final class apiprovider
 	}
 
 	// --- <<IS-START-SHARED>> ---
+	  
+		    private static String getOperationId(JsonNode operation)
+		    {
+		        JsonNode opIdNode = operation.path("operationId");
+		        return opIdNode.isTextual() ? opIdNode.asText() : null;
+		    }
+	
+		    private static boolean hasMatchingScope(JsonNode operation, String[] allowedScopes, ObjectMapper mapper) {
+		        JsonNode securityArray = operation.path("security");
+		        if (!securityArray.isArray() || securityArray.size() == 0) return false;
+	
+		        for (JsonNode secObj : securityArray) {
+		            // Handle ALL possible security scheme name variations
+		            JsonNode oauth2Array = secObj.get("oauth2");
+		            if (oauth2Array == null) oauth2Array = secObj.get("OAuth2");
+		            if (oauth2Array == null) oauth2Array = secObj.get("OAUTH2");
+		            
+		            if (oauth2Array != null && oauth2Array.isArray()) {
+		                for (JsonNode scopeNode : oauth2Array) {
+		                    String scope = scopeNode.asText();
+		                    for (String allowed : allowedScopes) {
+		                        if (scope.equals(allowed)) return true;
+		                    }
+		                }
+		            }
+		        }
+		        return false;
+		    }
+	
+		    private static void outputEmptyResults(IData pipeline, String openAPISpec) {
+		        IDataCursor outCursor = pipeline.getCursor();
+		        IDataUtil.put(outCursor, "scopedOpenAPISpec", openAPISpec);
+		        IDataUtil.put(outCursor, "inScopeOperations", new IData[0]);
+		        IDataUtil.put(outCursor, "outOfScopeOperations", new IData[0]);
+		        outCursor.destroy();
+		    }
+	
 	private static void log(String msg) {
 		// input
 		IData input = IDataFactory.create();

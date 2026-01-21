@@ -1,0 +1,1133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<FLOW VERSION="3.2" CLEANUP="true">
+  <COMMENT></COMMENT>
+
+  <!-- nodes -->
+
+<SEQUENCE NAME="Empty Scopes" TIMEOUT="" EXIT-ON="FAILURE" DISABLED="true">
+  <COMMENT></COMMENT>
+
+  <!-- nodes -->
+
+<INVOKE TIMEOUT="" SERVICE="wx.mcp.server.services.utils.apiprovider:filterApiOperationsByScopes" VALIDATE-IN="$none" VALIDATE-OUT="$none" DISABLED="true">
+  <COMMENT></COMMENT>
+
+  <!-- nodes -->
+
+<MAP MODE="INPUT">
+  <MAPTARGET>
+
+<Values version="2.0">
+  <record name="xml" javaclass="com.wm.util.Values">
+    <value name="node_type">record</value>
+    <value name="node_subtype">unknown</value>
+    <value name="is_public">false</value>
+    <value name="displayName"></value>
+    <value name="favorite"></value>
+    <value name="tags"></value>
+    <value name="since"></value>
+    <value name="deprecated"></value>
+    <value name="is_visible"></value>
+    <value name="field_type">record</value>
+    <value name="field_dim">0</value>
+    <value name="wrapper_type">IData</value>
+    <value name="nillable">true</value>
+    <value name="form_qualified">false</value>
+    <value name="is_global">false</value>
+    <array name="rec_fields" type="record" depth="1">
+      <record javaclass="com.wm.util.Values">
+        <value name="node_type">unknown</value>
+        <value name="node_subtype">unknown</value>
+        <value name="node_comment"></value>
+        <record name="node_hints" javaclass="com.wm.util.Values">
+          <value name="field_largerEditor">false</value>
+          <value name="field_password">false</value>
+        </record>
+        <value name="is_public">false</value>
+        <value name="field_name">scopes</value>
+        <value name="field_type">string</value>
+        <value name="field_dim">1</value>
+        <value name="nillable">true</value>
+        <value name="form_qualified">false</value>
+        <value name="is_global">false</value>
+        <value name="is_soap_array_encoding_used">false</value>
+      </record>
+      <record javaclass="com.wm.util.Values">
+        <value name="node_type">record</value>
+        <value name="node_subtype">unknown</value>
+        <value name="node_comment"></value>
+        <record name="node_hints" javaclass="com.wm.util.Values">
+          <value name="field_usereditable">true</value>
+          <value name="field_largerEditor">false</value>
+          <value name="field_password">false</value>
+        </record>
+        <value name="is_public">false</value>
+        <value name="field_name">openAPISpec</value>
+        <value name="field_type">string</value>
+        <value name="field_dim">0</value>
+        <array name="field_options" type="value" depth="1">
+        </array>
+        <value name="nillable">true</value>
+        <value name="form_qualified">false</value>
+        <value name="is_global">false</value>
+      </record>
+    </array>
+    <value name="modifiable">true</value>
+  </record>
+</Values>
+</MAPTARGET>
+  <MAPSOURCE>
+
+<Values version="2.0">
+  <record name="xml" javaclass="com.wm.util.Values">
+    <value name="node_type">record</value>
+    <value name="node_subtype">unknown</value>
+    <value name="is_public">false</value>
+    <value name="field_type">record</value>
+    <value name="field_dim">0</value>
+    <value name="nillable">true</value>
+    <value name="form_qualified">false</value>
+    <value name="is_global">false</value>
+    <array name="rec_fields" type="record" depth="1">
+    </array>
+    <value name="modifiable">true</value>
+  </record>
+</Values>
+</MAPSOURCE>
+
+  <!-- nodes -->
+
+<MAPSET NAME="Setter" OVERWRITE="true" VARIABLES="false" GLOBALVARIABLES="false" FIELD="/openAPISpec;1;0">
+  <DATA ENCODING="XMLValues" I18N="true">
+
+<Values version="2.0">
+  <value name="xml">{"openapi":"3.0.1","info":{"title":"IBM-Account-API","description":"Consolidates IBM customer data between watsonx and on-prem systems. \nComplies with GDPR/DORA regulations for financial data access.\n","version":"2.7"},"servers":[{"url":"https://api.ibm.com/demo/v1"}],"security":[{"oauth2":["accounts.read","accounts.write"]}],"components":{"securitySchemes":{"oauth2":{"type":"oauth2","flows":{"clientCredentials":{"tokenUrl":"https://iam.cloud.ibm.com/identity/token","scopes":{"accounts.read":"Read customer accounts and metadata","accounts.write":"Create/update customer accounts","accounts.admin":"Delete customer accounts","bankdetails.read":"Read regulated bank details (GDPR/DORA)","bankdetails.write":"Update regulated bank details (GDPR/DORA)","ibm.partner.read":"Read IBM partner account data"}}}}},"schemas":{"Accounts":{"type":"object","properties":{"Accounts":{"type":"array","items":{"$ref":"#/components/schemas/AccountData"}}}},"AccountData":{"required":["name","type","homepage"],"type":"object","properties":{"id":{"type":"string"},"name":{"type":"string"},"type":{"type":"string"},"homepage":{"type":"string"},"rating":{"type":"string"},"industry":{"type":"string"}}},"Error":{"type":"object","properties":{"message":{"type":"string"},"code":{"type":"integer"}}}}},"paths":{"/accounts":{"summary":"Customer Accounts Operations","get":{"summary":"Get all Customer Accounts","operationId":"getAccounts","security":[{"oauth2":["accounts.read","ibm.partner.read"]}],"parameters":[],"responses":{"200":{"description":"Successful","content":{"application/json":{"schema":{"$ref":"#/components/schemas/Accounts"},"example":{"Accounts":[{"id":"ibmMOCK","name":"IBM Deutschland GmbH","type":"Organization","homepage":"https://www.ibm.com/de","rating":"Strategic","industry":"Technology"},{"id":"consultingMOCK","name":"IBM Consulting Germany","type":"Organization","homepage":"https://www.ibm.com/de/consulting","rating":"Strategic","industry":"IT Consulting"},{"id":"partnerMOCK","name":"IBM Business Partner GmbH","type":"Organization","homepage":"https://www.ibm.com/partnerplus","rating":"Premier","industry":"Technology"}]}}}},"401":{"description":"Access Denied"}}},"post":{"summary":"Create new Customer Account","operationId":"addAccounts","security":[{"oauth2":["accounts.write"]}],"parameters":[],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Accounts"},"example":{"Accounts":[{"name":"IBM New Customer GmbH","type":"Organization","homepage":"https://www.ibm.com/customer","rating":"Hot","industry":"Technology"}]}}}},"responses":{"200":{"description":"Successful","content":{"application/json":{"schema":{"$ref":"#/components/schemas/Accounts"},"example":{"Accounts":[{"id":"newMOCK"}]}}}},"401":{"description":"Access Denied"}}}},"/accounts/search":{"summary":"Search Customer Accounts","get":{"summary":"Search Customer Accounts by namePattern","description":"Search IBM customer accounts by a case-insensitive name pattern.\nReturns matching accounts in the same format as list all accounts.\n","operationId":"searchAccountsByName","security":[{"oauth2":["accounts.read","ibm.partner.read"]}],"parameters":[{"name":"namePattern","in":"query","required":true,"description":"Case-insensitive pattern to match account names (e.g., 'IBM', 'Consulting')","schema":{"type":"string","example":"IBM"}}],"responses":{"200":{"description":"Matching accounts found","content":{"application/json":{"schema":{"$ref":"#/components/schemas/Accounts"},"example":{"Accounts":[{"id":"ibmMOCK","name":"IBM Deutschland GmbH","type":"Organization","homepage":"https://www.ibm.com/de","rating":"Strategic","industry":"Technology"},{"id":"consultingMOCK","name":"IBM Consulting Germany","type":"Organization","homepage":"https://www.ibm.com/de/consulting","rating":"Strategic","industry":"IT Consulting"}]}}}},"400":{"description":"Missing or invalid namePattern parameter","content":{"application/json":{"schema":{"$ref":"#/components/schemas/Error"}}}},"401":{"description":"Access Denied"}}}},"/accounts/{accountID}":{"summary":"Individual Account Operations","parameters":[{"name":"accountID","in":"path","description":"ID of Account to return","required":true,"allowEmptyValue":false,"schema":{"type":"string"}}],"get":{"summary":"Get Customer Account by ID","operationId":"getAccountByID","security":[{"oauth2":["accounts.read"]}],"responses":{"200":{"description":"Successful","content":{"application/json":{"schema":{"$ref":"#/components/schemas/AccountData"},"example":{"id":"ibmMOCK","name":"IBM Deutschland GmbH","type":"Organization","homepage":"https://www.ibm.com/de","rating":"Strategic","industry":"Technology"}}}},"401":{"description":"Access Denied"},"404":{"description":"Account ID not found","content":{"application/json":{"schema":{"$ref":"#/components/schemas/Error"}}}}}},"delete":{"summary":"Delete Customer Account for given ID","operationId":"deleteAccountByID","description":"Delete a specific customer account and associated bank details.","security":[{"oauth2":["accounts.admin"]}],"responses":{"204":{"description":"Account deleted successfully"},"404":{"description":"Account ID not found","content":{"application/json":{"schema":{"$ref":"#/components/schemas/Error"}}}},"401":{"description":"Access Denied"}}}},"/accounts/{accountID}/bankdetails":{"summary":"Bank Details Operations","parameters":[{"name":"accountID","in":"path","description":"The ID of the customer account.","required":true,"schema":{"type":"string"}}],"get":{"summary":"Get Bank details for given Customer Account ID","operationId":"getBankAccountForID","description":"Retrieve the BankName and IBAN for a specific customer account.","security":[{"oauth2":["bankdetails.read"]}],"responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"object","properties":{"BankName":{"type":"string","description":"The name of the bank.","example":"Deutsche Bank AG"},"IBAN":{"type":"string","description":"The International Bank Account Number.","example":"DE89370400440532013000"}}}}}},"401":{"description":"Access Denied"},"404":{"description":"Account ID not found","content":{"application/json":{"schema":{"$ref":"#/components/schemas/Error"}}}}}},"post":{"summary":"Update Bank Account Information","operationId":"updateBankAccountForID","description":"Update the BankName and IBAN for a specific customer account.","security":[{"oauth2":["bankdetails.write"]}],"requestBody":{"required":true,"content":{"application/json":{"schema":{"type":"object","properties":{"BankName":{"type":"string","description":"The name of the bank.","example":"Deutsche Bank AG"},"IBAN":{"type":"string","description":"The International Bank Account Number.","example":"DE89370400440532013000"}}}}}},"responses":{"200":{"description":"Successful response"},"400":{"description":"Invalid request body"},"404":{"description":"Account ID not found","content":{"application/json":{"schema":{"$ref":"#/components/schemas/Error"}}}}}}}}}</value>
+  <record name="type" javaclass="com.wm.util.Values">
+    <value name="node_type">record</value>
+    <value name="node_subtype">unknown</value>
+    <value name="node_comment"></value>
+    <record name="node_hints" javaclass="com.wm.util.Values">
+      <value name="field_usereditable">true</value>
+      <value name="field_largerEditor">false</value>
+      <value name="field_password">false</value>
+    </record>
+    <value name="is_public">false</value>
+    <value name="field_name">openAPISpec</value>
+    <value name="field_type">string</value>
+    <value name="field_dim">0</value>
+    <array name="field_options" type="value" depth="1">
+    </array>
+    <value name="nillable">true</value>
+    <value name="form_qualified">false</value>
+    <value name="is_global">false</value>
+  </record>
+</Values>
+</DATA>
+</MAPSET>
+</MAP>
+</INVOKE>
+</SEQUENCE>
+
+<SEQUENCE NAME="Not available scope" TIMEOUT="" EXIT-ON="FAILURE" DISABLED="true">
+  <COMMENT></COMMENT>
+
+  <!-- nodes -->
+
+<INVOKE TIMEOUT="" SERVICE="wx.mcp.server.services.utils.apiprovider:filterApiOperationsByScopes" VALIDATE-IN="$none" VALIDATE-OUT="$none" DISABLED="true">
+  <COMMENT></COMMENT>
+
+  <!-- nodes -->
+
+<MAP MODE="INPUT">
+  <MAPTARGET>
+
+<Values version="2.0">
+  <record name="xml" javaclass="com.wm.util.Values">
+    <value name="node_type">record</value>
+    <value name="node_subtype">unknown</value>
+    <value name="is_public">false</value>
+    <value name="displayName"></value>
+    <value name="favorite"></value>
+    <value name="tags"></value>
+    <value name="since"></value>
+    <value name="deprecated"></value>
+    <value name="is_visible"></value>
+    <value name="field_type">record</value>
+    <value name="field_dim">0</value>
+    <value name="wrapper_type">IData</value>
+    <value name="nillable">true</value>
+    <value name="form_qualified">false</value>
+    <value name="is_global">false</value>
+    <array name="rec_fields" type="record" depth="1">
+      <record javaclass="com.wm.util.Values">
+        <value name="node_type">unknown</value>
+        <value name="node_subtype">unknown</value>
+        <value name="node_comment"></value>
+        <record name="node_hints" javaclass="com.wm.util.Values">
+          <value name="field_largerEditor">false</value>
+          <value name="field_password">false</value>
+        </record>
+        <value name="is_public">false</value>
+        <value name="field_name">scopes</value>
+        <value name="field_type">string</value>
+        <value name="field_dim">1</value>
+        <value name="nillable">true</value>
+        <value name="form_qualified">false</value>
+        <value name="is_global">false</value>
+        <value name="is_soap_array_encoding_used">false</value>
+      </record>
+      <record javaclass="com.wm.util.Values">
+        <value name="node_type">record</value>
+        <value name="node_subtype">unknown</value>
+        <value name="node_comment"></value>
+        <record name="node_hints" javaclass="com.wm.util.Values">
+          <value name="field_usereditable">true</value>
+          <value name="field_largerEditor">false</value>
+          <value name="field_password">false</value>
+        </record>
+        <value name="is_public">false</value>
+        <value name="field_name">openAPISpec</value>
+        <value name="field_type">string</value>
+        <value name="field_dim">0</value>
+        <array name="field_options" type="value" depth="1">
+        </array>
+        <value name="nillable">true</value>
+        <value name="form_qualified">false</value>
+        <value name="is_global">false</value>
+      </record>
+    </array>
+    <value name="modifiable">true</value>
+  </record>
+</Values>
+</MAPTARGET>
+  <MAPSOURCE>
+
+<Values version="2.0">
+  <record name="xml" javaclass="com.wm.util.Values">
+    <value name="node_type">record</value>
+    <value name="node_subtype">unknown</value>
+    <value name="is_public">false</value>
+    <value name="field_type">record</value>
+    <value name="field_dim">0</value>
+    <value name="nillable">true</value>
+    <value name="form_qualified">false</value>
+    <value name="is_global">false</value>
+    <array name="rec_fields" type="record" depth="1">
+    </array>
+    <value name="modifiable">true</value>
+  </record>
+</Values>
+</MAPSOURCE>
+
+  <!-- nodes -->
+
+<MAPSET NAME="Setter" OVERWRITE="true" VARIABLES="false" GLOBALVARIABLES="false" FIELD="/openAPISpec;1;0">
+  <DATA ENCODING="XMLValues" I18N="true">
+
+<Values version="2.0">
+  <value name="xml">{"openapi":"3.0.1","info":{"title":"IBM-Account-API","description":"Consolidates IBM customer data between watsonx and on-prem systems. \nComplies with GDPR/DORA regulations for financial data access.\n","version":"2.7"},"servers":[{"url":"https://api.ibm.com/demo/v1"}],"security":[{"oauth2":["accounts.read","accounts.write"]}],"components":{"securitySchemes":{"oauth2":{"type":"oauth2","flows":{"clientCredentials":{"tokenUrl":"https://iam.cloud.ibm.com/identity/token","scopes":{"accounts.read":"Read customer accounts and metadata","accounts.write":"Create/update customer accounts","accounts.admin":"Delete customer accounts","bankdetails.read":"Read regulated bank details (GDPR/DORA)","bankdetails.write":"Update regulated bank details (GDPR/DORA)","ibm.partner.read":"Read IBM partner account data"}}}}},"schemas":{"Accounts":{"type":"object","properties":{"Accounts":{"type":"array","items":{"$ref":"#/components/schemas/AccountData"}}}},"AccountData":{"required":["name","type","homepage"],"type":"object","properties":{"id":{"type":"string"},"name":{"type":"string"},"type":{"type":"string"},"homepage":{"type":"string"},"rating":{"type":"string"},"industry":{"type":"string"}}},"Error":{"type":"object","properties":{"message":{"type":"string"},"code":{"type":"integer"}}}}},"paths":{"/accounts":{"summary":"Customer Accounts Operations","get":{"summary":"Get all Customer Accounts","operationId":"getAccounts","security":[{"oauth2":["accounts.read","ibm.partner.read"]}],"parameters":[],"responses":{"200":{"description":"Successful","content":{"application/json":{"schema":{"$ref":"#/components/schemas/Accounts"},"example":{"Accounts":[{"id":"ibmMOCK","name":"IBM Deutschland GmbH","type":"Organization","homepage":"https://www.ibm.com/de","rating":"Strategic","industry":"Technology"},{"id":"consultingMOCK","name":"IBM Consulting Germany","type":"Organization","homepage":"https://www.ibm.com/de/consulting","rating":"Strategic","industry":"IT Consulting"},{"id":"partnerMOCK","name":"IBM Business Partner GmbH","type":"Organization","homepage":"https://www.ibm.com/partnerplus","rating":"Premier","industry":"Technology"}]}}}},"401":{"description":"Access Denied"}}},"post":{"summary":"Create new Customer Account","operationId":"addAccounts","security":[{"oauth2":["accounts.write"]}],"parameters":[],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Accounts"},"example":{"Accounts":[{"name":"IBM New Customer GmbH","type":"Organization","homepage":"https://www.ibm.com/customer","rating":"Hot","industry":"Technology"}]}}}},"responses":{"200":{"description":"Successful","content":{"application/json":{"schema":{"$ref":"#/components/schemas/Accounts"},"example":{"Accounts":[{"id":"newMOCK"}]}}}},"401":{"description":"Access Denied"}}}},"/accounts/search":{"summary":"Search Customer Accounts","get":{"summary":"Search Customer Accounts by namePattern","description":"Search IBM customer accounts by a case-insensitive name pattern.\nReturns matching accounts in the same format as list all accounts.\n","operationId":"searchAccountsByName","security":[{"oauth2":["accounts.read","ibm.partner.read"]}],"parameters":[{"name":"namePattern","in":"query","required":true,"description":"Case-insensitive pattern to match account names (e.g., 'IBM', 'Consulting')","schema":{"type":"string","example":"IBM"}}],"responses":{"200":{"description":"Matching accounts found","content":{"application/json":{"schema":{"$ref":"#/components/schemas/Accounts"},"example":{"Accounts":[{"id":"ibmMOCK","name":"IBM Deutschland GmbH","type":"Organization","homepage":"https://www.ibm.com/de","rating":"Strategic","industry":"Technology"},{"id":"consultingMOCK","name":"IBM Consulting Germany","type":"Organization","homepage":"https://www.ibm.com/de/consulting","rating":"Strategic","industry":"IT Consulting"}]}}}},"400":{"description":"Missing or invalid namePattern parameter","content":{"application/json":{"schema":{"$ref":"#/components/schemas/Error"}}}},"401":{"description":"Access Denied"}}}},"/accounts/{accountID}":{"summary":"Individual Account Operations","parameters":[{"name":"accountID","in":"path","description":"ID of Account to return","required":true,"allowEmptyValue":false,"schema":{"type":"string"}}],"get":{"summary":"Get Customer Account by ID","operationId":"getAccountByID","security":[{"oauth2":["accounts.read"]}],"responses":{"200":{"description":"Successful","content":{"application/json":{"schema":{"$ref":"#/components/schemas/AccountData"},"example":{"id":"ibmMOCK","name":"IBM Deutschland GmbH","type":"Organization","homepage":"https://www.ibm.com/de","rating":"Strategic","industry":"Technology"}}}},"401":{"description":"Access Denied"},"404":{"description":"Account ID not found","content":{"application/json":{"schema":{"$ref":"#/components/schemas/Error"}}}}}},"delete":{"summary":"Delete Customer Account for given ID","operationId":"deleteAccountByID","description":"Delete a specific customer account and associated bank details.","security":[{"oauth2":["accounts.admin"]}],"responses":{"204":{"description":"Account deleted successfully"},"404":{"description":"Account ID not found","content":{"application/json":{"schema":{"$ref":"#/components/schemas/Error"}}}},"401":{"description":"Access Denied"}}}},"/accounts/{accountID}/bankdetails":{"summary":"Bank Details Operations","parameters":[{"name":"accountID","in":"path","description":"The ID of the customer account.","required":true,"schema":{"type":"string"}}],"get":{"summary":"Get Bank details for given Customer Account ID","operationId":"getBankAccountForID","description":"Retrieve the BankName and IBAN for a specific customer account.","security":[{"oauth2":["bankdetails.read"]}],"responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"object","properties":{"BankName":{"type":"string","description":"The name of the bank.","example":"Deutsche Bank AG"},"IBAN":{"type":"string","description":"The International Bank Account Number.","example":"DE89370400440532013000"}}}}}},"401":{"description":"Access Denied"},"404":{"description":"Account ID not found","content":{"application/json":{"schema":{"$ref":"#/components/schemas/Error"}}}}}},"post":{"summary":"Update Bank Account Information","operationId":"updateBankAccountForID","description":"Update the BankName and IBAN for a specific customer account.","security":[{"oauth2":["bankdetails.write"]}],"requestBody":{"required":true,"content":{"application/json":{"schema":{"type":"object","properties":{"BankName":{"type":"string","description":"The name of the bank.","example":"Deutsche Bank AG"},"IBAN":{"type":"string","description":"The International Bank Account Number.","example":"DE89370400440532013000"}}}}}},"responses":{"200":{"description":"Successful response"},"400":{"description":"Invalid request body"},"404":{"description":"Account ID not found","content":{"application/json":{"schema":{"$ref":"#/components/schemas/Error"}}}}}}}}}</value>
+  <record name="type" javaclass="com.wm.util.Values">
+    <value name="node_type">record</value>
+    <value name="node_subtype">unknown</value>
+    <value name="node_comment"></value>
+    <record name="node_hints" javaclass="com.wm.util.Values">
+      <value name="field_usereditable">true</value>
+      <value name="field_largerEditor">false</value>
+      <value name="field_password">false</value>
+    </record>
+    <value name="is_public">false</value>
+    <value name="field_name">openAPISpec</value>
+    <value name="field_type">string</value>
+    <value name="field_dim">0</value>
+    <array name="field_options" type="value" depth="1">
+    </array>
+    <value name="nillable">true</value>
+    <value name="form_qualified">false</value>
+    <value name="is_global">false</value>
+  </record>
+</Values>
+</DATA>
+</MAPSET>
+
+<MAPSET NAME="Setter" OVERWRITE="true" VARIABLES="false" GLOBALVARIABLES="false" FIELD="/scopes;1;1">
+  <DATA ENCODING="XMLValues" I18N="true">
+
+<Values version="2.0">
+  <array name="xml" type="value" depth="1">
+    <value>does:notexist</value>
+  </array>
+  <record name="type" javaclass="com.wm.util.Values">
+    <value name="node_type">unknown</value>
+    <value name="node_subtype">unknown</value>
+    <value name="node_comment"></value>
+    <record name="node_hints" javaclass="com.wm.util.Values">
+      <value name="field_largerEditor">false</value>
+      <value name="field_password">false</value>
+    </record>
+    <value name="is_public">false</value>
+    <value name="field_name">scopes</value>
+    <value name="field_type">string</value>
+    <value name="field_dim">1</value>
+    <value name="nillable">true</value>
+    <value name="form_qualified">false</value>
+    <value name="is_global">false</value>
+    <value name="is_soap_array_encoding_used">false</value>
+  </record>
+</Values>
+</DATA>
+</MAPSET>
+</MAP>
+</INVOKE>
+</SEQUENCE>
+
+<SEQUENCE NAME="Valid single scope" TIMEOUT="" EXIT-ON="FAILURE" DISABLED="true">
+  <COMMENT></COMMENT>
+
+  <!-- nodes -->
+
+<INVOKE TIMEOUT="" SERVICE="wx.mcp.server.services.utils.apiprovider:filterApiOperationsByScopes" VALIDATE-IN="$none" VALIDATE-OUT="$none" DISABLED="true">
+  <COMMENT></COMMENT>
+
+  <!-- nodes -->
+
+<MAP MODE="INPUT">
+  <MAPTARGET>
+
+<Values version="2.0">
+  <record name="xml" javaclass="com.wm.util.Values">
+    <value name="node_type">record</value>
+    <value name="node_subtype">unknown</value>
+    <value name="is_public">false</value>
+    <value name="displayName"></value>
+    <value name="favorite"></value>
+    <value name="tags"></value>
+    <value name="since"></value>
+    <value name="deprecated"></value>
+    <value name="is_visible"></value>
+    <value name="field_type">record</value>
+    <value name="field_dim">0</value>
+    <value name="wrapper_type">IData</value>
+    <value name="nillable">true</value>
+    <value name="form_qualified">false</value>
+    <value name="is_global">false</value>
+    <array name="rec_fields" type="record" depth="1">
+      <record javaclass="com.wm.util.Values">
+        <value name="node_type">unknown</value>
+        <value name="node_subtype">unknown</value>
+        <value name="node_comment"></value>
+        <record name="node_hints" javaclass="com.wm.util.Values">
+          <value name="field_largerEditor">false</value>
+          <value name="field_password">false</value>
+        </record>
+        <value name="is_public">false</value>
+        <value name="field_name">scopes</value>
+        <value name="field_type">string</value>
+        <value name="field_dim">1</value>
+        <value name="nillable">true</value>
+        <value name="form_qualified">false</value>
+        <value name="is_global">false</value>
+        <value name="is_soap_array_encoding_used">false</value>
+      </record>
+      <record javaclass="com.wm.util.Values">
+        <value name="node_type">record</value>
+        <value name="node_subtype">unknown</value>
+        <value name="node_comment"></value>
+        <record name="node_hints" javaclass="com.wm.util.Values">
+          <value name="field_usereditable">true</value>
+          <value name="field_largerEditor">false</value>
+          <value name="field_password">false</value>
+        </record>
+        <value name="is_public">false</value>
+        <value name="field_name">openAPISpec</value>
+        <value name="field_type">string</value>
+        <value name="field_dim">0</value>
+        <array name="field_options" type="value" depth="1">
+        </array>
+        <value name="nillable">true</value>
+        <value name="form_qualified">false</value>
+        <value name="is_global">false</value>
+      </record>
+    </array>
+    <value name="modifiable">true</value>
+  </record>
+</Values>
+</MAPTARGET>
+  <MAPSOURCE>
+
+<Values version="2.0">
+  <record name="xml" javaclass="com.wm.util.Values">
+    <value name="node_type">record</value>
+    <value name="node_subtype">unknown</value>
+    <value name="is_public">false</value>
+    <value name="field_type">record</value>
+    <value name="field_dim">0</value>
+    <value name="nillable">true</value>
+    <value name="form_qualified">false</value>
+    <value name="is_global">false</value>
+    <array name="rec_fields" type="record" depth="1">
+    </array>
+    <value name="modifiable">true</value>
+  </record>
+</Values>
+</MAPSOURCE>
+
+  <!-- nodes -->
+
+<MAPSET NAME="Setter" OVERWRITE="true" VARIABLES="false" GLOBALVARIABLES="false" FIELD="/openAPISpec;1;0">
+  <DATA ENCODING="XMLValues" I18N="true">
+
+<Values version="2.0">
+  <value name="xml">{"openapi":"3.0.1","info":{"title":"IBM-Account-API","description":"Consolidates IBM customer data between watsonx and on-prem systems. \nComplies with GDPR/DORA regulations for financial data access.\n","version":"2.7"},"servers":[{"url":"https://api.ibm.com/demo/v1"}],"security":[{"oauth2":["accounts.read","accounts.write"]}],"components":{"securitySchemes":{"oauth2":{"type":"oauth2","flows":{"clientCredentials":{"tokenUrl":"https://iam.cloud.ibm.com/identity/token","scopes":{"accounts.read":"Read customer accounts and metadata","accounts.write":"Create/update customer accounts","accounts.admin":"Delete customer accounts","bankdetails.read":"Read regulated bank details (GDPR/DORA)","bankdetails.write":"Update regulated bank details (GDPR/DORA)","ibm.partner.read":"Read IBM partner account data"}}}}},"schemas":{"Accounts":{"type":"object","properties":{"Accounts":{"type":"array","items":{"$ref":"#/components/schemas/AccountData"}}}},"AccountData":{"required":["name","type","homepage"],"type":"object","properties":{"id":{"type":"string"},"name":{"type":"string"},"type":{"type":"string"},"homepage":{"type":"string"},"rating":{"type":"string"},"industry":{"type":"string"}}},"Error":{"type":"object","properties":{"message":{"type":"string"},"code":{"type":"integer"}}}}},"paths":{"/accounts":{"summary":"Customer Accounts Operations","get":{"summary":"Get all Customer Accounts","operationId":"getAccounts","security":[{"oauth2":["accounts.read","ibm.partner.read"]}],"parameters":[],"responses":{"200":{"description":"Successful","content":{"application/json":{"schema":{"$ref":"#/components/schemas/Accounts"},"example":{"Accounts":[{"id":"ibmMOCK","name":"IBM Deutschland GmbH","type":"Organization","homepage":"https://www.ibm.com/de","rating":"Strategic","industry":"Technology"},{"id":"consultingMOCK","name":"IBM Consulting Germany","type":"Organization","homepage":"https://www.ibm.com/de/consulting","rating":"Strategic","industry":"IT Consulting"},{"id":"partnerMOCK","name":"IBM Business Partner GmbH","type":"Organization","homepage":"https://www.ibm.com/partnerplus","rating":"Premier","industry":"Technology"}]}}}},"401":{"description":"Access Denied"}}},"post":{"summary":"Create new Customer Account","operationId":"addAccounts","security":[{"oauth2":["accounts.write"]}],"parameters":[],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Accounts"},"example":{"Accounts":[{"name":"IBM New Customer GmbH","type":"Organization","homepage":"https://www.ibm.com/customer","rating":"Hot","industry":"Technology"}]}}}},"responses":{"200":{"description":"Successful","content":{"application/json":{"schema":{"$ref":"#/components/schemas/Accounts"},"example":{"Accounts":[{"id":"newMOCK"}]}}}},"401":{"description":"Access Denied"}}}},"/accounts/search":{"summary":"Search Customer Accounts","get":{"summary":"Search Customer Accounts by namePattern","description":"Search IBM customer accounts by a case-insensitive name pattern.\nReturns matching accounts in the same format as list all accounts.\n","operationId":"searchAccountsByName","security":[{"oauth2":["accounts.read","ibm.partner.read"]}],"parameters":[{"name":"namePattern","in":"query","required":true,"description":"Case-insensitive pattern to match account names (e.g., 'IBM', 'Consulting')","schema":{"type":"string","example":"IBM"}}],"responses":{"200":{"description":"Matching accounts found","content":{"application/json":{"schema":{"$ref":"#/components/schemas/Accounts"},"example":{"Accounts":[{"id":"ibmMOCK","name":"IBM Deutschland GmbH","type":"Organization","homepage":"https://www.ibm.com/de","rating":"Strategic","industry":"Technology"},{"id":"consultingMOCK","name":"IBM Consulting Germany","type":"Organization","homepage":"https://www.ibm.com/de/consulting","rating":"Strategic","industry":"IT Consulting"}]}}}},"400":{"description":"Missing or invalid namePattern parameter","content":{"application/json":{"schema":{"$ref":"#/components/schemas/Error"}}}},"401":{"description":"Access Denied"}}}},"/accounts/{accountID}":{"summary":"Individual Account Operations","parameters":[{"name":"accountID","in":"path","description":"ID of Account to return","required":true,"allowEmptyValue":false,"schema":{"type":"string"}}],"get":{"summary":"Get Customer Account by ID","operationId":"getAccountByID","security":[{"oauth2":["accounts.read"]}],"responses":{"200":{"description":"Successful","content":{"application/json":{"schema":{"$ref":"#/components/schemas/AccountData"},"example":{"id":"ibmMOCK","name":"IBM Deutschland GmbH","type":"Organization","homepage":"https://www.ibm.com/de","rating":"Strategic","industry":"Technology"}}}},"401":{"description":"Access Denied"},"404":{"description":"Account ID not found","content":{"application/json":{"schema":{"$ref":"#/components/schemas/Error"}}}}}},"delete":{"summary":"Delete Customer Account for given ID","operationId":"deleteAccountByID","description":"Delete a specific customer account and associated bank details.","security":[{"oauth2":["accounts.admin"]}],"responses":{"204":{"description":"Account deleted successfully"},"404":{"description":"Account ID not found","content":{"application/json":{"schema":{"$ref":"#/components/schemas/Error"}}}},"401":{"description":"Access Denied"}}}},"/accounts/{accountID}/bankdetails":{"summary":"Bank Details Operations","parameters":[{"name":"accountID","in":"path","description":"The ID of the customer account.","required":true,"schema":{"type":"string"}}],"get":{"summary":"Get Bank details for given Customer Account ID","operationId":"getBankAccountForID","description":"Retrieve the BankName and IBAN for a specific customer account.","security":[{"oauth2":["bankdetails.read"]}],"responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"object","properties":{"BankName":{"type":"string","description":"The name of the bank.","example":"Deutsche Bank AG"},"IBAN":{"type":"string","description":"The International Bank Account Number.","example":"DE89370400440532013000"}}}}}},"401":{"description":"Access Denied"},"404":{"description":"Account ID not found","content":{"application/json":{"schema":{"$ref":"#/components/schemas/Error"}}}}}},"post":{"summary":"Update Bank Account Information","operationId":"updateBankAccountForID","description":"Update the BankName and IBAN for a specific customer account.","security":[{"oauth2":["bankdetails.write"]}],"requestBody":{"required":true,"content":{"application/json":{"schema":{"type":"object","properties":{"BankName":{"type":"string","description":"The name of the bank.","example":"Deutsche Bank AG"},"IBAN":{"type":"string","description":"The International Bank Account Number.","example":"DE89370400440532013000"}}}}}},"responses":{"200":{"description":"Successful response"},"400":{"description":"Invalid request body"},"404":{"description":"Account ID not found","content":{"application/json":{"schema":{"$ref":"#/components/schemas/Error"}}}}}}}}}</value>
+  <record name="type" javaclass="com.wm.util.Values">
+    <value name="node_type">record</value>
+    <value name="node_subtype">unknown</value>
+    <value name="node_comment"></value>
+    <record name="node_hints" javaclass="com.wm.util.Values">
+      <value name="field_usereditable">true</value>
+      <value name="field_largerEditor">false</value>
+      <value name="field_password">false</value>
+    </record>
+    <value name="is_public">false</value>
+    <value name="field_name">openAPISpec</value>
+    <value name="field_type">string</value>
+    <value name="field_dim">0</value>
+    <array name="field_options" type="value" depth="1">
+    </array>
+    <value name="nillable">true</value>
+    <value name="form_qualified">false</value>
+    <value name="is_global">false</value>
+  </record>
+</Values>
+</DATA>
+</MAPSET>
+
+<MAPSET NAME="Setter" OVERWRITE="true" VARIABLES="false" GLOBALVARIABLES="false" FIELD="/scopes;1;1">
+  <DATA ENCODING="XMLValues" I18N="true">
+
+<Values version="2.0">
+  <array name="xml" type="value" depth="1">
+    <value>accounts.read</value>
+  </array>
+  <record name="type" javaclass="com.wm.util.Values">
+    <value name="node_type">unknown</value>
+    <value name="node_subtype">unknown</value>
+    <value name="node_comment"></value>
+    <record name="node_hints" javaclass="com.wm.util.Values">
+      <value name="field_largerEditor">false</value>
+      <value name="field_password">false</value>
+    </record>
+    <value name="is_public">false</value>
+    <value name="field_name">scopes</value>
+    <value name="field_type">string</value>
+    <value name="field_dim">1</value>
+    <value name="nillable">true</value>
+    <value name="form_qualified">false</value>
+    <value name="is_global">false</value>
+    <value name="is_soap_array_encoding_used">false</value>
+  </record>
+</Values>
+</DATA>
+</MAPSET>
+</MAP>
+</INVOKE>
+</SEQUENCE>
+
+<SEQUENCE NAME="Valid multiple scopes" TIMEOUT="" EXIT-ON="FAILURE">
+  <COMMENT></COMMENT>
+
+  <!-- nodes -->
+
+<INVOKE TIMEOUT="" SERVICE="wx.mcp.server.services.utils.apiprovider:filterApiOperationsByScopes" VALIDATE-IN="$none" VALIDATE-OUT="$none">
+  <COMMENT></COMMENT>
+
+  <!-- nodes -->
+
+<MAP MODE="INPUT">
+  <MAPTARGET>
+
+<Values version="2.0">
+  <record name="xml" javaclass="com.wm.util.Values">
+    <value name="node_type">record</value>
+    <value name="node_subtype">unknown</value>
+    <value name="is_public">false</value>
+    <value name="displayName"></value>
+    <value name="favorite"></value>
+    <value name="tags"></value>
+    <value name="since"></value>
+    <value name="deprecated"></value>
+    <value name="is_visible"></value>
+    <value name="field_type">record</value>
+    <value name="field_dim">0</value>
+    <value name="wrapper_type">IData</value>
+    <value name="nillable">true</value>
+    <value name="form_qualified">false</value>
+    <value name="is_global">false</value>
+    <array name="rec_fields" type="record" depth="1">
+      <record javaclass="com.wm.util.Values">
+        <value name="node_type">unknown</value>
+        <value name="node_subtype">unknown</value>
+        <value name="node_comment"></value>
+        <record name="node_hints" javaclass="com.wm.util.Values">
+          <value name="field_largerEditor">false</value>
+          <value name="field_password">false</value>
+        </record>
+        <value name="is_public">false</value>
+        <value name="field_name">scopes</value>
+        <value name="field_type">string</value>
+        <value name="field_dim">1</value>
+        <value name="nillable">true</value>
+        <value name="form_qualified">false</value>
+        <value name="is_global">false</value>
+        <value name="is_soap_array_encoding_used">false</value>
+      </record>
+      <record javaclass="com.wm.util.Values">
+        <value name="node_type">record</value>
+        <value name="node_subtype">unknown</value>
+        <value name="node_comment"></value>
+        <record name="node_hints" javaclass="com.wm.util.Values">
+          <value name="field_usereditable">true</value>
+          <value name="field_largerEditor">false</value>
+          <value name="field_password">false</value>
+        </record>
+        <value name="is_public">false</value>
+        <value name="field_name">openAPISpec</value>
+        <value name="field_type">string</value>
+        <value name="field_dim">0</value>
+        <array name="field_options" type="value" depth="1">
+        </array>
+        <value name="nillable">true</value>
+        <value name="form_qualified">false</value>
+        <value name="is_global">false</value>
+      </record>
+    </array>
+    <value name="modifiable">true</value>
+  </record>
+</Values>
+</MAPTARGET>
+  <MAPSOURCE>
+
+<Values version="2.0">
+  <record name="xml" javaclass="com.wm.util.Values">
+    <value name="node_type">record</value>
+    <value name="node_subtype">unknown</value>
+    <value name="is_public">false</value>
+    <value name="field_type">record</value>
+    <value name="field_dim">0</value>
+    <value name="nillable">true</value>
+    <value name="form_qualified">false</value>
+    <value name="is_global">false</value>
+    <array name="rec_fields" type="record" depth="1">
+    </array>
+    <value name="modifiable">true</value>
+  </record>
+</Values>
+</MAPSOURCE>
+
+  <!-- nodes -->
+
+<MAPSET NAME="Setter" OVERWRITE="true" VARIABLES="false" GLOBALVARIABLES="false" FIELD="/openAPISpec;1;0">
+  <DATA ENCODING="XMLValues" I18N="true">
+
+<Values version="2.0">
+  <value name="xml">{"openapi":"3.0.1","info":{"title":"IBM-Account-API","description":"Consolidates IBM customer data between watsonx and on-prem systems. \nComplies with GDPR/DORA regulations for financial data access.\n","version":"2.7"},"servers":[{"url":"https://api.ibm.com/demo/v1"}],"security":[{"oauth2":["accounts.read","accounts.write"]}],"components":{"securitySchemes":{"oauth2":{"type":"oauth2","flows":{"clientCredentials":{"tokenUrl":"https://iam.cloud.ibm.com/identity/token","scopes":{"accounts.read":"Read customer accounts and metadata","accounts.write":"Create/update customer accounts","accounts.admin":"Delete customer accounts","bankdetails.read":"Read regulated bank details (GDPR/DORA)","bankdetails.write":"Update regulated bank details (GDPR/DORA)","ibm.partner.read":"Read IBM partner account data"}}}}},"schemas":{"Accounts":{"type":"object","properties":{"Accounts":{"type":"array","items":{"$ref":"#/components/schemas/AccountData"}}}},"AccountData":{"required":["name","type","homepage"],"type":"object","properties":{"id":{"type":"string"},"name":{"type":"string"},"type":{"type":"string"},"homepage":{"type":"string"},"rating":{"type":"string"},"industry":{"type":"string"}}},"Error":{"type":"object","properties":{"message":{"type":"string"},"code":{"type":"integer"}}}}},"paths":{"/accounts":{"summary":"Customer Accounts Operations","get":{"summary":"Get all Customer Accounts","operationId":"getAccounts","security":[{"oauth2":["accounts.read","ibm.partner.read"]}],"parameters":[],"responses":{"200":{"description":"Successful","content":{"application/json":{"schema":{"$ref":"#/components/schemas/Accounts"},"example":{"Accounts":[{"id":"ibmMOCK","name":"IBM Deutschland GmbH","type":"Organization","homepage":"https://www.ibm.com/de","rating":"Strategic","industry":"Technology"},{"id":"consultingMOCK","name":"IBM Consulting Germany","type":"Organization","homepage":"https://www.ibm.com/de/consulting","rating":"Strategic","industry":"IT Consulting"},{"id":"partnerMOCK","name":"IBM Business Partner GmbH","type":"Organization","homepage":"https://www.ibm.com/partnerplus","rating":"Premier","industry":"Technology"}]}}}},"401":{"description":"Access Denied"}}},"post":{"summary":"Create new Customer Account","operationId":"addAccounts","security":[{"oauth2":["accounts.write"]}],"parameters":[],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Accounts"},"example":{"Accounts":[{"name":"IBM New Customer GmbH","type":"Organization","homepage":"https://www.ibm.com/customer","rating":"Hot","industry":"Technology"}]}}}},"responses":{"200":{"description":"Successful","content":{"application/json":{"schema":{"$ref":"#/components/schemas/Accounts"},"example":{"Accounts":[{"id":"newMOCK"}]}}}},"401":{"description":"Access Denied"}}}},"/accounts/search":{"summary":"Search Customer Accounts","get":{"summary":"Search Customer Accounts by namePattern","description":"Search IBM customer accounts by a case-insensitive name pattern.\nReturns matching accounts in the same format as list all accounts.\n","operationId":"searchAccountsByName","security":[{"oauth2":["accounts.read","ibm.partner.read"]}],"parameters":[{"name":"namePattern","in":"query","required":true,"description":"Case-insensitive pattern to match account names (e.g., 'IBM', 'Consulting')","schema":{"type":"string","example":"IBM"}}],"responses":{"200":{"description":"Matching accounts found","content":{"application/json":{"schema":{"$ref":"#/components/schemas/Accounts"},"example":{"Accounts":[{"id":"ibmMOCK","name":"IBM Deutschland GmbH","type":"Organization","homepage":"https://www.ibm.com/de","rating":"Strategic","industry":"Technology"},{"id":"consultingMOCK","name":"IBM Consulting Germany","type":"Organization","homepage":"https://www.ibm.com/de/consulting","rating":"Strategic","industry":"IT Consulting"}]}}}},"400":{"description":"Missing or invalid namePattern parameter","content":{"application/json":{"schema":{"$ref":"#/components/schemas/Error"}}}},"401":{"description":"Access Denied"}}}},"/accounts/{accountID}":{"summary":"Individual Account Operations","parameters":[{"name":"accountID","in":"path","description":"ID of Account to return","required":true,"allowEmptyValue":false,"schema":{"type":"string"}}],"get":{"summary":"Get Customer Account by ID","operationId":"getAccountByID","security":[{"oauth2":["accounts.read"]}],"responses":{"200":{"description":"Successful","content":{"application/json":{"schema":{"$ref":"#/components/schemas/AccountData"},"example":{"id":"ibmMOCK","name":"IBM Deutschland GmbH","type":"Organization","homepage":"https://www.ibm.com/de","rating":"Strategic","industry":"Technology"}}}},"401":{"description":"Access Denied"},"404":{"description":"Account ID not found","content":{"application/json":{"schema":{"$ref":"#/components/schemas/Error"}}}}}},"delete":{"summary":"Delete Customer Account for given ID","operationId":"deleteAccountByID","description":"Delete a specific customer account and associated bank details.","security":[{"oauth2":["accounts.admin"]}],"responses":{"204":{"description":"Account deleted successfully"},"404":{"description":"Account ID not found","content":{"application/json":{"schema":{"$ref":"#/components/schemas/Error"}}}},"401":{"description":"Access Denied"}}}},"/accounts/{accountID}/bankdetails":{"summary":"Bank Details Operations","parameters":[{"name":"accountID","in":"path","description":"The ID of the customer account.","required":true,"schema":{"type":"string"}}],"get":{"summary":"Get Bank details for given Customer Account ID","operationId":"getBankAccountForID","description":"Retrieve the BankName and IBAN for a specific customer account.","security":[{"oauth2":["bankdetails.read"]}],"responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"object","properties":{"BankName":{"type":"string","description":"The name of the bank.","example":"Deutsche Bank AG"},"IBAN":{"type":"string","description":"The International Bank Account Number.","example":"DE89370400440532013000"}}}}}},"401":{"description":"Access Denied"},"404":{"description":"Account ID not found","content":{"application/json":{"schema":{"$ref":"#/components/schemas/Error"}}}}}},"post":{"summary":"Update Bank Account Information","operationId":"updateBankAccountForID","description":"Update the BankName and IBAN for a specific customer account.","security":[{"oauth2":["bankdetails.write"]}],"requestBody":{"required":true,"content":{"application/json":{"schema":{"type":"object","properties":{"BankName":{"type":"string","description":"The name of the bank.","example":"Deutsche Bank AG"},"IBAN":{"type":"string","description":"The International Bank Account Number.","example":"DE89370400440532013000"}}}}}},"responses":{"200":{"description":"Successful response"},"400":{"description":"Invalid request body"},"404":{"description":"Account ID not found","content":{"application/json":{"schema":{"$ref":"#/components/schemas/Error"}}}}}}}}}</value>
+  <record name="type" javaclass="com.wm.util.Values">
+    <value name="node_type">record</value>
+    <value name="node_subtype">unknown</value>
+    <value name="node_comment"></value>
+    <record name="node_hints" javaclass="com.wm.util.Values">
+      <value name="field_usereditable">true</value>
+      <value name="field_largerEditor">false</value>
+      <value name="field_password">false</value>
+    </record>
+    <value name="is_public">false</value>
+    <value name="field_name">openAPISpec</value>
+    <value name="field_type">string</value>
+    <value name="field_dim">0</value>
+    <array name="field_options" type="value" depth="1">
+    </array>
+    <value name="nillable">true</value>
+    <value name="form_qualified">false</value>
+    <value name="is_global">false</value>
+  </record>
+</Values>
+</DATA>
+</MAPSET>
+
+<MAPSET NAME="Setter" OVERWRITE="true" VARIABLES="false" GLOBALVARIABLES="false" FIELD="/scopes;1;1">
+  <DATA ENCODING="XMLValues" I18N="true">
+
+<Values version="2.0">
+  <array name="xml" type="value" depth="1">
+    <value>accounts.read</value>
+    <value>bankdetails.read</value>
+  </array>
+  <record name="type" javaclass="com.wm.util.Values">
+    <value name="node_type">unknown</value>
+    <value name="node_subtype">unknown</value>
+    <value name="node_comment"></value>
+    <record name="node_hints" javaclass="com.wm.util.Values">
+      <value name="field_largerEditor">false</value>
+      <value name="field_password">false</value>
+    </record>
+    <value name="is_public">false</value>
+    <value name="field_name">scopes</value>
+    <value name="field_type">string</value>
+    <value name="field_dim">1</value>
+    <value name="nillable">true</value>
+    <value name="form_qualified">false</value>
+    <value name="is_global">false</value>
+    <value name="is_soap_array_encoding_used">false</value>
+  </record>
+</Values>
+</DATA>
+</MAPSET>
+</MAP>
+</INVOKE>
+</SEQUENCE>
+
+<SEQUENCE NAME="Valid multiple scopes  without additional operations" TIMEOUT="" EXIT-ON="FAILURE" DISABLED="true">
+  <COMMENT></COMMENT>
+
+  <!-- nodes -->
+
+<INVOKE TIMEOUT="" SERVICE="wx.mcp.server.services.utils.apiprovider:filterApiOperationsByScopes" VALIDATE-IN="$none" VALIDATE-OUT="$none" DISABLED="true">
+  <COMMENT></COMMENT>
+
+  <!-- nodes -->
+
+<MAP MODE="INPUT">
+  <MAPTARGET>
+
+<Values version="2.0">
+  <record name="xml" javaclass="com.wm.util.Values">
+    <value name="node_type">record</value>
+    <value name="node_subtype">unknown</value>
+    <value name="is_public">false</value>
+    <value name="displayName"></value>
+    <value name="favorite"></value>
+    <value name="tags"></value>
+    <value name="since"></value>
+    <value name="deprecated"></value>
+    <value name="is_visible"></value>
+    <value name="field_type">record</value>
+    <value name="field_dim">0</value>
+    <value name="wrapper_type">IData</value>
+    <value name="nillable">true</value>
+    <value name="form_qualified">false</value>
+    <value name="is_global">false</value>
+    <array name="rec_fields" type="record" depth="1">
+      <record javaclass="com.wm.util.Values">
+        <value name="node_type">unknown</value>
+        <value name="node_subtype">unknown</value>
+        <value name="node_comment"></value>
+        <record name="node_hints" javaclass="com.wm.util.Values">
+          <value name="field_largerEditor">false</value>
+          <value name="field_password">false</value>
+        </record>
+        <value name="is_public">false</value>
+        <value name="field_name">scopes</value>
+        <value name="field_type">string</value>
+        <value name="field_dim">1</value>
+        <value name="nillable">true</value>
+        <value name="form_qualified">false</value>
+        <value name="is_global">false</value>
+        <value name="is_soap_array_encoding_used">false</value>
+      </record>
+      <record javaclass="com.wm.util.Values">
+        <value name="node_type">record</value>
+        <value name="node_subtype">unknown</value>
+        <value name="node_comment"></value>
+        <record name="node_hints" javaclass="com.wm.util.Values">
+          <value name="field_usereditable">true</value>
+          <value name="field_largerEditor">false</value>
+          <value name="field_password">false</value>
+        </record>
+        <value name="is_public">false</value>
+        <value name="field_name">openAPISpec</value>
+        <value name="field_type">string</value>
+        <value name="field_dim">0</value>
+        <array name="field_options" type="value" depth="1">
+        </array>
+        <value name="nillable">true</value>
+        <value name="form_qualified">false</value>
+        <value name="is_global">false</value>
+      </record>
+    </array>
+    <value name="modifiable">true</value>
+  </record>
+</Values>
+</MAPTARGET>
+  <MAPSOURCE>
+
+<Values version="2.0">
+  <record name="xml" javaclass="com.wm.util.Values">
+    <value name="node_type">record</value>
+    <value name="node_subtype">unknown</value>
+    <value name="is_public">false</value>
+    <value name="field_type">record</value>
+    <value name="field_dim">0</value>
+    <value name="nillable">true</value>
+    <value name="form_qualified">false</value>
+    <value name="is_global">false</value>
+    <array name="rec_fields" type="record" depth="1">
+    </array>
+    <value name="modifiable">true</value>
+  </record>
+</Values>
+</MAPSOURCE>
+
+  <!-- nodes -->
+
+<MAPSET NAME="Setter" OVERWRITE="true" VARIABLES="false" GLOBALVARIABLES="false" FIELD="/openAPISpec;1;0">
+  <DATA ENCODING="XMLValues" I18N="true">
+
+<Values version="2.0">
+  <value name="xml">{"openapi":"3.0.1","info":{"title":"IBM-Account-API","description":"Consolidates IBM customer data between watsonx and on-prem systems. \nComplies with GDPR/DORA regulations for financial data access.\n","version":"2.7"},"servers":[{"url":"https://api.ibm.com/demo/v1"}],"security":[{"oauth2":["accounts.read","accounts.write"]}],"components":{"securitySchemes":{"oauth2":{"type":"oauth2","flows":{"clientCredentials":{"tokenUrl":"https://iam.cloud.ibm.com/identity/token","scopes":{"accounts.read":"Read customer accounts and metadata","accounts.write":"Create/update customer accounts","accounts.admin":"Delete customer accounts","bankdetails.read":"Read regulated bank details (GDPR/DORA)","bankdetails.write":"Update regulated bank details (GDPR/DORA)","ibm.partner.read":"Read IBM partner account data"}}}}},"schemas":{"Accounts":{"type":"object","properties":{"Accounts":{"type":"array","items":{"$ref":"#/components/schemas/AccountData"}}}},"AccountData":{"required":["name","type","homepage"],"type":"object","properties":{"id":{"type":"string"},"name":{"type":"string"},"type":{"type":"string"},"homepage":{"type":"string"},"rating":{"type":"string"},"industry":{"type":"string"}}},"Error":{"type":"object","properties":{"message":{"type":"string"},"code":{"type":"integer"}}}}},"paths":{"/accounts":{"summary":"Customer Accounts Operations","get":{"summary":"Get all Customer Accounts","operationId":"getAccounts","security":[{"oauth2":["accounts.read","ibm.partner.read"]}],"parameters":[],"responses":{"200":{"description":"Successful","content":{"application/json":{"schema":{"$ref":"#/components/schemas/Accounts"},"example":{"Accounts":[{"id":"ibmMOCK","name":"IBM Deutschland GmbH","type":"Organization","homepage":"https://www.ibm.com/de","rating":"Strategic","industry":"Technology"},{"id":"consultingMOCK","name":"IBM Consulting Germany","type":"Organization","homepage":"https://www.ibm.com/de/consulting","rating":"Strategic","industry":"IT Consulting"},{"id":"partnerMOCK","name":"IBM Business Partner GmbH","type":"Organization","homepage":"https://www.ibm.com/partnerplus","rating":"Premier","industry":"Technology"}]}}}},"401":{"description":"Access Denied"}}},"post":{"summary":"Create new Customer Account","operationId":"addAccounts","security":[{"oauth2":["accounts.write"]}],"parameters":[],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Accounts"},"example":{"Accounts":[{"name":"IBM New Customer GmbH","type":"Organization","homepage":"https://www.ibm.com/customer","rating":"Hot","industry":"Technology"}]}}}},"responses":{"200":{"description":"Successful","content":{"application/json":{"schema":{"$ref":"#/components/schemas/Accounts"},"example":{"Accounts":[{"id":"newMOCK"}]}}}},"401":{"description":"Access Denied"}}}},"/accounts/search":{"summary":"Search Customer Accounts","get":{"summary":"Search Customer Accounts by namePattern","description":"Search IBM customer accounts by a case-insensitive name pattern.\nReturns matching accounts in the same format as list all accounts.\n","operationId":"searchAccountsByName","security":[{"oauth2":["accounts.read","ibm.partner.read"]}],"parameters":[{"name":"namePattern","in":"query","required":true,"description":"Case-insensitive pattern to match account names (e.g., 'IBM', 'Consulting')","schema":{"type":"string","example":"IBM"}}],"responses":{"200":{"description":"Matching accounts found","content":{"application/json":{"schema":{"$ref":"#/components/schemas/Accounts"},"example":{"Accounts":[{"id":"ibmMOCK","name":"IBM Deutschland GmbH","type":"Organization","homepage":"https://www.ibm.com/de","rating":"Strategic","industry":"Technology"},{"id":"consultingMOCK","name":"IBM Consulting Germany","type":"Organization","homepage":"https://www.ibm.com/de/consulting","rating":"Strategic","industry":"IT Consulting"}]}}}},"400":{"description":"Missing or invalid namePattern parameter","content":{"application/json":{"schema":{"$ref":"#/components/schemas/Error"}}}},"401":{"description":"Access Denied"}}}},"/accounts/{accountID}":{"summary":"Individual Account Operations","parameters":[{"name":"accountID","in":"path","description":"ID of Account to return","required":true,"allowEmptyValue":false,"schema":{"type":"string"}}],"get":{"summary":"Get Customer Account by ID","operationId":"getAccountByID","security":[{"oauth2":["accounts.read"]}],"responses":{"200":{"description":"Successful","content":{"application/json":{"schema":{"$ref":"#/components/schemas/AccountData"},"example":{"id":"ibmMOCK","name":"IBM Deutschland GmbH","type":"Organization","homepage":"https://www.ibm.com/de","rating":"Strategic","industry":"Technology"}}}},"401":{"description":"Access Denied"},"404":{"description":"Account ID not found","content":{"application/json":{"schema":{"$ref":"#/components/schemas/Error"}}}}}},"delete":{"summary":"Delete Customer Account for given ID","operationId":"deleteAccountByID","description":"Delete a specific customer account and associated bank details.","security":[{"oauth2":["accounts.admin"]}],"responses":{"204":{"description":"Account deleted successfully"},"404":{"description":"Account ID not found","content":{"application/json":{"schema":{"$ref":"#/components/schemas/Error"}}}},"401":{"description":"Access Denied"}}}},"/accounts/{accountID}/bankdetails":{"summary":"Bank Details Operations","parameters":[{"name":"accountID","in":"path","description":"The ID of the customer account.","required":true,"schema":{"type":"string"}}],"get":{"summary":"Get Bank details for given Customer Account ID","operationId":"getBankAccountForID","description":"Retrieve the BankName and IBAN for a specific customer account.","security":[{"oauth2":["bankdetails.read"]}],"responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"object","properties":{"BankName":{"type":"string","description":"The name of the bank.","example":"Deutsche Bank AG"},"IBAN":{"type":"string","description":"The International Bank Account Number.","example":"DE89370400440532013000"}}}}}},"401":{"description":"Access Denied"},"404":{"description":"Account ID not found","content":{"application/json":{"schema":{"$ref":"#/components/schemas/Error"}}}}}},"post":{"summary":"Update Bank Account Information","operationId":"updateBankAccountForID","description":"Update the BankName and IBAN for a specific customer account.","security":[{"oauth2":["bankdetails.write"]}],"requestBody":{"required":true,"content":{"application/json":{"schema":{"type":"object","properties":{"BankName":{"type":"string","description":"The name of the bank.","example":"Deutsche Bank AG"},"IBAN":{"type":"string","description":"The International Bank Account Number.","example":"DE89370400440532013000"}}}}}},"responses":{"200":{"description":"Successful response"},"400":{"description":"Invalid request body"},"404":{"description":"Account ID not found","content":{"application/json":{"schema":{"$ref":"#/components/schemas/Error"}}}}}}}}}</value>
+  <record name="type" javaclass="com.wm.util.Values">
+    <value name="node_type">record</value>
+    <value name="node_subtype">unknown</value>
+    <value name="node_comment"></value>
+    <record name="node_hints" javaclass="com.wm.util.Values">
+      <value name="field_usereditable">true</value>
+      <value name="field_largerEditor">false</value>
+      <value name="field_password">false</value>
+    </record>
+    <value name="is_public">false</value>
+    <value name="field_name">openAPISpec</value>
+    <value name="field_type">string</value>
+    <value name="field_dim">0</value>
+    <array name="field_options" type="value" depth="1">
+    </array>
+    <value name="nillable">true</value>
+    <value name="form_qualified">false</value>
+    <value name="is_global">false</value>
+  </record>
+</Values>
+</DATA>
+</MAPSET>
+
+<MAPSET NAME="Setter" OVERWRITE="true" VARIABLES="false" GLOBALVARIABLES="false" FIELD="/scopes;1;1">
+  <DATA ENCODING="XMLValues" I18N="true">
+
+<Values version="2.0">
+  <array name="xml" type="value" depth="1">
+    <value>accounts.read</value>
+    <value>ibm.partner.read</value>
+  </array>
+  <record name="type" javaclass="com.wm.util.Values">
+    <value name="node_type">unknown</value>
+    <value name="node_subtype">unknown</value>
+    <value name="node_comment"></value>
+    <record name="node_hints" javaclass="com.wm.util.Values">
+      <value name="field_largerEditor">false</value>
+      <value name="field_password">false</value>
+    </record>
+    <value name="is_public">false</value>
+    <value name="field_name">scopes</value>
+    <value name="field_type">string</value>
+    <value name="field_dim">1</value>
+    <value name="nillable">true</value>
+    <value name="form_qualified">false</value>
+    <value name="is_global">false</value>
+    <value name="is_soap_array_encoding_used">false</value>
+  </record>
+</Values>
+</DATA>
+</MAPSET>
+</MAP>
+</INVOKE>
+</SEQUENCE>
+
+<SEQUENCE NAME="Mix valid - invalid scopes" TIMEOUT="" EXIT-ON="FAILURE" DISABLED="true">
+  <COMMENT></COMMENT>
+
+  <!-- nodes -->
+
+<INVOKE TIMEOUT="" SERVICE="wx.mcp.server.services.utils.apiprovider:filterApiOperationsByScopes" VALIDATE-IN="$none" VALIDATE-OUT="$none" DISABLED="true">
+  <COMMENT></COMMENT>
+
+  <!-- nodes -->
+
+<MAP MODE="INPUT">
+  <MAPTARGET>
+
+<Values version="2.0">
+  <record name="xml" javaclass="com.wm.util.Values">
+    <value name="node_type">record</value>
+    <value name="node_subtype">unknown</value>
+    <value name="is_public">false</value>
+    <value name="displayName"></value>
+    <value name="favorite"></value>
+    <value name="tags"></value>
+    <value name="since"></value>
+    <value name="deprecated"></value>
+    <value name="is_visible"></value>
+    <value name="field_type">record</value>
+    <value name="field_dim">0</value>
+    <value name="wrapper_type">IData</value>
+    <value name="nillable">true</value>
+    <value name="form_qualified">false</value>
+    <value name="is_global">false</value>
+    <array name="rec_fields" type="record" depth="1">
+      <record javaclass="com.wm.util.Values">
+        <value name="node_type">unknown</value>
+        <value name="node_subtype">unknown</value>
+        <value name="node_comment"></value>
+        <record name="node_hints" javaclass="com.wm.util.Values">
+          <value name="field_largerEditor">false</value>
+          <value name="field_password">false</value>
+        </record>
+        <value name="is_public">false</value>
+        <value name="field_name">scopes</value>
+        <value name="field_type">string</value>
+        <value name="field_dim">1</value>
+        <value name="nillable">true</value>
+        <value name="form_qualified">false</value>
+        <value name="is_global">false</value>
+        <value name="is_soap_array_encoding_used">false</value>
+      </record>
+      <record javaclass="com.wm.util.Values">
+        <value name="node_type">record</value>
+        <value name="node_subtype">unknown</value>
+        <value name="node_comment"></value>
+        <record name="node_hints" javaclass="com.wm.util.Values">
+          <value name="field_usereditable">true</value>
+          <value name="field_largerEditor">false</value>
+          <value name="field_password">false</value>
+        </record>
+        <value name="is_public">false</value>
+        <value name="field_name">openAPISpec</value>
+        <value name="field_type">string</value>
+        <value name="field_dim">0</value>
+        <array name="field_options" type="value" depth="1">
+        </array>
+        <value name="nillable">true</value>
+        <value name="form_qualified">false</value>
+        <value name="is_global">false</value>
+      </record>
+    </array>
+    <value name="modifiable">true</value>
+  </record>
+</Values>
+</MAPTARGET>
+  <MAPSOURCE>
+
+<Values version="2.0">
+  <record name="xml" javaclass="com.wm.util.Values">
+    <value name="node_type">record</value>
+    <value name="node_subtype">unknown</value>
+    <value name="is_public">false</value>
+    <value name="field_type">record</value>
+    <value name="field_dim">0</value>
+    <value name="nillable">true</value>
+    <value name="form_qualified">false</value>
+    <value name="is_global">false</value>
+    <array name="rec_fields" type="record" depth="1">
+    </array>
+    <value name="modifiable">true</value>
+  </record>
+</Values>
+</MAPSOURCE>
+
+  <!-- nodes -->
+
+<MAPSET NAME="Setter" OVERWRITE="true" VARIABLES="false" GLOBALVARIABLES="false" FIELD="/openAPISpec;1;0">
+  <DATA ENCODING="XMLValues" I18N="true">
+
+<Values version="2.0">
+  <value name="xml">{"openapi":"3.0.1","info":{"title":"IBM-Account-API","description":"Consolidates IBM customer data between watsonx and on-prem systems. \nComplies with GDPR/DORA regulations for financial data access.\n","version":"2.7"},"servers":[{"url":"https://api.ibm.com/demo/v1"}],"security":[{"oauth2":["accounts.read","accounts.write"]}],"components":{"securitySchemes":{"oauth2":{"type":"oauth2","flows":{"clientCredentials":{"tokenUrl":"https://iam.cloud.ibm.com/identity/token","scopes":{"accounts.read":"Read customer accounts and metadata","accounts.write":"Create/update customer accounts","accounts.admin":"Delete customer accounts","bankdetails.read":"Read regulated bank details (GDPR/DORA)","bankdetails.write":"Update regulated bank details (GDPR/DORA)","ibm.partner.read":"Read IBM partner account data"}}}}},"schemas":{"Accounts":{"type":"object","properties":{"Accounts":{"type":"array","items":{"$ref":"#/components/schemas/AccountData"}}}},"AccountData":{"required":["name","type","homepage"],"type":"object","properties":{"id":{"type":"string"},"name":{"type":"string"},"type":{"type":"string"},"homepage":{"type":"string"},"rating":{"type":"string"},"industry":{"type":"string"}}},"Error":{"type":"object","properties":{"message":{"type":"string"},"code":{"type":"integer"}}}}},"paths":{"/accounts":{"summary":"Customer Accounts Operations","get":{"summary":"Get all Customer Accounts","operationId":"getAccounts","security":[{"oauth2":["accounts.read","ibm.partner.read"]}],"parameters":[],"responses":{"200":{"description":"Successful","content":{"application/json":{"schema":{"$ref":"#/components/schemas/Accounts"},"example":{"Accounts":[{"id":"ibmMOCK","name":"IBM Deutschland GmbH","type":"Organization","homepage":"https://www.ibm.com/de","rating":"Strategic","industry":"Technology"},{"id":"consultingMOCK","name":"IBM Consulting Germany","type":"Organization","homepage":"https://www.ibm.com/de/consulting","rating":"Strategic","industry":"IT Consulting"},{"id":"partnerMOCK","name":"IBM Business Partner GmbH","type":"Organization","homepage":"https://www.ibm.com/partnerplus","rating":"Premier","industry":"Technology"}]}}}},"401":{"description":"Access Denied"}}},"post":{"summary":"Create new Customer Account","operationId":"addAccounts","security":[{"oauth2":["accounts.write"]}],"parameters":[],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Accounts"},"example":{"Accounts":[{"name":"IBM New Customer GmbH","type":"Organization","homepage":"https://www.ibm.com/customer","rating":"Hot","industry":"Technology"}]}}}},"responses":{"200":{"description":"Successful","content":{"application/json":{"schema":{"$ref":"#/components/schemas/Accounts"},"example":{"Accounts":[{"id":"newMOCK"}]}}}},"401":{"description":"Access Denied"}}}},"/accounts/search":{"summary":"Search Customer Accounts","get":{"summary":"Search Customer Accounts by namePattern","description":"Search IBM customer accounts by a case-insensitive name pattern.\nReturns matching accounts in the same format as list all accounts.\n","operationId":"searchAccountsByName","security":[{"oauth2":["accounts.read","ibm.partner.read"]}],"parameters":[{"name":"namePattern","in":"query","required":true,"description":"Case-insensitive pattern to match account names (e.g., 'IBM', 'Consulting')","schema":{"type":"string","example":"IBM"}}],"responses":{"200":{"description":"Matching accounts found","content":{"application/json":{"schema":{"$ref":"#/components/schemas/Accounts"},"example":{"Accounts":[{"id":"ibmMOCK","name":"IBM Deutschland GmbH","type":"Organization","homepage":"https://www.ibm.com/de","rating":"Strategic","industry":"Technology"},{"id":"consultingMOCK","name":"IBM Consulting Germany","type":"Organization","homepage":"https://www.ibm.com/de/consulting","rating":"Strategic","industry":"IT Consulting"}]}}}},"400":{"description":"Missing or invalid namePattern parameter","content":{"application/json":{"schema":{"$ref":"#/components/schemas/Error"}}}},"401":{"description":"Access Denied"}}}},"/accounts/{accountID}":{"summary":"Individual Account Operations","parameters":[{"name":"accountID","in":"path","description":"ID of Account to return","required":true,"allowEmptyValue":false,"schema":{"type":"string"}}],"get":{"summary":"Get Customer Account by ID","operationId":"getAccountByID","security":[{"oauth2":["accounts.read"]}],"responses":{"200":{"description":"Successful","content":{"application/json":{"schema":{"$ref":"#/components/schemas/AccountData"},"example":{"id":"ibmMOCK","name":"IBM Deutschland GmbH","type":"Organization","homepage":"https://www.ibm.com/de","rating":"Strategic","industry":"Technology"}}}},"401":{"description":"Access Denied"},"404":{"description":"Account ID not found","content":{"application/json":{"schema":{"$ref":"#/components/schemas/Error"}}}}}},"delete":{"summary":"Delete Customer Account for given ID","operationId":"deleteAccountByID","description":"Delete a specific customer account and associated bank details.","security":[{"oauth2":["accounts.admin"]}],"responses":{"204":{"description":"Account deleted successfully"},"404":{"description":"Account ID not found","content":{"application/json":{"schema":{"$ref":"#/components/schemas/Error"}}}},"401":{"description":"Access Denied"}}}},"/accounts/{accountID}/bankdetails":{"summary":"Bank Details Operations","parameters":[{"name":"accountID","in":"path","description":"The ID of the customer account.","required":true,"schema":{"type":"string"}}],"get":{"summary":"Get Bank details for given Customer Account ID","operationId":"getBankAccountForID","description":"Retrieve the BankName and IBAN for a specific customer account.","security":[{"oauth2":["bankdetails.read"]}],"responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"object","properties":{"BankName":{"type":"string","description":"The name of the bank.","example":"Deutsche Bank AG"},"IBAN":{"type":"string","description":"The International Bank Account Number.","example":"DE89370400440532013000"}}}}}},"401":{"description":"Access Denied"},"404":{"description":"Account ID not found","content":{"application/json":{"schema":{"$ref":"#/components/schemas/Error"}}}}}},"post":{"summary":"Update Bank Account Information","operationId":"updateBankAccountForID","description":"Update the BankName and IBAN for a specific customer account.","security":[{"oauth2":["bankdetails.write"]}],"requestBody":{"required":true,"content":{"application/json":{"schema":{"type":"object","properties":{"BankName":{"type":"string","description":"The name of the bank.","example":"Deutsche Bank AG"},"IBAN":{"type":"string","description":"The International Bank Account Number.","example":"DE89370400440532013000"}}}}}},"responses":{"200":{"description":"Successful response"},"400":{"description":"Invalid request body"},"404":{"description":"Account ID not found","content":{"application/json":{"schema":{"$ref":"#/components/schemas/Error"}}}}}}}}}</value>
+  <record name="type" javaclass="com.wm.util.Values">
+    <value name="node_type">record</value>
+    <value name="node_subtype">unknown</value>
+    <value name="node_comment"></value>
+    <record name="node_hints" javaclass="com.wm.util.Values">
+      <value name="field_usereditable">true</value>
+      <value name="field_largerEditor">false</value>
+      <value name="field_password">false</value>
+    </record>
+    <value name="is_public">false</value>
+    <value name="field_name">openAPISpec</value>
+    <value name="field_type">string</value>
+    <value name="field_dim">0</value>
+    <array name="field_options" type="value" depth="1">
+    </array>
+    <value name="nillable">true</value>
+    <value name="form_qualified">false</value>
+    <value name="is_global">false</value>
+  </record>
+</Values>
+</DATA>
+</MAPSET>
+
+<MAPSET NAME="Setter" OVERWRITE="true" VARIABLES="false" GLOBALVARIABLES="false" FIELD="/scopes;1;1">
+  <DATA ENCODING="XMLValues" I18N="true">
+
+<Values version="2.0">
+  <array name="xml" type="value" depth="1">
+    <value>accounts.read</value>
+    <value>scope:doesNotExist</value>
+  </array>
+  <record name="type" javaclass="com.wm.util.Values">
+    <value name="node_type">unknown</value>
+    <value name="node_subtype">unknown</value>
+    <value name="node_comment"></value>
+    <record name="node_hints" javaclass="com.wm.util.Values">
+      <value name="field_largerEditor">false</value>
+      <value name="field_password">false</value>
+    </record>
+    <value name="is_public">false</value>
+    <value name="field_name">scopes</value>
+    <value name="field_type">string</value>
+    <value name="field_dim">1</value>
+    <value name="nillable">true</value>
+    <value name="form_qualified">false</value>
+    <value name="is_global">false</value>
+    <value name="is_soap_array_encoding_used">false</value>
+  </record>
+</Values>
+</DATA>
+</MAPSET>
+</MAP>
+</INVOKE>
+</SEQUENCE>
+
+<SEQUENCE NAME="Valid single scope, but missing operationId" TIMEOUT="" EXIT-ON="FAILURE" DISABLED="true">
+  <COMMENT></COMMENT>
+
+  <!-- nodes -->
+
+<INVOKE TIMEOUT="" SERVICE="wx.mcp.server.services.utils.apiprovider:filterApiOperationsByScopes" VALIDATE-IN="$none" VALIDATE-OUT="$none" DISABLED="true">
+  <COMMENT></COMMENT>
+
+  <!-- nodes -->
+
+<MAP MODE="INPUT">
+  <MAPTARGET>
+
+<Values version="2.0">
+  <record name="xml" javaclass="com.wm.util.Values">
+    <value name="node_type">record</value>
+    <value name="node_subtype">unknown</value>
+    <value name="is_public">false</value>
+    <value name="displayName"></value>
+    <value name="favorite"></value>
+    <value name="tags"></value>
+    <value name="since"></value>
+    <value name="deprecated"></value>
+    <value name="is_visible"></value>
+    <value name="field_type">record</value>
+    <value name="field_dim">0</value>
+    <value name="wrapper_type">IData</value>
+    <value name="nillable">true</value>
+    <value name="form_qualified">false</value>
+    <value name="is_global">false</value>
+    <array name="rec_fields" type="record" depth="1">
+      <record javaclass="com.wm.util.Values">
+        <value name="node_type">unknown</value>
+        <value name="node_subtype">unknown</value>
+        <value name="node_comment"></value>
+        <record name="node_hints" javaclass="com.wm.util.Values">
+          <value name="field_largerEditor">false</value>
+          <value name="field_password">false</value>
+        </record>
+        <value name="is_public">false</value>
+        <value name="field_name">scopes</value>
+        <value name="field_type">string</value>
+        <value name="field_dim">1</value>
+        <value name="nillable">true</value>
+        <value name="form_qualified">false</value>
+        <value name="is_global">false</value>
+        <value name="is_soap_array_encoding_used">false</value>
+      </record>
+      <record javaclass="com.wm.util.Values">
+        <value name="node_type">record</value>
+        <value name="node_subtype">unknown</value>
+        <value name="node_comment"></value>
+        <record name="node_hints" javaclass="com.wm.util.Values">
+          <value name="field_usereditable">true</value>
+          <value name="field_largerEditor">false</value>
+          <value name="field_password">false</value>
+        </record>
+        <value name="is_public">false</value>
+        <value name="field_name">openAPISpec</value>
+        <value name="field_type">string</value>
+        <value name="field_dim">0</value>
+        <array name="field_options" type="value" depth="1">
+        </array>
+        <value name="nillable">true</value>
+        <value name="form_qualified">false</value>
+        <value name="is_global">false</value>
+      </record>
+    </array>
+    <value name="modifiable">true</value>
+  </record>
+</Values>
+</MAPTARGET>
+  <MAPSOURCE>
+
+<Values version="2.0">
+  <record name="xml" javaclass="com.wm.util.Values">
+    <value name="node_type">record</value>
+    <value name="node_subtype">unknown</value>
+    <value name="is_public">false</value>
+    <value name="field_type">record</value>
+    <value name="field_dim">0</value>
+    <value name="nillable">true</value>
+    <value name="form_qualified">false</value>
+    <value name="is_global">false</value>
+    <array name="rec_fields" type="record" depth="1">
+    </array>
+    <value name="modifiable">true</value>
+  </record>
+</Values>
+</MAPSOURCE>
+
+  <!-- nodes -->
+
+<MAPSET NAME="Setter" OVERWRITE="true" VARIABLES="false" GLOBALVARIABLES="false" FIELD="/openAPISpec;1;0">
+  <DATA ENCODING="XMLValues" I18N="true">
+
+<Values version="2.0">
+  <value name="xml">{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Test API for Scope Filtering",
+    "description": "Sample API to test operationId validation",
+    "version": "1.0.0"
+  },
+  "servers": [{"url": "https://api.example.com/v1"}],
+  "components": {
+    "securitySchemes": {
+      "oauth2": {
+        "type": "oauth2",
+        "flows": {
+          "clientCredentials": {
+            "tokenUrl": "https://auth.example.com/token",
+            "scopes": {
+              "users.read": "Read user data",
+              "users.write": "Write user data",
+              "orders.read": "Read orders",
+              "admin": "Admin access"
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {"type": "string"},
+          "name": {"type": "string"},
+          "email": {"type": "string"}
+        }
+      },
+      "Order": {
+        "type": "object",
+        "properties": {
+          "orderId": {"type": "string"},
+          "total": {"type": "number"}
+        }
+      }
+    }
+  },
+  "paths": {
+    "/users": {
+      "summary": "User Operations",
+      "get": {
+        "summary": "List all users",
+        "operationId": "listUsers", 
+        "security": [{"oauth2": ["users.read"]}],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {"$ref": "#/components/schemas/User"}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orders": {
+      "summary": "Order Operations", 
+      "get": {
+        "summary": "List all orders - MISSING operationId",
+        "security": [{"oauth2": ["orders.read"]}],
+        "responses": {
+          "200": {
+            "description": "Success", 
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {"$ref": "#/components/schemas/Order"}
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+</value>
+  <record name="type" javaclass="com.wm.util.Values">
+    <value name="node_type">record</value>
+    <value name="node_subtype">unknown</value>
+    <value name="node_comment"></value>
+    <record name="node_hints" javaclass="com.wm.util.Values">
+      <value name="field_usereditable">true</value>
+      <value name="field_largerEditor">false</value>
+      <value name="field_password">false</value>
+    </record>
+    <value name="is_public">false</value>
+    <value name="field_name">openAPISpec</value>
+    <value name="field_type">string</value>
+    <value name="field_dim">0</value>
+    <array name="field_options" type="value" depth="1">
+    </array>
+    <value name="nillable">true</value>
+    <value name="form_qualified">false</value>
+    <value name="is_global">false</value>
+  </record>
+</Values>
+</DATA>
+</MAPSET>
+
+<MAPSET NAME="Setter" OVERWRITE="true" VARIABLES="false" GLOBALVARIABLES="false" FIELD="/scopes;1;1">
+  <DATA ENCODING="XMLValues" I18N="true">
+
+<Values version="2.0">
+  <array name="xml" type="value" depth="1">
+    <value>users.read</value>
+  </array>
+  <record name="type" javaclass="com.wm.util.Values">
+    <value name="node_type">unknown</value>
+    <value name="node_subtype">unknown</value>
+    <value name="node_comment"></value>
+    <record name="node_hints" javaclass="com.wm.util.Values">
+      <value name="field_largerEditor">false</value>
+      <value name="field_password">false</value>
+    </record>
+    <value name="is_public">false</value>
+    <value name="field_name">scopes</value>
+    <value name="field_type">string</value>
+    <value name="field_dim">1</value>
+    <value name="nillable">true</value>
+    <value name="form_qualified">false</value>
+    <value name="is_global">false</value>
+    <value name="is_soap_array_encoding_used">false</value>
+  </record>
+</Values>
+</DATA>
+</MAPSET>
+</MAP>
+</INVOKE>
+</SEQUENCE>
+</FLOW>
