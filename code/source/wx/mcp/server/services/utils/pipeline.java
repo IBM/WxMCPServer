@@ -238,13 +238,12 @@ public final class pipeline
 		// [i] record:0:required pipeline
 		// [o] record:0:required toolResponse
 		// [o] field:0:required toolResponseCode
-		// pipeline
 		IDataCursor pipelineCursor = pipeline.getCursor();
 		
 		// Input pipeline
 		IData _pipeline = IDataUtil.getIData(pipelineCursor, "pipeline");
 		
-		// Output toolResponse - directly contains id, name, description, etc.
+		// Output toolResponse - DIRECTLY contains response payload
 		IData toolResponse = IDataFactory.create();
 		IDataCursor toolResponseCursor = toolResponse.getCursor();
 		
@@ -257,35 +256,54 @@ public final class pipeline
 		    while (pipeCursor.next()) {
 		        String httpCodeKey = pipeCursor.getKey();
 		        
-		        // Check if HTTP status code (3 digits)
 		        if (httpCodeKey.matches("\\d{3}")) {
 		            Object statusObj = pipeCursor.getValue();
-		            String rCode = pipeCursor.getKey();
 		            if (statusObj instanceof IData) {
 		                IData statusData = (IData) statusObj;
 		                IDataCursor statusCursor = statusData.getCursor();
 		                
-		                // Look for FIRST child document under HTTP code
-		                if (statusCursor.first()) {
+		                // Look for children under HTTP code
+		                while (statusCursor.next()) {
 		                    String childKey = statusCursor.getKey();
 		                    Object childObj = statusCursor.getValue();
 		                    
+		                    boolean copiedData = false;
+		                    
 		                    if (childObj instanceof IData) {
-		                        IData productData = (IData) childObj;
-		                        IDataCursor productCursor = productData.getCursor();
-		                        
-		                        // Copy ALL fields from former response root directly to toolResponse
-		                        while (productCursor.next()) {
-		                            String fieldName = productCursor.getKey();
-		                            Object fieldValue = productCursor.getValue();
+		                        // CASE 1: Single IData \u2192 copy ALL fields directly to toolResponse
+		                        IData singleData = (IData) childObj;
+		                        IDataCursor singleCursor = singleData.getCursor();
+		                        while (singleCursor.next()) {
+		                            String fieldName = singleCursor.getKey();
+		                            Object fieldValue = singleCursor.getValue();
 		                            IDataUtil.put(toolResponseCursor, fieldName, fieldValue);
 		                        }
-		                        productCursor.destroy();
+		                        singleCursor.destroy();
+		                        copiedData = true;
+		                        
+		                    } else if (childObj instanceof IData[]) {
+		                        // CASE 2: IData[] \u2192 copy as-is
+		                        IData[] arrayData = (IData[]) childObj;
+		                        IDataUtil.put(toolResponseCursor, "$rootArray", arrayData);
+		                        copiedData = true;
+		                        
+		                    } else if (childObj instanceof Object[]) {
+		                        // CASE 3: Mixed Object[] \u2192 copy as-is
+		                        Object[] mixedArray = (Object[]) childObj;
+		                        IDataUtil.put(toolResponseCursor, "$rootArray", mixedArray);
+		                        copiedData = true;
+		                    }
+		                    
+		                    if (copiedData) {
+		                        toolResponseCode = httpCodeKey;
+		                        break; // First successful extraction found
 		                    }
 		                }
 		                statusCursor.destroy();
-		                toolResponseCode = rCode;
-		                break; // First non-empty HTTP response found
+		                
+		                if (toolResponseCode != null) {
+		                    break; // Stop after successful extraction
+		                }
 		            }
 		        }
 		    }
@@ -293,8 +311,6 @@ public final class pipeline
 		}
 		
 		toolResponseCursor.destroy();
-		
-		// Write result to pipeline
 		IDataUtil.put(pipelineCursor, "toolResponse", toolResponse);
 		IDataUtil.put(pipelineCursor, "toolResponseCode", toolResponseCode);
 		pipelineCursor.destroy();

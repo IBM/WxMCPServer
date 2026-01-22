@@ -4085,10 +4085,10 @@
 <MAPDELETE FIELD="/toolResponseCode;1;0">
 </MAPDELETE>
 
-<MAPDELETE FIELD="/toolResponse;2;0">
+<MAPDELETE FIELD="/MCPCacheEntry;4;0;wx.mcp.server.doctypes:MCPCacheEntry">
 </MAPDELETE>
 
-<MAPDELETE FIELD="/MCPCacheEntry;4;0;wx.mcp.server.doctypes:MCPCacheEntry">
+<MAPDELETE FIELD="/toolResponse;2;0">
 </MAPDELETE>
 </MAP>
 </FLOW>
