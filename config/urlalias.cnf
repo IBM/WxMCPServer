@@ -21,4 +21,14 @@
     <record name="portMap" javaclass="com.wm.util.Values">
     </record>
   </record>
+  <record name=".well-known/oauth-authorization-server" javaclass="com.wm.util.Values">
+    <value name="urlPath">invoke/wx.mcp.server.services.authServer:getMetaData</value>
+    <record name="portMap" javaclass="com.wm.util.Values">
+    </record>
+  </record>
+  <record name=".well-known/oauth-protected-resource" javaclass="com.wm.util.Values">
+    <value name="urlPath">invoke/wx.mcp.server.services.prm:getResourceMetaData</value>
+    <record name="portMap" javaclass="com.wm.util.Values">
+    </record>
+  </record>
 </Values>

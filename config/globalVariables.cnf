@@ -48,6 +48,11 @@
         <value name="value">https://dev5312404.a-fra-s1.apigw.ipaas.automation.ibm.com/gateway/WxMCP-Tool-Catalog-wMAPIGW/1.1</value>
         <value name="isSecure">false</value>
       </record>
+      <record javaclass="com.wm.data.ISMemDataImpl">
+        <value name="key">wxmcp.jwks.uri</value>
+        <value name="value">https://webmethods-integration.verify.ibm.com/oauth2/jwks</value>
+        <value name="isSecure">false</value>
+      </record>
     </array>
   </record>
 </IDataXMLCoder>

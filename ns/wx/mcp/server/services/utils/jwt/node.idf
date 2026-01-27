@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Values version="2.0">
+  <value name="node_type">interface</value>
+  <value name="node_subtype">unknown</value>
+  <value name="node_nsName">wx.mcp.server.services.utils.jwt</value>
+  <value name="node_pkg">WxMCPServer</value>
+  <value name="is_public">false</value>
+  <value name="encodeutf8">true</value>
+  <value name="shared"></value>
+  <value name="extends"></value>
+  <array name="implements" type="value" depth="1">
+  </array>
+  <array name="imports" type="value" depth="1">
+    <value>java.util.Arrays</value>
+    <value>org.json.JSONArray</value>
+    <value>java.util.*</value>
+    <value>java.security.*</value>
+    <value>java.security.spec.*</value>
+    <value>java.util.Base64</value>
+    <value>java.math.BigInteger</value>
+    <value>java.nio.charset.StandardCharsets</value>
+    <value>org.json.*</value>
+  </array>
+</Values>
