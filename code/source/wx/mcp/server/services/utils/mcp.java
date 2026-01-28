@@ -24,6 +24,7 @@ import org.json.*;
 import java.io.*;
 import java.nio.file.*;
 import java.util.*;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -225,13 +226,15 @@ public final class mcp
 		        String toolCatalogBaseURL = IDataUtil.getString(mcpClientConfigCursor, "toolCatalogBaseURL");
 		
 		        // Validate toolCatalogBaseURL
+		        
+		        /*
 		        if (toolCatalogBaseURL == null || toolCatalogBaseURL.trim().isEmpty()) {
 		            throw new ServiceException("\"tool_catalog_base_url\" must not be NULL or empty.");
 		        }
 		        if (!isStrictlyValidURL(toolCatalogBaseURL)) {
 		        	throw new ServiceException("\"tool_catalog_base_url\" is not a valid URL.");
 		        }
-		
+				*/
 		        // Validate API Key Auth
 		        if ("API_Key".equalsIgnoreCase(authType)) {
 		            IData apiKey = IDataUtil.getIData(mcpClientConfigCursor, "apiKey");
@@ -250,9 +253,41 @@ public final class mcp
 		                throw new ServiceException("API Key authentication requires a non-empty \"api_key_headername\". Use \"x-Gateway-APIKey\" as default for webMethods.");
 		            }
 		        }
+		        
+		        // Validate THIRD_PARY JWKS URI settings and audience
+		        if ("THIRD_PARTY".equalsIgnoreCase(authType)) {
+		        	 IDataCursor cfgCursor = mcpClientConfig.getCursor();
+		             
+		             // Extract authServer document
+		             IData authServer = IDataUtil.getIData(cfgCursor, "authServer");
+		             if (authServer == null) {
+		                 throw new ServiceException("Missing authServer configuration for THIRD_PARTY authorization.");
+		             }
+		             
+		             IDataCursor authServerCursor = authServer.getCursor();
+		             String jwksURI = IDataUtil.getString(authServerCursor, "jwksURI");
+		             String audience = IDataUtil.getString(authServerCursor, "audience");
+		             authServerCursor.destroy();
+		             
+		             // Validate JWKS URI format
+		             if (jwksURI == null || jwksURI.trim().isEmpty()) {
+		                 throw new ServiceException("JWKS URI cannot be null or empty for auth type \"THIRD_PARTY\". Use global variable \"wxmcp.jwks.uri\"");
+		             }
+		             try {
+		                 new URL(jwksURI); // Valid URL test
+		             } catch (MalformedURLException e) {
+		                 throw new ServiceException("Invalid JWKS URI format: " + jwksURI);
+		             }
+		             
+		             // Validate audience
+		             if (audience == null || audience.trim().isEmpty()) {
+		                 throw new ServiceException("Audience must not be null or empty for THIRD_PARTY authType.");
+		             }
+		        }
 		
 		        // Validate OAuth Auth
 		        if ("OAUTH".equalsIgnoreCase(authType)) {
+		        	/*
 		            IData oauth = IDataUtil.getIData(mcpClientConfigCursor, "oauth");
 		            if (oauth == null) {
 		                throw new ServiceException("OAuth authentication requires an \"oauth\" object.");
@@ -267,6 +302,7 @@ public final class mcp
 		            if (bearerToken == null || bearerToken.trim().isEmpty()) {
 		                throw new ServiceException("OAuth authentication requires a non-empty \"oauth_bearer_token\".");
 		            }		
+		            */
 		            /*
 		            if (clientID == null || clientID.trim().isEmpty()) {
 		                throw new ServiceException("OAuth authentication requires a non-empty \"oauth_client_id\".");

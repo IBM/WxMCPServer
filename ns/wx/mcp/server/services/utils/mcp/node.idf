@@ -74,6 +74,7 @@ ICAgIHJldHVybiBzOwogICAgfQp9Cgk=</value>
     <value>java.io.*</value>
     <value>java.nio.file.*</value>
     <value>java.util.*</value>
+    <value>java.net.MalformedURLException</value>
     <value>java.net.URL</value>
     <value>java.nio.charset.StandardCharsets</value>
     <value>java.security.MessageDigest</value>

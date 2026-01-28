@@ -9,11 +9,6 @@
         <value name="isSecure">false</value>
       </record>
       <record javaclass="com.wm.data.ISMemDataImpl">
-        <value name="key">wxmcp.auth.type</value>
-        <value name="value">API_KEY</value>
-        <value name="isSecure">false</value>
-      </record>
-      <record javaclass="com.wm.data.ISMemDataImpl">
         <value name="key">wxmcp.api.key.headername</value>
         <value name="value">x-Gateway-APIKey</value>
         <value name="isSecure">false</value>
@@ -46,6 +41,11 @@
       <record javaclass="com.wm.data.ISMemDataImpl">
         <value name="key">wxmcp.tool.catalog.base.url</value>
         <value name="value">https://dev5312404.a-fra-s1.apigw.ipaas.automation.ibm.com/gateway/WxMCP-Tool-Catalog-wMAPIGW/1.1</value>
+        <value name="isSecure">false</value>
+      </record>
+      <record javaclass="com.wm.data.ISMemDataImpl">
+        <value name="key">wxmcp.jwt.audience</value>
+        <value name="value">WxMCPServer</value>
         <value name="isSecure">false</value>
       </record>
       <record javaclass="com.wm.data.ISMemDataImpl">

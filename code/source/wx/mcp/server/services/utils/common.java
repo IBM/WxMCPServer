@@ -113,7 +113,7 @@ public final class common
 		    case "INTERNAL":	    	
 		        if (clientId == null || clientId.trim().isEmpty() ||
 		            scopes == null || scopes.trim().isEmpty()) {
-		            throw new IllegalArgumentException("INTERNAL authentical requires at least 'clientId', and 'scopes' parameters");
+		            throw new IllegalArgumentException("INTERNAL authentication requires at least 'clientId', and 'scopes' parameters");
 		        } 
 		        // Sort scopes alphabetically
 		        scopeArray = scopes.trim().split("\\s+");
@@ -122,8 +122,20 @@ public final class common
 		        rawKey = aud.trim() + "|" + clientId.trim() + "|" + scopeString;
 		        cacheKey = "INTERNAL_" + sha256(rawKey);
 		        break;
+		    case "THIRD_PARTY":	    	
+		        if (clientId == null || clientId.trim().isEmpty() ||
+		            scopes == null || scopes.trim().isEmpty()) {
+		            throw new IllegalArgumentException("THIRD_PARTY authentication requires at least 'clientId', and 'scopes' parameters");
+		        } 
+		        // Sort scopes alphabetically
+		        scopeArray = scopes.trim().split("\\s+");
+		        Arrays.sort(scopeArray);
+		        scopeString = String.join(" ", scopeArray);
+		        rawKey = aud.trim() + "|" + clientId.trim() + "|" + scopeString;
+		        cacheKey = "THIRD_PARTY_" + sha256(rawKey);
+		        break;
 		    default:
-		        throw new IllegalArgumentException("Invalid authType: " + authType + ". Only 'OAUTH' or 'API_KEY' are supported.");
+		        throw new IllegalArgumentException("Invalid authType: " + authType + ". Only 'OAUTH' or 'API_KEY' or 'INTERNAL' or 'THIRD_PARTY' are supported, found " + authType);
 		}
 		
 		// You may want to put cacheKey back into the pipeline if needed:

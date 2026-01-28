@@ -144,7 +144,7 @@ You can set default values for `WxMCPServer`, which are used if no corresponding
 | Variable Name                 | Required    | Default Value                      | Description                                                                                         |
 |------------------------------|-------------|----------------------------------|-----------------------------------------------------------------------------------------------------|
 | `wxmcp.cache.manager.name`    | No          | `WxMCP_Cache_Manager_Default`    | The name of the Cache Manager to be used.                                                          |
-| `wxmcp.auth.type`             | Yes         | (none)                           | Authentication type: `"OAUTH"` or `"API_KEY"`.                                                      |
+| `wxmcp.auth.type`             | Yes         | `INTERNAL` (none)                           | Authentication type: `"OAUTH"` or `"API_KEY"` for API Managemnnt solutions.   `"INTERNAL"` for Integration Server flows with Integration Server as Auth Server, `"THIRD_PARTY"` for external Auth Server                                                    |
 | `wxmcp.tool.catalog.base.url`| Yes         | (none)                           | Base URL of your MCP Tool Catalog API on API Gateway, e.g., `https://<myWebMethodsAPIGateway>/gateway/WxMCP-Tool-Catalog-wMAPIGW/1.1` |
 | `wxmcp.api.key.headername`    | Conditional | (none)                           | Used only when `wxmcp.auth.type` = `"API_KEY"`. Specifies the API key header name.                   |
 | `wxmcp.tool.header.prefix`    | No          | `header_`                        | Default prefix for tool header properties.                                                         |
@@ -152,6 +152,8 @@ You can set default values for `WxMCPServer`, which are used if no corresponding
 | `wxmcp.tool.path.prefix`      | No          | `path_`                         | Default prefix for tool path parameter properties.                                                 |
 | `wxmcp.tool.response.mode`    | No          | `both`                          | Tool response format: `text`, `structured`, or `both`.                                            |
 | `wxmcp.response.code`    | No          | `stdio`                         | Response mode: `"stdio"` (always HTTP 200) or `"http"` (actual status codes).                       |
+| `wxmcp.jwks.uri`    | Conditional          | (none)                          | Mandatory when `wxmcp.auth.type` = `"THIRD_PARTY"`. Specifies the valid JWKS URI to external Auth Server.                       |
+| `wxmcp.jwt.audience`    | No          | `wxmcpserver`                         | Checked when `wxmcp.auth.type` = `"THIRD_PARTY"`. If your JWT audience claim returns a different audience, please adapt this value accordingly.                       |
 
 ---
 

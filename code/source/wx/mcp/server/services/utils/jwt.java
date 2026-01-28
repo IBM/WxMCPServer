@@ -166,7 +166,8 @@ public final class jwt
 					}
 				}
 				if (!audMatch)
-					throw new Exception("Audience validation failed for aud=" + aud);
+					throw new Exception("Audience validation failed. Found audience \"" + audClaim 
+							 + "\", expected \"" + aud + "\". Check global variable \"wxmcp.jwt.audience\"");
 			}
 		
 			// Extract issuer and subject (always extract, even if validation fails later)
