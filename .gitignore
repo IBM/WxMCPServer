@@ -31,3 +31,5 @@ config/jmpw.dat
 code/.classpath
 code/.project
 code/build/
+/.bob
+/.vscode

@@ -1,0 +1,237 @@
+openapi: 3.0.1
+info:
+  title: Account-Profile API
+  version: 1.0.0
+  description: A minimal interface for customer account management, providing search capabilities and detailed customer profile information including financial data.
+
+servers:
+  - url: https://api.example.com/v1
+    description: Production server
+
+tags:
+  - name: mcp.object.name:Customer
+    description: MCP object identification tag for Customer entity
+
+security:
+  - oauth2: []
+
+paths:
+  /customers/search:
+    get:
+      summary: Search customers by name pattern
+      description: Search for customers using a name pattern. Returns a list of customer summaries matching the search criteria.
+      operationId: searchCustomers
+      tags:
+        - Customers
+      parameters:
+        - name: namePattern
+          in: query
+          required: true
+          description: Pattern to search for customer names (case-insensitive)
+          schema:
+            type: string
+            example: "Acme"
+      responses:
+        '200':
+          description: Successful search operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CustomerSummary'
+              example:
+                - customerId: "CUST-001"
+                  name: "Acme Corporation"
+                  type: "string"
+        '400':
+          description: Bad request - invalid search pattern
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized - authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden - insufficient permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - oauth2:
+            - customer:search
+
+  /customers/{customerId}:
+    get:
+      summary: Get customer master data
+      description: Retrieve complete customer profile including personal information, contact details, and banking information.
+      operationId: getCustomerById
+      tags:
+        - Customers
+      parameters:
+        - name: customerId
+          in: path
+          required: true
+          description: Unique customer identifier
+          schema:
+            type: string
+            example: "CUST-001"
+      responses:
+        '200':
+          description: Customer profile retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerProfile'
+              example:
+                customerId: "CUST-001"
+                name: "Acme Corporation"
+                homepage: "https://www.acme-corp.example.com"
+                type: "string"
+                bankDetails:
+                  bankName: "Global Bank AG"
+                  iban: "DE89370400440532013000"
+        '400':
+          description: Bad request - invalid customer ID format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized - authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden - insufficient permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Customer not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - oauth2:
+            - customer:read
+
+components:
+  securitySchemes:
+    oauth2:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://auth.example.com/oauth/token
+          scopes:
+            customer:read: Read customer information
+            customer:search: Search customers
+
+  schemas:
+    CustomerSummary:
+      type: object
+      description: Basic customer information returned in search results
+      required:
+        - customerId
+        - name
+        - type
+      properties:
+        customerId:
+          type: string
+          description: Unique customer identifier
+          example: "CUST-001"
+        name:
+          type: string
+          description: Customer name or company name
+          example: "Acme Corporation"
+        type:
+          type: string
+          description: Customer type classification
+          example: "string"
+
+    CustomerProfile:
+      type: object
+      description: Complete customer profile with all details
+      required:
+        - customerId
+        - name
+        - type
+      properties:
+        customerId:
+          type: string
+          description: Unique customer identifier
+          example: "CUST-001"
+        name:
+          type: string
+          description: Customer name or company name
+          example: "Acme Corporation"
+        homepage:
+          type: string
+          format: uri
+          description: Customer website URL
+          example: "https://www.acme-corp.example.com"
+        type:
+          type: string
+          description: Customer type classification
+          example: "string"
+        bankDetails:
+          $ref: '#/components/schemas/BankDetails'
+
+    BankDetails:
+      type: object
+      description: Customer banking information
+      required:
+        - bankName
+        - iban
+      properties:
+        bankName:
+          type: string
+          description: Name of the customer's bank
+          example: "Global Bank AG"
+        iban:
+          type: string
+          description: International Bank Account Number
+          pattern: '^[A-Z]{2}[0-9]{2}[A-Z0-9]+$'
+          example: "DE89370400440532013000"
+
+    Error:
+      type: object
+      description: Error response structure
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          description: Error code
+          example: "INVALID_REQUEST"
+        message:
+          type: string
+          description: Human-readable error message
+          example: "The request parameters are invalid"
+        details:
+          type: string
+          description: Additional error details
+          example: "namePattern parameter is required"
+
+# Made with Bob
