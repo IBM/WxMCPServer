@@ -97,7 +97,7 @@ You are ready to start using your MCP tools. You might want to test them nativel
 
 ```bash
 curl --request POST \
-  --url http://localhost:5555/invoke/pub.oauth/getToken \
+  --url <YOUR_AUTH_SERVER_TOKEN_ENDPOINT> \
   --header 'Accept: application/json' \
   --header 'Authorization: Basic <CLIENT_ID>:<CLIENT_SECRET>' \
   --header 'content-type: application/x-www-form-urlencoded' \
@@ -105,4 +105,4 @@ curl --request POST \
   --data 'scope=wxmcp.server YOUR_API_SCOPE1 YOUR_API_SCOPE2'
 ```
 
-- Header `x-auth-type` or global variable `wxmcp.auth.type` set to `INTERNAL`
+- Header `x-auth-type` or global variable `wxmcp.auth.type` set to `INTERNAL` (for Integration Server as Auth Server) or `THIRD_PARTY` (for external OAuth server
