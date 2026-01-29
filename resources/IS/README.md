@@ -23,9 +23,9 @@ Utilize existing integrations to be exposed as MCP tools and described by a new 
 
 Create an agentic experience API as the base for MCP tools:
 
-- Create your OpenAPI 3.0.1 specification manually with tools or with the help of AI
-- Ensure that meaningful operation IDs are added
-- Add a global API tag `mcp.object.name:YOUR_OBJECT` to each operation (e.g., "Account"), which results in tool names like `Account_read` instead of just `read`
+- Create your OpenAPI 3.0.1 specification with tools or with the help of AI
+- Ensure that meaningful operation IDs are added, ready for AI consumption
+- Add a global API tag `mcp.object.name:YOUR_OBJECT` at API level (e.g., "Account"), which results in generated tool names like `YOUR_OBJECT_read` instead of just `read`
 - Add OAuth policies and scopes to this API definition; they are mandatory and used to identify the tools made available to the MCP client
 
 You can find a sample [prompt to create an OpenAPI](./agentic-ai-prompt.md) and a sample [Account-Profile-API](./Account-Profile.yaml) in this repository.
