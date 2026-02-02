@@ -1,7 +1,16 @@
 # Agent Instructions: Create Account-Profile API
 
 ## Objective
+
 Create an OpenAPI 3.0.1 compliant "Account-Profile" API specification for customer account management.
+
+The API should provide two core capabilities:
+- **Search**: Enable searching for customer data by name pattern
+- **Retrieve**: Provide a comprehensive overview of all customer attributes for a given customer ID, including:
+  - Customer name
+  - Homepage URL
+  - Customer type
+  - Bank details (bank name and IBAN)
 
 ## Requirements
 

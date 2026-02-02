@@ -2,7 +2,10 @@ openapi: 3.0.1
 info:
   title: Account-Profile API
   version: 1.0.0
-  description: A minimal interface for customer account management, providing search capabilities and detailed customer profile information including financial data.
+  description: |
+    Customer account management API providing two core capabilities:
+    - Search: Enable searching for customer data by name pattern
+    - Retrieve: Provide a comprehensive overview of all customer attributes for a given customer ID, including customer name, homepage URL, customer type, and bank details (bank name and IBAN)
 
 servers:
   - url: https://api.example.com/v1

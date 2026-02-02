@@ -6,16 +6,28 @@ With the latest release of **WxMCPServer**, you can now also invoke local Integr
 
 To be more precise: the Flow Service stubs that have been generated from REST Providers based on OpenAPI 3.x imports.
 
+The overall flow between the actors:
+
+- MCP Host
+- webMethods Integration Server hosting WxMCPServer package
+- Backend applications to be integrated
+
+is shown in this figure:
+
+   <img src="../images/client-wxmcp-application-flow.png" alt="OAuth Client Generation" width="800"/>
+
+
 **Benefits:**
 
 - Reduces overall architecture complexity, since the tool catalog is derived from the scopes of the inbound token
 - No external gateway or portal component needed, and also no implementation of **Tool Catalog API**
 - No outbound HTTP calls necessary; invocation happens at the Java level
-- Mitigates problems related to [Confused Deputy](https://modelcontextprotocol.io/specification/draft/basic/security_best_practices#confused-deputy-problem) and **MCP Proxy Server**, since **WxMCPServer** also implements the tools and does not forward to external APIs
+- Mitigates problems related to [Confused Deputy](https://modelcontextprotocol.io/specification/draft/basic/security_best_practices#confused-deputy-problem) and **MCP Proxy Server**, since **WxMCPServer** also implements the tools and does not forward to external APIs.
+
 
 ## Overall Use Case
 
-Utilize existing integrations to be exposed as MCP tools and described by a new OpenAPI 3.x experience API, which is custom-tailored for the AI agent's needs to fulfill its goal.
+Utilize existing integrations exposed as MCP tools and described by a new OpenAPI 3.x experience API, which is custom-tailored for the AI agent's needs to fulfill its goal.
 
 ## Step-by-Step Instructions
 
@@ -23,9 +35,9 @@ Utilize existing integrations to be exposed as MCP tools and described by a new 
 
 Create an agentic experience API as the base for MCP tools:
 
-- Create your OpenAPI 3.0.1 specification with tools or with the help of AI
+- Create your OpenAPI 3.0.1 specification manually or with the help of AI
 - Ensure that meaningful operation IDs are added, ready for AI consumption
-- Add a global API tag `mcp.object.name:YOUR_OBJECT` at API level (e.g., "Account"), which results in generated tool names like `YOUR_OBJECT_read` instead of just `read`
+- Add a global API tag `mcp.object.name:YOUR_OBJECT` at the API level (e.g., "Account"), which results in generated tool names like `YOUR_OBJECT_read` instead of just `read`
 - Add OAuth policies and scopes to this API definition; they are mandatory and used to identify the tools made available to the MCP client
 
 You can find a sample [prompt to create an OpenAPI](./agentic-ai-prompt.md) and a sample [Account-Profile-API](./Account-Profile.yaml) in this repository.
@@ -41,7 +53,7 @@ You can find a sample [prompt to create an OpenAPI](./agentic-ai-prompt.md) and 
 **Note:**
 
 This description is only valid when `x-auth-type` is set to `INTERNAL`.
-If variable `x-auth-type` is set to `THIRD_PARTY`, clients have to be created inside the Auth Server.
+If variable `x-auth-type` is set to `THIRD_PARTY`, clients must be created inside the Auth Server.
 
 The OAuth configuration in detail is described in the [documentation](https://www.ibm.com/docs/en/webmethods-integration/wm-integration-server/11.1.0?topic=guide-configuring-oauth).
 
@@ -64,7 +76,7 @@ The most important steps are:
 **Note:**
 
 This description is only valid when `x-auth-type` is set to `THIRD_PARTY`.
-If variable `x-auth-type` is set to `THIRD_PARTY`, clients have to be created inside the **external** Auth Server.
+If variable `x-auth-type` is set to `THIRD_PARTY`, clients must be created inside the **external** Auth Server.
 
 Follow the descriptions of your Auth Server about how to create an OAuth client application.
 
@@ -76,11 +88,11 @@ Once this is done, you have to do 2 more things:
 
 1. Configure the connection to the external Auth Server using application credentials with sufficient rights:
 
-   <img src="../images/is-add-auth-server.png" alt="External OAuth Server Configuration" width="800"/>
+   <img src="../images/is-add-auth-server.png" alt="External OAuth Server Configuration" width="600"/>
 
 2. Set the external Auth Server as the new default:
 
-   <img src="../images/is-set-default-auth-server.png" alt="Set Default OAuth Server" width="800"/>
+   <img src="../images/is-set-default-auth-server.png" alt="Set Default OAuth Server" width="600"/>
 
 More details can be found in the [documentation](https://www.ibm.com/docs/en/webmethods-integration/wm-integration-server/11.1.0?topic=oauth-using-external-authorization-server).
 
@@ -105,4 +117,4 @@ curl --request POST \
   --data 'scope=wxmcp.server YOUR_API_SCOPE1 YOUR_API_SCOPE2'
 ```
 
-- Header `x-auth-type` or global variable `wxmcp.auth.type` set to `INTERNAL` (for Integration Server as Auth Server) or `THIRD_PARTY` (for external OAuth server
+- Header `x-auth-type` or global variable `wxmcp.auth.type` set to `INTERNAL` (for Integration Server as Auth Server) or `THIRD_PARTY` (for external OAuth server)
