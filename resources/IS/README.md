@@ -6,6 +6,19 @@ With the latest release of **WxMCPServer**, you can now also invoke local Integr
 
 To be more precise: the Flow Service stubs that have been generated from REST Providers based on OpenAPI 3.x imports.
 
+## Table of Contents
+
+- [Overall Use Case](#overall-use-case)
+- [Step-by-Step Instructions](#step-by-step-instructions)
+  - [1. Agentic Experience API](#1-agentic-experience-api)
+  - [2. Import API as OpenAPI Provider into webMethods Designer](#2-import-api-as-openapi-provider-into-webmethods-designer)
+  - [3a. Client Generation and Configuration (Integration Server = Auth Provider)](#3a-client-generation-and-configuration-integration-server--auth-provider)
+  - [3b. Client Generation (External Auth Provider)](#3b-client-generation-external-auth-provider-ie-okta-ibm-verify)
+  - [4. Test MCP Connectivity](#4-test-mcp-connectivity)
+  - [5. Sample MCP Host Configuration (IBM Bob)](#5-sample-mcp-host-configuration-ibm-bob---internal-auth-server)
+
+---
+
 The overall flow between the actors:
 
 - MCP Host
@@ -14,8 +27,7 @@ The overall flow between the actors:
 
 is shown in this figure:
 
-   <img src="../images/client-wxmcp-application-flow.png" alt="OAuth Client Generation" width="800"/>
-
+<img src="../images/client-wxmcp-application-flow.png" alt="OAuth Client Generation" width="800"/>
 
 **Benefits:**
 
@@ -52,8 +64,7 @@ You can find a sample [prompt to create an OpenAPI](./agentic-ai-prompt.md) and 
 
 **Note:**
 
-This description is only valid when `x-auth-type` is set to `INTERNAL`.
-If variable `x-auth-type` is set to `THIRD_PARTY`, clients must be created inside the Auth Server.
+This description is only valid when `x-auth-type` is set to `INTERNAL`. If `x-auth-type` is set to `THIRD_PARTY`, clients must be created inside the Auth Server.
 
 The OAuth configuration in detail is described in the [documentation](https://www.ibm.com/docs/en/webmethods-integration/wm-integration-server/11.1.0?topic=guide-configuring-oauth).
 
@@ -75,8 +86,7 @@ The most important steps are:
 
 **Note:**
 
-This description is only valid when `x-auth-type` is set to `THIRD_PARTY`.
-If variable `x-auth-type` is set to `THIRD_PARTY`, clients must be created inside the **external** Auth Server.
+This description is only valid when `x-auth-type` is set to `THIRD_PARTY`. Clients must be created inside the **external** Auth Server.
 
 Follow the descriptions of your Auth Server about how to create an OAuth client application.
 
@@ -118,3 +128,20 @@ curl --request POST \
 ```
 
 - Header `x-auth-type` or global variable `wxmcp.auth.type` set to `INTERNAL` (for Integration Server as Auth Server) or `THIRD_PARTY` (for external OAuth server)
+
+### 5. Sample MCP Host Configuration (IBM Bob) - Internal Auth Server
+
+```json
+{
+    "mcpServers": {
+        "wxmcp-on-my-laptop-local-is": {
+            "url": "http://localhost:5555/v1_5_0/mcp",
+            "type": "streamable-http",
+            "headers": {
+                "x-auth-type": "INTERNAL",
+                "Authorization": "Bearer YOUR_BEARER_TOKEN"
+            }
+        }
+    }
+}
+```
