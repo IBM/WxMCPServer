@@ -556,12 +556,12 @@ public final class McpToolBuilder {
 	 * This avoids turning an optional entire body into multiple required top-level
 	 * fields.
 	 */
-    static void addRequestBodyFlattenTopLevelProps(Operation operation,
-            NameMapper nameMapper,
-            ObjectMapper mapper,
-            Properties inputSchemaProps,
-            List<String> inputSchemaRequired,
-            boolean isLargeSpec) {
+	static void addRequestBodyFlattenTopLevelProps(Operation operation,
+			NameMapper nameMapper,
+			ObjectMapper mapper,
+			Properties inputSchemaProps,
+			List<String> inputSchemaRequired,
+			boolean isLargeSpec) {
 
 		RequestBody rb = operation.getRequestBody();
 		if (rb == null)
@@ -572,34 +572,72 @@ public final class McpToolBuilder {
 			return;
 
 		Map.Entry<String, MediaType> chosen = MediaTypeHelper.chooseMediaType(content);
+
+		// If chooseMediaType fails for unusual keys (e.g., "application/json;
+		// charset=utf-8"),
+		// fall back to the first entry to avoid losing the body entirely.
 		if (chosen == null) {
-			// Fallback: one string "body" property
-			final String finalName = nameMapper.map("body", "body");
-			var pp = new PropertiesProperty();
-			pp.setAdditionalProperty("type", "string");
-			inputSchemaProps.setAdditionalProperty(finalName, pp);
-			if (Boolean.TRUE.equals(rb.getRequired()))
-				inputSchemaRequired.add(finalName);
-			return;
+			Map.Entry<String, MediaType> first = content.entrySet().stream().findFirst().orElse(null);
+			if (first == null) {
+				// Nothing we can do — but emit a simple string body to keep schema valid.
+				final String finalName = nameMapper.map("body", "body");
+				var pp = new PropertiesProperty();
+				pp.setAdditionalProperty("type", "string");
+				inputSchemaProps.setAdditionalProperty(finalName, pp);
+				if (Boolean.TRUE.equals(rb.getRequired()))
+					inputSchemaRequired.add(finalName);
+				return;
+			}
+			chosen = first;
 		}
 
 		final String mediaTypeKey = chosen.getKey();
 		final MediaType mt = chosen.getValue();
 		final Schema<?> bodySchema = (mt != null) ? mt.getSchema() : null;
 
-		if (bodySchema != null && SchemaHelper.isObjectWithProps(bodySchema)) {
-			Map<String, Schema> bodyProps = bodySchema.getProperties(); // <- fixed
+		final String finalName = nameMapper.map("body", "body");
 
+		// ----- NEW: Explicit array handling -----
+		if (isArraySchema(bodySchema)) {
+			Map<String, Object> bodyMap = SchemaHelper.toSchemaMap(mapper, bodySchema);
+			SchemaHelper.cleanMap(bodyMap, isLargeSpec);
+
+			PropertiesProperty pp = new PropertiesProperty();
+			bodyMap.forEach(pp::setAdditionalProperty);
+
+			// Ensure "type": "array"
+			if (!pp.getAdditionalProperties().containsKey("type")) {
+				pp.setAdditionalProperty("type", "array");
+			}
+
+			// Ensure "items" exists and is a schema map
+			if (!pp.getAdditionalProperties().containsKey("items")) {
+				Schema<?> items = bodySchema != null ? bodySchema.getItems() : null;
+				Map<String, Object> itemsMap = (items != null)
+						? SchemaHelper.toSchemaMap(mapper, items)
+						: Map.of("type", "object"); // conservative default
+				SchemaHelper.cleanMap(itemsMap, isLargeSpec);
+				pp.setAdditionalProperty("items", itemsMap);
+			}
+
+			inputSchemaProps.setAdditionalProperty(finalName, pp);
+			if (Boolean.TRUE.equals(rb.getRequired()))
+				inputSchemaRequired.add(finalName);
+			return;
+		}
+
+		// Keep your existing "object with properties" shallow flattening
+		if (bodySchema != null && SchemaHelper.isObjectWithProps(bodySchema)) {
+			Map<String, Schema> bodyProps = bodySchema.getProperties();
 			if (bodyProps != null && !bodyProps.isEmpty()) {
 				for (Map.Entry<String, Schema> e : bodyProps.entrySet()) {
 					String rawPropName = e.getKey();
-					Schema<?> propSchema = e.getValue(); // widen per value
+					Schema<?> propSchema = e.getValue();
 
-					String finalName = nameMapper.map(rawPropName, "body");
+					String mappedName = nameMapper.map(rawPropName, "body");
 
 					Map<String, Object> m = SchemaHelper.toSchemaMap(mapper, propSchema);
 					SchemaHelper.cleanMap(m, isLargeSpec);
-					// normalizeNullable(m); // optional
 
 					PropertiesProperty pp = new PropertiesProperty();
 
@@ -608,12 +646,11 @@ public final class McpToolBuilder {
 					}
 
 					m.forEach(pp::setAdditionalProperty);
-
 					if (!pp.getAdditionalProperties().containsKey("type")) {
 						pp.setAdditionalProperty("type", "string");
 					}
 
-					inputSchemaProps.setAdditionalProperty(finalName, pp);
+					inputSchemaProps.setAdditionalProperty(mappedName, pp);
 				}
 			}
 
@@ -626,32 +663,38 @@ public final class McpToolBuilder {
 					}
 				}
 			}
-
-		} else {
-			// NON-FLATTEN: add one "body" property (array, primitive, free-form, or object
-			// without explicit props)
-			String finalName = nameMapper.map("body", "body");
-
-			Map<String, Object> m = SchemaHelper.toSchemaMap(mapper, bodySchema);
-			SchemaHelper.cleanMap(m, isLargeSpec);
-			// normalizeNullable(m); // optional
-
-			var pp = new wx.mcp.server.models.PropertiesProperty();
-			m.forEach(pp::setAdditionalProperty);
-
-			if (!pp.getAdditionalProperties().containsKey("type")) {
-				if (SchemaHelper.isOctetStream(mediaTypeKey)) {
-					pp.setAdditionalProperty("type", "string");
-					pp.setAdditionalProperty("format", "binary");
-				} else {
-					pp.setAdditionalProperty("type", "string");
-				}
-			}
-
-			inputSchemaProps.setAdditionalProperty(finalName, pp);
-			if (Boolean.TRUE.equals(rb.getRequired()))
-				inputSchemaRequired.add(finalName);
+			return;
 		}
+
+		// Non-flatten fallback (primitive, free-form, object without props, or unknown)
+		Map<String, Object> m = SchemaHelper.toSchemaMap(mapper, bodySchema);
+		SchemaHelper.cleanMap(m, isLargeSpec);
+
+		var pp = new PropertiesProperty();
+		m.forEach(pp::setAdditionalProperty);
+
+		if (!pp.getAdditionalProperties().containsKey("type")) {
+			if (SchemaHelper.isOctetStream(mediaTypeKey)) {
+				pp.setAdditionalProperty("type", "string");
+				pp.setAdditionalProperty("format", "binary");
+			} else {
+				pp.setAdditionalProperty("type", "string");
+			}
+		}
+
+		inputSchemaProps.setAdditionalProperty(finalName, pp);
+		if (Boolean.TRUE.equals(rb.getRequired()))
+			inputSchemaRequired.add(finalName);
+	}
+	
+    /** Minimal array detection that works with swagger-core models. */
+	private static boolean isArraySchema(Schema<?> s) {
+		if (s == null)
+			return false;
+		if ("array".equalsIgnoreCase(s.getType()))
+			return true;
+		// Some generators leave type null but populate items for arrays
+		return s.getItems() != null;
 	}
 
 }
