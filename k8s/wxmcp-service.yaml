@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: wxmcp-server
+  namespace: mcp-demo
+  labels:
+    app: wxmcp-server
+spec:
+  type: ClusterIP
+  ports:
+  - port: 5555
+    targetPort: http
+    protocol: TCP
+    name: http
+  selector:
+    app: wxmcp-server

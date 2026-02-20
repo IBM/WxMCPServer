@@ -33,3 +33,4 @@ code/.project
 code/build/
 /.bob
 /.vscode
+.DS_Store
