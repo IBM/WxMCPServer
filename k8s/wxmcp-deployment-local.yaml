@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wxmcp-server
+  namespace: mcp-demo
+  labels:
+    app: wxmcp-server
+    version: v1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: wxmcp-server
+  template:
+    metadata:
+      labels:
+        app: wxmcp-server
+        version: v1
+    spec:
+      containers:
+      - name: wxmcp-server
+        image: wxmcp-server:latest
+        imagePullPolicy: IfNotPresent  # Changed for local development
+        ports:
+          - containerPort: 5555
+            name: http
+            protocol: TCP
+        envFrom:
+          - configMapRef:
+              name: mcp-config
+          - secretRef:
+              name: apigw-secrets
+          - secretRef:
+              name: wxmcp-secrets
+        resources:
+          requests:
+            cpu: 500m  # Reduced for local
+            memory: 1Gi  # Reduced for local
+          limits:
+            cpu: 1000m
+            memory: 2Gi
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: http
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: http
+          initialDelaySeconds: 30
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
