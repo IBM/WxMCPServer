@@ -138,6 +138,36 @@ See full enterprise architecture below:
 
 There is a pre-configured [archive](/resources/APIs/WxMCP-Server/implementations/webMethods/exports/WxMCP-Server-API.zip) for webMethods API Gateway, that implements **WxMCPServer API** for **webMethods API Gateway**
 
+### 5.5 Running WxMCPServer in Container / Kubernetes
+
+If you want to run WxMCPServer in a container, you can use the [Dockerfile](Dockerfile) and [README-k8s.md](k8s/README-k8s.md) as a starting point.
+The example Kubernetes deployment is based on Microservice Runtime v11.1.
+
+Step-by-step (more instructions can be found in [README-k8s.md](k8s/README-k8s.md)):
+```bash
+# Pull base image from wM container registry
+docker pull ibmwebmethods.azurecr.io/webmethods-microservicesruntime:11.1
+# Build custom Docker image
+docker build -t wxmcpserver .
+# start your kubernetes cluster
+# execute k8s script
+k8s/deploy-local.sh
+```
+
+Connect IBM Bob to the MCP server:
+```json
+"wxmcp-http-server": {
+    "url": "http://mcp.k8s.orb.local/wxmcp/mcp",
+    "type": "streamable-http",
+    "headers": {
+        "x-auth-type": "API_KEY",
+        "x-tool-catalog-base-url": "http://apigw1015-apigateway-admin.apigateway.svc.cluster.local:5555/gateway/WxMCP-Tool-Catalog/1.1",
+        "x-api-key": "x-Gateway-APIKey",
+        "Content-Type": "application/json",
+        "x-api-key-headername": "x-Gateway-APIKey"
+    }
+}
+```
 ---
 
 ## 6. Integration Server Global Variables

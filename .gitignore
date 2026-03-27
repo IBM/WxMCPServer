@@ -34,3 +34,4 @@ code/build/
 /.bob
 /.vscode
 resources/IS/live-demo/Account-Profile.yaml
+.DS_Store

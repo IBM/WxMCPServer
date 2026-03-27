@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mcp-config
+  namespace: mcp-demo
+data:
+  LOG_LEVEL: "INFO"
+  CACHE_TTL_SECONDS: "30"
