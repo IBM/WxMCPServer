@@ -86,7 +86,7 @@ public final class pipeline
 		// [o] -- record:0:optional header
 		// [o] - record:0:required requestBody
 		IDataCursor pipelineCursor = pipeline.getCursor();
-		    
+		     
 		// --- Extract input arrays ---
 		IData[] queryParams = IDataUtil.getIDataArray(pipelineCursor, "queryParams");
 		IData[] pathParams = IDataUtil.getIDataArray(pipelineCursor, "pathParams");

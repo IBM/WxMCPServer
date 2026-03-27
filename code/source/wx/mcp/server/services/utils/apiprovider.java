@@ -69,7 +69,7 @@ public final class apiprovider
 		// @sigtype java 3.5
 		// [i] field:1:required nodePath
 		// [o] field:1:required apiProviderPath
-		// pipeline
+		// pipeline 
 		IDataCursor pipelineCursor = pipeline.getCursor();
 		String[]	nodePaths = IDataUtil.getStringArray( pipelineCursor, "nodePath" );
 		  
@@ -802,20 +802,32 @@ public final class apiprovider
 		    }
 	
 		    private static boolean hasMatchingScope(JsonNode operation, String[] allowedScopes, ObjectMapper mapper) {
-		        JsonNode securityArray = operation.path("security");
-		        if (!securityArray.isArray() || securityArray.size() == 0) return false;
+		    	JsonNode security = operation.get("security");  // use .get(), not .path()
+		        if (security == null || !security.isArray() || security.isEmpty()) {
+		            return false;  // or true if you want no\u2011security \u2192 in\u2011scope
+		        }
 	
-		        for (JsonNode secObj : securityArray) {
-		            // Handle ALL possible security scheme name variations
-		            JsonNode oauth2Array = secObj.get("oauth2");
-		            if (oauth2Array == null) oauth2Array = secObj.get("OAuth2");
-		            if (oauth2Array == null) oauth2Array = secObj.get("OAUTH2");
-		            
-		            if (oauth2Array != null && oauth2Array.isArray()) {
-		                for (JsonNode scopeNode : oauth2Array) {
-		                    String scope = scopeNode.asText();
+		        // Enumerate the actual security scheme name you expect
+		        String[] possibleSecurityNames = {
+		            "oauth2ClientCredentials",
+		            "oauth2", "OAuth2", "OAUTH2"
+		        };
+	
+		        for (JsonNode secItem : security) {
+		            if (!secItem.isObject()) continue;
+	
+		            for (String secName : possibleSecurityNames) {
+		                JsonNode scopesArray = secItem.get(secName);
+		                if (scopesArray == null || !scopesArray.isArray()) continue;
+	
+		                for (JsonNode scopeNode : scopesArray) {
+		                    String scope = scopeNode.textValue();
+		                    if (scope == null || scope.trim().isEmpty()) continue;
+	
 		                    for (String allowed : allowedScopes) {
-		                        if (scope.equals(allowed)) return true;
+		                        if (scope.equals(allowed)) {
+		                            return true;
+		                        }
 		                    }
 		                }
 		            }

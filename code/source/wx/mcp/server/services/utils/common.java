@@ -65,7 +65,7 @@ public final class common
 		// [i] field:0:required scopes
 		// [i] field:0:required bearerToken
 		// [o] field:0:required cacheKey
-		// pipeline
+		// pipeline 
 				 
 		IDataCursor cursor = pipeline.getCursor();
 		String apiKey   = IDataUtil.getString(cursor, "apiKey");

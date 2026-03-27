@@ -79,7 +79,7 @@ public final class mcp
 		// [o] - field:0:required name
 		// [o] - field:0:required value
 		IDataCursor pipelineCursor = pipeline.getCursor();
-		  
+		   
 		String headerPrefix = IDataUtil.getString(pipelineCursor, "headerPrefix");
 		String pathParamPrefix = IDataUtil.getString(pipelineCursor, "pathParamPrefix");
 		String queryPrefix = IDataUtil.getString(pipelineCursor, "queryPrefix");

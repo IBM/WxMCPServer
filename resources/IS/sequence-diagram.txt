@@ -1,0 +1,16 @@
+participant  "MCP Host\n(i.e. IBM Bob)" as Host
+participant "MCP Server (webMethods Integration Server)\n(WxMCPServer package)" as IS
+participant "Backend Applications\n(i.e. SQL database)" as BE
+
+Host->IS: POST /v1_5_0/mcp\nmethod = tools/list
+IS->IS: Authorize client (OAuth)
+IS->IS: Extract client id and scopes
+IS->IS: Identify OpenAPI Provider flows matching OAuth scope URL templates
+IS->IS: Convert OpenAPI Provider flows to MCP tools and store them in cache
+IS->Host: Return MCP tools
+Host->IS: POST /v1_5_0/mcp\nmethod = tools/call
+IS->IS: Authorize client (OAuth)
+IS->IS: Get matching tool from cache
+IS->IS: Invoke OpenAPI Provider Flow (Java binding)
+IS->BE: Orchestrate application data
+IS->Host: Return tool response
