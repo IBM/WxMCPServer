@@ -19,7 +19,7 @@
   <value name="webappLoad">yes</value>
   <value name="reloadWithDependentPackage">yes</value>
   <value name="build"></value>
-  <value name="description">This package implements a Model Context Protocol Server (MCP) based on webMethods Integration Server.
+  <value name="description">This package  implements a Model Context Protocol Server (MCP) based on webMethods Integration Server.
 Check public GitHub repository for more details: https://github.com/IBM/WxMCPServer.
 Since 1.3.2 also with preliminary support for local IS flow service MCP tools</value>
   <value name="created_date">12-05-2025 19:01:34 MESZ</value>

@@ -15,6 +15,6 @@ USER sagadmin
 
 # Expose MSR ports
 EXPOSE 5555 9999
-
+ 
 # Start MSR
 CMD ["/opt/softwareag/IntegrationServer/bin/startContainer.sh"]
