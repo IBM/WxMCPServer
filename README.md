@@ -4,7 +4,7 @@
 
 **WxMCPServer** is a webMethods Integration Server (IS) package that implements an [MCP Server](https://modelcontextprotocol.io/specification/2025-06-18) (current as of 2025-06-18) for IBM webMethods Hybrid Integration (IWHI).
 It requires either **webMethods Integration Server** or **webMethods Microservices Runtime** for hosting.
- 
+
 ## What's New
 **v1.3.2 (February 2, 2026)**
 - Early support for MCP tools implemented by [local webMethods Integration Server flows](./resources/IS/README.md) 
