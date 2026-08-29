@@ -229,6 +229,46 @@ You can set default values for `WxMCPServer`, which are used if no corresponding
 }
 ```
 
+Optional local guardrail with [Armorer Guard](https://github.com/ArmorerLabs/Armorer-Guard):
+
+```json
+{
+  "mcpServers": {
+    "mcp-iwhi-apikey-demo": {
+      "command": "armorer-guard",
+      "args": [
+        "mcp-proxy",
+        "--",
+        "npx",
+        "-y",
+        "mcp-remote",
+        "http://<Integration Server Host>:<Integration Server Port>/mcp",
+        "--header",
+        "x-auth-type:API_KEY",
+        "--header",
+        "x-api-key:<The API Key>",
+        "--header",
+        "x-tool-catalog-base-url:https://<webMethods API Gateway Host>:<webMethods API Gateway Port>/gateway/WxMCP-Tool-Catalog/1.1",
+        "--header",
+        "x-api-key-headername:<Your API Key header - i.e. x-Gateway-APIKey for webMethods>",
+        "--header",
+        "x-tool-header-prefix:header_",
+        "--header",
+        "x-tool-query-prefix:query_",
+        "--header",
+        "x-tool-path-prefix:path_",
+        "--header",
+        "x-tool-response-mode:structured",
+        "--header",
+        "x-response-code:http"
+      ]
+    }
+  }
+}
+```
+
+This wraps the same stdio MCP command with a local proxy that inspects tool-call arguments for prompt injection, credential leakage, exfiltration risk, and dangerous actions before forwarding safe calls to WxMCPServer.
+
 ### 7.2 Claude Desktop — stdio | npx | OAUTH Style
 
 ```json
